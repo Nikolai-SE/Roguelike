@@ -1,21 +1,28 @@
-function onAnimationFrame(_time: DOMHighResTimeStamp) {
+import { Camera } from "./Camera";
+import { World } from "./GameRules";
+
+const world = new World();
+const camera = new Camera({x: 0, y: 0}, world);
+
+let prevTime = 0;
+
+function onAnimationFrame(time: number) {
+        const dt = time - prevTime;
+        prevTime = time;
+        camera.animate(time, dt);
+
         const canvas = document.getElementById('mainCanvas') as HTMLCanvasElement;
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
+        const bounds = {
+                x: canvas.clientWidth,
+                y: canvas.clientHeight,
+        };
+        canvas.width = bounds.x;
+        canvas.height = bounds.y;
         const ctx = canvas.getContext('2d')!;
 
-        ctx.fillStyle = '#ffc080';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        for (let x = 0; x <= 10; x++) {
-                for (let y = 0; y <= 10; y++) {
-                        ctx.rect(20 * (x + 2), 20 * (y + 2), 10, 10);
-                }
-        }
-        ctx.stroke();
+        camera.render(ctx, bounds);
+        ctx.fillStyle = "#ff0000";
+        ctx.fillRect(bounds.x / 2 - 5, bounds.y / 2 - 5, 10, 10);
         ctx.closePath();
 
         requestAnimationFrame(onAnimationFrame);
