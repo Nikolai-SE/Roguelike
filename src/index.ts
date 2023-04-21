@@ -1,15 +1,13 @@
-import { Camera } from "./Display";
-import { World } from "./GameRules";
+import { MainMenuPage, Page } from "./Pages";
 
-const world = new World();
-const camera = new Camera({x: 0, y: 0}, world);
-
+let currentPage: Page = new MainMenuPage();
 let prevTime = 0;
 
 function onAnimationFrame(time: number) {
         const dt = time - prevTime;
         prevTime = time;
-        camera.animate(time, dt);
+
+        currentPage = currentPage.update(time, dt);
 
         const canvas = document.getElementById('mainCanvas') as HTMLCanvasElement;
         const bounds = {
@@ -19,13 +17,13 @@ function onAnimationFrame(time: number) {
         canvas.width = bounds.x;
         canvas.height = bounds.y;
         const ctx = canvas.getContext('2d')!;
-
-        camera.render(ctx, bounds);
-        ctx.fillStyle = "#ff0000";
-        ctx.fillRect(bounds.x / 2 - 5, bounds.y / 2 - 5, 10, 10);
-        ctx.closePath();
-
+        currentPage.render(ctx, bounds);
         requestAnimationFrame(onAnimationFrame);
 }
 
+function onKeyDown(evt: KeyboardEvent) {
+        currentPage = currentPage.onKeyDown(evt);
+}
+
+window.addEventListener('keydown', onKeyDown);
 requestAnimationFrame(onAnimationFrame);
