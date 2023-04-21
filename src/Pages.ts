@@ -66,14 +66,17 @@ export class GamePage {
         }
 
         onKeyDown(ev: KeyboardEvent): Page {
+                if (this.confirmExit) {
+                        if (ev.key === 'Escape') {
+                                return new MainMenuPage();
+                        } else {
+                                this.confirmExit = false;
+                        }
+                }
                 switch (ev.key) {
-                        case 'Escape': {
-                                if (this.confirmExit) {
-                                        return new MainMenuPage();
-                                }
+                        case 'Escape':
                                 this.confirmExit = true;
                                 break;
-                        }
 
                         case 'w':
                         case 'W':
