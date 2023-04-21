@@ -1,4 +1,4 @@
-import { Camera } from "./Camera";
+import { Camera } from "./Display";
 import { World } from "./GameRules";
 
 const world = new World();

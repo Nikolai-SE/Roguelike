@@ -32,3 +32,15 @@ export class Camera {
                 ctx.restore();
         }
 }
+
+export class HUD {
+        constructor(
+                public world: World,
+        ) {}
+
+        animate(absTime: number, dt: number) {
+        }
+
+        render(ctx: CanvasRenderingContext2D, bounds: Vector) {
+        }
+}
