@@ -1,17 +1,21 @@
-import { World } from "./GameRules";
 import { CELL_SIZE, Vector, add, mul, div } from "./Commons";
+import { GamePage } from "./Pages";
 
 export class Camera {
         constructor(
                 public center: Vector,
-                public world: World,
+                readonly game: GamePage,
         ) { }
+
+        private world = this.game.world;
+        private player = this.world.player;
+        private units = this.world.units;
 
         update(absTime: number, dt: number) {
                 const k = Math.exp(-2e-3 * dt);
                 this.center = add(
                         mul(k, this.center),
-                        mul(1 - k, this.world.player.pos)
+                        mul(1 - k, this.player.pos)
                 );
         }
 
@@ -35,7 +39,7 @@ export class Camera {
                         }
                 }
 
-                for (const u of this.world.units) {
+                for (const u of this.units) {
                         u.render(ctx);
                 }
                 ctx.restore();
@@ -44,12 +48,37 @@ export class Camera {
 
 export class HUD {
         constructor(
-                public world: World,
+                readonly game: GamePage,
         ) { }
+
+        private world = this.game.world;
+        private player = this.world.player;
 
         onUpdate(absTime: number, dt: number) {
         }
 
         render(ctx: CanvasRenderingContext2D, bounds: Vector) {
+                ctx.fillStyle = '#ff0000';
+                ctx.strokeStyle = '#ff0000';
+                ctx.beginPath();
+                ctx.arc(0.5 * bounds.x, 0.5 * bounds.y, 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.closePath();
+
+                let text;
+                if (this.game.confirmExit) {
+                        text = 'Press ESC once more to exit';
+                } else {
+                        text = 'Press ESC twice to exit';
+                }
+                ctx.font = '36px sans-serif';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(text, 36, 72);
+
+                ctx.fillStyle = '#ff3f3f';
+                text = `Player HP: ${this.player.hp} / ${this.player.maxHp}`;
+                ctx.fillText(text, 36, bounds.y - 72);
+                text = `Player damage: ${this.player.damage}`;
+                ctx.fillText(text, 36, bounds.y - 36);
         }
 }

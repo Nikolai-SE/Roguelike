@@ -1,5 +1,5 @@
 import { Vector, sub, div } from "./Commons";
-import { Camera } from "./Display";
+import { Camera, HUD } from "./Display";
 import { World } from "./GameRules";
 
 export interface Page {
@@ -36,33 +36,22 @@ export class MainMenuPage {
 }
 
 export class GamePage {
-        private world = new World();
-        private camera = new Camera({ x: 0, y: 0 }, this.world);
-        private confirmExit = false;
+        readonly world = new World();
+        readonly camera = new Camera({ x: 0, y: 0 }, this);
+        readonly hud = new HUD(this);
+        public _confirmExit = false;
+
+        get confirmExit() { return this._confirmExit; }
 
         update(absTime: number, dt: number): Page {
                 this.camera.update(absTime, dt);
+                this.hud.onUpdate(absTime, dt);
                 return this;
         }
 
         render(ctx: CanvasRenderingContext2D, bounds: Vector) {
                 this.camera.render(ctx, bounds);
-                ctx.fillStyle = '#ff0000';
-                ctx.strokeStyle = '#ff0000';
-                ctx.beginPath();
-                ctx.arc(0.5 * bounds.x, 0.5 * bounds.y, 5, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.closePath();
-
-                let text;
-                if (this.confirmExit) {
-                        text = 'Press ESC once more to exit';
-                } else {
-                        text = 'Press ESC twice to exit';
-                }
-                ctx.font = '36px sans-serif';
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(text, 10, 46);
+                this.hud.render(ctx, bounds);
         }
 
         onKeyDown(ev: KeyboardEvent): Page {
@@ -70,12 +59,12 @@ export class GamePage {
                         if (ev.key === 'Escape') {
                                 return new MainMenuPage();
                         } else {
-                                this.confirmExit = false;
+                                this._confirmExit = false;
                         }
                 }
                 switch (ev.key) {
                         case 'Escape':
-                                this.confirmExit = true;
+                                this._confirmExit = true;
                                 break;
 
                         case 'w':

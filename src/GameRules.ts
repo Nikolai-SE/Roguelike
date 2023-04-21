@@ -55,6 +55,9 @@ export class Player extends Unit {
         constructor(
                 world: World,
                 pos: Vector,
+                public hp: number,
+                public maxHp: number,
+                public damage: number,
         ) {
                 super(world, pos);
         }
@@ -76,7 +79,7 @@ export class Player extends Unit {
 }
 
 export class World {
-        readonly player = new Player(this, { x: 4, y: 4 });
+        readonly player = new Player(this, { x: 4, y: 4 }, 10, 10, 3);
         readonly units: Unit[] = [this.player];
 
         getUnitAt(pos: Vector): Unit | null {
