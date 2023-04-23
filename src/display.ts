@@ -14,7 +14,7 @@ export class Camera {
         private units = this.world.units;
         
         /**
-         * Updates the camera position to the center depending on the time difference from the previous update and previous camera center.
+         * Updates the camera position to the center depending on the time difference from the previous update, previous camera center and player position.
          * @param absTime - absolute time from the start of this game
          * @param dt - time difference from the previous update
          */
@@ -36,6 +36,11 @@ export class Camera {
                 };
         }
 
+        /**
+         * Renders each cell and each unit of the game World and sets the origin of the canvas to the World center
+         * @param ctx - canvas
+         * @param bounds - world bounds vector
+         */
         render(ctx: CanvasRenderingContext2D, bounds: Vector) {
                 ctx.save();
                 ctx.translate(bounds.x / 2, bounds.y / 2);
