@@ -12,7 +12,12 @@ export class Camera {
         private world = this.game.world;
         private player = this.world.player;
         private units = this.world.units;
-
+        
+        /**
+         * Updates the camera position to the center depending on the time difference from the previous update and previous camera center.
+         * @param absTime - absolute time from the start of this game
+         * @param dt - time difference from the previous update
+         */
         update(absTime: number, dt: number) {
                 const k = Math.exp(-2e-3 * dt);
                 this.center = add(
