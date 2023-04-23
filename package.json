@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/Nikolai-SE/Roguelike/issues"
   },
-  "homepage": "https://github.com/Nikolai-SE/Roguelike#readme"
+  "homepage": "https://github.com/Nikolai-SE/Roguelike#readme",
+  "dependencies": {
+    "seeded-random-utilities": "^1.1.4"
+  }
 }

@@ -254,8 +254,17 @@ Roguelike — это довольно популярный жанр компью
 ```
 git clone https://github.com/Nikolai-SE/Roguelike.git
 cd Roguelike
+
+```
+
+```shell
 npm i
 npx webpack s
+```
+
+Завершить работу процесса
+```shell
+sudo kill -9 `sudo lsof -t -i:9000`
 ```
 
 После этого будет запущен локальный сервер.
