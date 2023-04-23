@@ -1,5 +1,9 @@
 name: Node.js Test CI
 
+on:
+  - push
+  - pull_request
+
 jobs:
   build:
     runs-on: ubuntu-latest
