@@ -53,12 +53,23 @@ export class GamePage {
 
         get confirmExit() { return this._confirmExit; }
 
+        /**
+         * Updates the camera and the HUD
+         * @param absTime - absolute time from the start of the game session
+         * @param dt - difference from the previous update
+         * @returns this GamePage
+         */
         update(absTime: number, dt: number): Page {
                 this.camera.update(absTime, dt);
                 this.hud.onUpdate(absTime, dt);
                 return this;
         }
 
+        /**
+         * Renders the GamePage - i.e. renders the camera and HUD
+         * @param ctx - canvas to render on
+         * @param bounds - bounds of canvas
+         */
         render(ctx: CanvasRenderingContext2D, bounds: Vector) {
                 this.camera.render(ctx, bounds);
                 this.hud.render(ctx, bounds);
