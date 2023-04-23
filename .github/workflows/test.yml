@@ -1,0 +1,22 @@
+name: Node.js Test CI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version:
+          # - "10.x"
+          # - "12.x"
+          # - "14.x"
+          # - "16.x"
+          - "18.x"
+
+    steps:
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+      - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+        with:
+          node-version: "${{ matrix.node-version }}"
+      - run: npm ci
+      - run: npm test
