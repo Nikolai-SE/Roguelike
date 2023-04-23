@@ -13,6 +13,11 @@ export class MainMenuPage {
                 return this;
         }
 
+        /**
+         * Renders Main Menu page - specifically, the prompt to start a new game.
+         * @param ctx - canvas to render on
+         * @param bounds - bounds of rendering
+         */
         render(ctx: CanvasRenderingContext2D, bounds: Vector) {
                 ctx.fillStyle = '#ffbf7f';
                 ctx.fillRect(0, 0, bounds.x, bounds.y);
