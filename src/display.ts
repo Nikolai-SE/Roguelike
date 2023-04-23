@@ -74,6 +74,11 @@ export class HUD {
         onUpdate(absTime: number, dt: number) {
         }
 
+        /**
+         * Renders HUD data: player's HP, max HP, damage. Renders prompts to exit
+         * @param ctx 
+         * @param bounds 
+         */
         render(ctx: CanvasRenderingContext2D, bounds: Vector) {
                 ctx.fillStyle = '#ff0000';
                 ctx.strokeStyle = '#ff0000';
