@@ -81,8 +81,6 @@ export class Player extends Unit {
         }
 }
 
-const width = 15
-const height = 15
 
 export class World {
         readonly player = new Player(this, { x: 4, y: 4 }, 10, 10, 3);
@@ -91,7 +89,9 @@ export class World {
         private walls: boolean[][];
 
         constructor(
-                generator_seed: number = -1
+                generator_seed: number = -1,
+                private width = 15,
+                private height = 15
         ) {
                 if (generator_seed == -1) {
                         const date_ = new Date();
@@ -101,26 +101,26 @@ export class World {
                 this.walls = this.generate_walls();
         }
 
-        generate_walls(): boolean[][] {
+        private generate_walls(): boolean[][] {
                 var walls: boolean[][] = [];
-                for (let i = 0; i < width; i++) {
+                for (let i = 0; i < this.width; i++) {
                         walls[i] = []
                         if (i % 2 === 1)
-                                for (let j = 1; j < height; j += 2)
+                                for (let j = 1; j < this.height; j += 2)
                                         walls[i][j] = true;
                 }
 
-                for (let i = 1; i < height; i += 2)
+                for (let i = 1; i < this.height; i += 2)
                         walls[0][i] = this.randomizer.getRandomBool();
 
-                for (let i = 1; i < width; i+=2) {
-                        for (let j = 0; j < height; j+=2){
+                for (let i = 1; i < this.width; i += 2) {
+                        for (let j = 0; j < this.height; j += 2) {
                                 walls[i][j] = this.randomizer.getRandomBool();
                         }
                         let k = 0, prev = 0;
-                        while (k < height) {
-                                while (k < height && !walls[i - 1][k]) k++;
-                                let r = this.randomizer.getRandomIntInclusive(k-1, prev);
+                        while (k < this.height) {
+                                while (k < this.height && !walls[i - 1][k]) k++;
+                                let r = this.randomizer.getRandomIntInclusive(k - 1, prev);
                                 walls[i][r - r % 2] = false;
                                 prev = k++;
                         }
@@ -140,9 +140,40 @@ export class World {
 
 
         getCellAt(pos: Vector): CellType {
-                if (pos.x < 0 || pos.y < 0 || pos.x >= width || pos.y >= height) {
+                if (pos.x < 0 || pos.y < 0 || pos.x >= this.width || pos.y >= this.height) {
                         return bedrock;
                 } else if (this.walls[pos.x][pos.y]) {
+                        return wall;
+                } else {
+                        return white;
+                }
+        }
+}
+
+
+export class WorldMock extends World{
+        private widthMock = 15;
+        private heightMock = 15;
+
+        constructor(
+        ) {
+                super(0, 0, 0);
+        }
+
+        getUnitAt(pos: Vector): Unit | null {
+                // Считаем, что юнитов в принципе очень мало в сравнении с клетками
+                for (const u of this.units) {
+                        if (eq(pos, u.pos)) {
+                                return u;
+                        }
+                }
+                return null;
+        }
+
+        getCellAt(pos: Vector): CellType {
+                if (pos.x < 0 || pos.y < 0 || pos.x >= this.widthMock || pos.y >= this.heightMock) {
+                        return bedrock;
+                } else if ((pos.x + pos.y) % 4 === 2) {
                         return wall;
                 } else {
                         return white;
