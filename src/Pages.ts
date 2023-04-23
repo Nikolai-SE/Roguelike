@@ -14,7 +14,7 @@ export class MainMenuPage {
         }
 
         /**
-         * Renders Main Menu page - specifically, the prompt to start a new game.
+         * Renders Main Menu page on a given canvas in a given borders - specifically, renders the prompt to start a new game.
          * @param ctx - canvas to render on
          * @param bounds - bounds of rendering
          */
@@ -32,6 +32,11 @@ export class MainMenuPage {
                 ctx.fillText(text, pos.x, pos.y);
         }
 
+        /**
+         * Reacts to keyboard event. Specifically, if the event is key 'n' being pressed, returns a Game Page, starting a new game. Otherwise, returns MainMenu page, pending for 'n' key to be pressed.
+         * @param ev keyboard event to react to
+         * @returns Page - this MainMenu
+         */
         onKeyDown(ev: KeyboardEvent): Page {
                 if (ev.key === 'n' || ev.key == 'N') {
                         return new GamePage();
