@@ -1,4 +1,5 @@
-import { CELL_SIZE, Vector, add, eq } from "./Commons";
+import { CELL_SIZE } from "./common_constants";
+import { Vector, add, eq } from "./vector";
 
 export interface CellType {
         isWalkable: boolean,
