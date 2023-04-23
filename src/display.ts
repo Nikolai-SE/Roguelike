@@ -1,5 +1,7 @@
-import { CELL_SIZE, Vector, add, mul, div } from "./Commons";
-import { GamePage } from "./Pages";
+import { CELL_SIZE } from "./common_constants";
+import { Vector, add, mul, div } from "./vector";
+import { Rectangle } from "./rectangle";
+import { GamePage } from "./pages";
 
 export class Camera {
         constructor(
@@ -19,6 +21,16 @@ export class Camera {
                 );
         }
 
+        calcWorldBounds(screenBounds: Vector): Rectangle {
+                const bScaled = div(screenBounds, CELL_SIZE);
+                return {
+                        xMin: Math.floor(this.center.x + 0.5 * (1 - bScaled.x)),
+                        xMax: Math.floor(this.center.x + 0.5 * (1 + bScaled.x)),
+                        yMin: Math.floor(this.center.y + 0.5 * (1 - bScaled.y)),
+                        yMax: Math.floor(this.center.y + 0.5 * (1 + bScaled.y)),
+                };
+        }
+
         render(ctx: CanvasRenderingContext2D, bounds: Vector) {
                 ctx.save();
                 ctx.translate(bounds.x / 2, bounds.y / 2);
@@ -26,12 +38,7 @@ export class Camera {
                 ctx.translate(-0.5 - this.center.x, -0.5 - this.center.y);
                 ctx.lineWidth = 2 / CELL_SIZE;
 
-                const bScaled = div(bounds, CELL_SIZE);
-                const xMin = Math.floor(this.center.x + 0.5 * (1 - bScaled.x));
-                const xMax = Math.floor(this.center.x + 0.5 * (1 + bScaled.x));
-                const yMin = Math.floor(this.center.y + 0.5 * (1 - bScaled.y));
-                const yMax = Math.floor(this.center.y + 0.5 * (1 + bScaled.y));
-
+                const { xMin, xMax, yMin, yMax } = this.calcWorldBounds(bounds);
                 for (let x = xMin; x <= xMax; ++x) {
                         for (let y = yMin; y <= yMax; ++y) {
                                 const ct = this.world.getCellAt({ x, y });

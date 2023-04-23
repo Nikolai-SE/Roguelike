@@ -1,4 +1,4 @@
-import { MainMenuPage, Page } from "./Pages";
+import { MainMenuPage, Page } from "./pages";
 
 let currentPage: Page = new MainMenuPage();
 let prevTime = 0;

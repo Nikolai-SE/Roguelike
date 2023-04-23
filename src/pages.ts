@@ -1,6 +1,6 @@
-import { Vector, sub, div } from "./Commons";
-import { Camera, HUD } from "./Display";
-import { World } from "./GameRules";
+import { Vector, sub, div } from "./vector";
+import { Camera, HUD } from "./display";
+import { World } from "./game_rules";
 
 export interface Page {
         update(absTime: number, dt: number): Page

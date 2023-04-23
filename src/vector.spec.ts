@@ -1,11 +1,16 @@
 import { ok } from "assert";
-import { add, sub, mul, div, eq } from "./Commons";
+import { add, sub, mul, div, eq } from "./vector";
 
 describe('Vector', () => {
         it('should be equal to itself', () => {
                 let v = { x: 1, y: -1 };
                 let u = { x: 1, y: -1 };
                 ok(eq(v, u));
+        });
+        it('should not be equal to another', () => {
+                let v = { x: 1, y: -1 };
+                let u = { x: -1, y: 1 };
+                ok(!eq(v, u));
         });
         it('should support addition', () => {
                 let v = { x: 1, y: -1 };
