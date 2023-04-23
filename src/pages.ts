@@ -64,6 +64,16 @@ export class GamePage {
                 this.hud.render(ctx, bounds);
         }
 
+        /**
+         * Reacts to keyboard events. 
+         * 1 If Escape key is pressed once, player is warned that pressing it once again will result in finishing current game session.
+         * 1.1 If after that Escape is pressed once again, current game is over and MainMenu is returned
+         * 1.2 If after that any other key is pressed, prompt disappears and game session is continued, returning this GamePage
+         * 
+         * 2. If 'w', 'a', 's' or 'd' being pressed, it is passed to the GameWorld that player is trying to make a move in a corresponding direction.
+         * @param ev - keyboard event to react to
+         * @returns - Page (this GamePage or MainMenu page)
+         */
         onKeyDown(ev: KeyboardEvent): Page {
                 if (this.confirmExit) {
                         if (ev.key === 'Escape') {
