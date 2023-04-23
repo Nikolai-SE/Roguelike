@@ -1,5 +1,6 @@
 import { CELL_SIZE } from "./common_constants";
 import { Vector, add, eq } from "./vector";
+import SeededRandomUtilities from 'seeded-random-utilities';
 
 export interface CellType {
         isWalkable: boolean,
@@ -21,6 +22,7 @@ class SolidCell {
 }
 
 const bedrock = new SolidCell(false, '#ffbf7f');
+const wall = new SolidCell(false, '#bfa145');
 const black = new SolidCell(true, '#222222');
 const white = new SolidCell(true, '#ffffff');
 
@@ -79,9 +81,52 @@ export class Player extends Unit {
         }
 }
 
+const width = 15
+const height = 15
+
 export class World {
         readonly player = new Player(this, { x: 4, y: 4 }, 10, 10, 3);
         readonly units: Unit[] = [this.player];
+        private randomizer: SeededRandomUtilities;
+        private walls: boolean[][];
+
+        constructor(
+                generator_seed: number = -1
+        ) {
+                if (generator_seed == -1) {
+                        const date_ = new Date();
+                        generator_seed = date_.getTime();
+                }
+                this.randomizer = new SeededRandomUtilities(generator_seed.toString());
+                this.walls = this.generate_walls();
+        }
+
+        generate_walls(): boolean[][] {
+                var walls: boolean[][] = [];
+                for (let i = 0; i < width; i++) {
+                        walls[i] = []
+                        if (i % 2 === 1)
+                                for (let j = 1; j < height; j += 2)
+                                        walls[i][j] = true;
+                }
+
+                for (let i = 1; i < height; i += 2)
+                        walls[0][i] = this.randomizer.getRandomBool();
+
+                for (let i = 1; i < width; i+=2) {
+                        for (let j = 0; j < height; j+=2){
+                                walls[i][j] = this.randomizer.getRandomBool();
+                        }
+                        let k = 0, prev = 0;
+                        while (k < height) {
+                                while (k < height && !walls[i - 1][k]) k++;
+                                let r = this.randomizer.getRandomIntInclusive(k-1, prev);
+                                walls[i][r - r % 2] = false;
+                                prev = k++;
+                        }
+                }
+                return walls;
+        }
 
         getUnitAt(pos: Vector): Unit | null {
                 // Считаем, что юнитов в принципе очень мало в сравнении с клетками
@@ -93,11 +138,12 @@ export class World {
                 return null;
         }
 
+
         getCellAt(pos: Vector): CellType {
-                if (pos.x < 0 || pos.y < 0 || pos.x >= 10 || pos.y >= 10) {
+                if (pos.x < 0 || pos.y < 0 || pos.x >= width || pos.y >= height) {
                         return bedrock;
-                } else if ((pos.x + pos.y) % 2 === 0) {
-                        return black;
+                } else if (this.walls[pos.x][pos.y]) {
+                        return wall;
                 } else {
                         return white;
                 }
