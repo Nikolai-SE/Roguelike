@@ -79,6 +79,9 @@ export class Player extends Unit {
         }
 }
 
+const width = 10
+const height = 10
+
 export class World {
         readonly player = new Player(this, { x: 4, y: 4 }, 10, 10, 3);
         readonly units: Unit[] = [this.player];
@@ -94,7 +97,7 @@ export class World {
         }
 
         getCellAt(pos: Vector): CellType {
-                if (pos.x < 0 || pos.y < 0 || pos.x >= 10 || pos.y >= 10) {
+                if (pos.x < 0 || pos.y < 0 || pos.x >= width || pos.y >= height) {
                         return bedrock;
                 } else if ((pos.x + pos.y) % 2 === 0) {
                         return black;
@@ -102,4 +105,50 @@ export class World {
                         return white;
                 }
         }
+}
+
+export class Cell {
+        public leftUp: SolidCell
+        public rightUp: SolidCell
+        public rightDown: SolidCell
+        public leftDown: SolidCell
+        constructor(
+                leftUp: SolidCell,
+                rightUp: SolidCell,
+                rightDown: SolidCell,
+                leftDown: SolidCell
+        ) {
+                this.leftUp = leftUp
+                this.rightUp = rightUp
+                this.rightDown = rightDown
+                this.leftDown = leftDown
+        }
+}
+
+class Map {
+        public cells: Cell[][];
+        constructor(width: number, height: number) {
+                this.cells = []
+                this.cells[0] = []
+                this.cells[0][0] = new Cell(bedrock, bedrock, white, bedrock);
+                for (let j: number = 0; j < width; j++) {
+                        this.cells[0][j] = new Cell(bedrock, bedrock, white, white);
+                }
+                this.cells[0][width - 1] = new Cell(bedrock, bedrock, bedrock, white);
+                for (let i: number = 1; i < height; i++) {
+                        this.cells[i] = []
+                        this.cells[i][0] = new Cell(bedrock, white, white, bedrock)
+                        for (let j: number = 1; j < width - 1; j++) {
+                                this.cells[i][j] = new Cell(bedrock, white, white, white)
+                        }
+                        this.cells[i][width - 1] = new Cell(bedrock, bedrock, bedrock, white)
+                }
+        }
+}
+
+let map = new Map(width, height)
+console.log(map)
+
+export class GenerateWorld {
+
 }
