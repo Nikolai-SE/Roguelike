@@ -92,11 +92,11 @@ Roguelike — это довольно популярный жанр компью
 
 Методы:
 
-> `update(number, number): Page`, обновляет объект
+> `update(number, number): Page`, обновляет объект.
         
-> `onKeyDown(KeyboardEvent): Page`, выполняет действия при нажатии определенных клавиш
+> `onKeyDown(KeyboardEvent): Page`, выполняет действия при нажатии определенных клавиш.
 
-> `render(CanvasRenderingContext2D, Vector)`, выполняет отрисовку объекта класса, который реализует этот интерфейс, на экране пользователя
+> `render(CanvasRenderingContext2D, Vector)`, выполняет отрисовку объекта класса, который реализует этот интерфейс, на экране пользователя.
 
 ### GamePage
 
@@ -104,19 +104,31 @@ Roguelike — это довольно популярный жанр компью
 
 Поля:
 
-> `world : World`, игровой мир
+> `world : World`, игровой мир.
 
-> `camera : Camera`, камера, которая отрисовывает игровой мир
+> `camera : Camera`, камера, которая отрисовывает игровой мир.
 
-> `hud : HUD`, элементы визуального интерфейса
+> `hud : HUD`, элементы визуального интерфейса.
 
 Методы:
 
-> `update(number, number): Page`, обновляет объект класса `GamePage`
-                
-> `render(CanvasRenderingContext2D, Vector)`, выполняет действия при нажатии определенных клавиш
+> `update(number, number): Page`, обновляет объект класса `GamePage`.
 
-> `onKeyDown(KeyboardEvent): Page`, выполняет отрисовку объекта класса `GamePage`
+> `render(CanvasRenderingContext2D, Vector)`, выполняет отрисовку.
+
+> `onKeyDown(KeyboardEvent): Page`, выполняет отрисовку объекта класса `GamePage`.
+
+### MainMenu
+
+Класс отвечает за приветствие пользователя при старте приложения Предлагает пользователю начать новую игру.
+
+Методы:
+
+> `update(number, number): Page`, обновляет объект класса `MainMenu`.
+
+> `render(CanvasRenderingContext2D, Vector)`, выполняет отрисовку.
+
+> `onKeyDown(KeyboardEvent): Page`, выполняет отрисовку объекта класса `GamePage`.
 
 ### HUD
 
