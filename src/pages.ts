@@ -61,6 +61,7 @@ export class GamePage {
          */
         update(absTime: number, dt: number): Page {
                 this.camera.update(absTime, dt);
+                this.world.update(absTime, dt);
                 this.hud.onUpdate(absTime, dt);
                 return this;
         }
