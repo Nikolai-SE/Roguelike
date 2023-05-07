@@ -26,10 +26,18 @@ const wall = new SolidCell(false, '#bfa145');
 const black = new SolidCell(true, '#222222');
 const white = new SolidCell(true, '#ffffff');
 
+function fight(unit1: Unit, unit2: Unit) {
+        unit1.hp -= unit2.damage
+        unit2.hp -= unit1.damage
+}
+
 export class Unit {
         constructor(
                 readonly world: World,
                 private _pos: Vector,
+                public hp: number,
+                public maxHp: number,
+                public damage: number,
         ) { }
 
         get pos(): Vector {
@@ -43,6 +51,11 @@ export class Unit {
                 const walkable = this.world.getCellAt(pos).isWalkable;
                 if (!walkable) {
                         return false;
+                }
+                const unitAtCell = this.world.getUnitAt(pos)
+                if (unitAtCell != null) {
+                        fight(this, unitAtCell)
+                        return false
                 }
                 this._pos.x = pos.x;
                 this._pos.y = pos.y;
@@ -62,7 +75,7 @@ export class Player extends Unit {
                 public maxHp: number,
                 public damage: number,
         ) {
-                super(world, pos);
+                super(world, pos, hp, maxHp, damage);
         }
 
         tryWalk(delta: Vector): boolean {
@@ -188,7 +201,7 @@ export class Enemy extends Unit {
                 public maxHp: number,
                 public damage: number,
         ) {
-                super(world, pos);
+                super(world, pos, hp, maxHp, damage);
                 this.behaviour = behaviour
         }
 
