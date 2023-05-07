@@ -1,4 +1,4 @@
-import { CELL_SIZE } from "./common_constants";
+import { CELL_SIZE, toIndexString } from "./common_constants";
 import { Equipment, Helmet, Sword } from "./equipment";
 import { Vector, add, eq } from "./vector";
 import SeededRandomUtilities from 'seeded-random-utilities';
@@ -134,7 +134,7 @@ export class World {
         readonly units: Unit[] = [this.player];
         private randomizer: SeededRandomUtilities;
         private walls: boolean[][];
-        private equipment: Map<Vector, Equipment>;
+        private equipment: Map<String, Equipment>;
 
         constructor(
                 generator_seed: number = -1,
@@ -185,17 +185,17 @@ export class World {
         }
 
         // simple equipment generator
-        private generateEquipment(numberOfEquipment: number): Map<Vector, Equipment> {
-                let equipment = new Map<Vector, Equipment>();
-                for (let i = 1; i < numberOfEquipment; i++) {
+        private generateEquipment(numberOfEquipment: number): Map<String, Equipment> {
+                let equipment = new Map<String, Equipment>();
+                for (let i = 0; i < numberOfEquipment; i++) {
                         let pos = this.getRandomVector({ x: this.width, y: this.height });
-                        while (!this.getCellAt(pos).isWalkable || equipment.has(pos))
+                        while (!this.getCellAt(pos).isWalkable || equipment.has(toIndexString(pos)))
                                 pos = this.getRandomVector({ x: this.width, y: this.height });
                         
                         if(this.randomizer.getRandomBool())
-                                equipment.set(pos, new Helmet());
+                                equipment.set(toIndexString(pos), new Helmet());
                         else
-                                equipment.set(pos, new Sword());
+                                equipment.set(toIndexString(pos), new Sword());
                 }
                 return equipment;
         }
@@ -226,7 +226,7 @@ export class World {
          * @returns equipment at position of world
          */
         getEquipmentAt(pos: Vector): Equipment | null {
-                let equip = this.equipment.get(pos);
+                let equip = this.equipment.get(toIndexString(pos));
                 if (equip == undefined)
                         return null;
                 return equip;
@@ -238,10 +238,10 @@ export class World {
          * @returns equipment at position of world and remove it from collection
          */
         getAndRemoveEquipmentAt(pos: Vector): Equipment | null {
-                let equip = this.equipment.get(pos);
+                let equip = this.equipment.get(toIndexString(pos));
                 if (equip == undefined)
                         return null;
-                this.equipment.delete(pos);
+                this.equipment.delete(toIndexString(pos));
                 return equip;
         }
 }
