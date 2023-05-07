@@ -354,9 +354,10 @@ export class CreateEnemy {
         private world: World
         private behaviours: EnemyBehaviour[] = [new AggressiveBehaviour(), new PassiveBehaviour(), new CowardBehaviour()]
         private len: number = this.behaviours.length
-        private random: SeededRandomUtilities = new SeededRandomUtilities()
-        constructor(world: World) {
+        private random: SeededRandomUtilities
+        constructor(world: World, generator_seed = -1) {
                 this.world = world
+                this.random = new SeededRandomUtilities(generator_seed.toString())
         }
 
         private getRandomBehavior(): EnemyBehaviour {
