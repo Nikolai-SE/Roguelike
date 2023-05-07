@@ -1,5 +1,5 @@
 import { CELL_SIZE } from "./common_constants";
-import { Vector, add, eq } from "./vector";
+import { Vector, add, eq, sub } from "./vector";
 import SeededRandomUtilities from 'seeded-random-utilities';
 
 export interface CellType {
@@ -81,10 +81,89 @@ export class Player extends Unit {
         }
 }
 
+function canSee(unit1: Unit, unit2: Unit) : boolean {
+        const subtracktedPosition = sub(unit1.pos, unit2.pos)
+        if (subtracktedPosition.x != 0 && subtracktedPosition.y != 0) {
+                return false;
+        }
+
+        if (subtracktedPosition.x == 0) {
+                const x = unit1.pos.x
+                const leftCol = Math.min(unit1.pos.y, unit2.pos.y)
+                const rightCol = Math.max(unit1.pos.y, unit2.pos.y)
+                for (let y = leftCol + 1; y < rightCol; y++) {
+                        if (unit1.world.getCellAt({ x, y }) != white) {
+                                return false
+                        }
+                }
+        }
+
+        if (subtracktedPosition.y == 0) {
+                const y = unit1.pos.y
+                const leftRow = Math.min(unit1.pos.x, unit2.pos.x)
+                const rightRow = Math.max(unit1.pos.x, unit2.pos.x)
+                for (let x = leftRow + 1; x < rightRow; x++) {
+                        if (unit1.world.getCellAt({ x, y }) != white) {
+                                return false
+                        }
+                }
+        }
+
+        return true;
+} 
+
+export class EnemyBehaviour {
+        wasAttacked: boolean = false
+}
+
+export class PassiveBehaviour extends EnemyBehaviour {
+        
+}
+
+export class AggressiveBehaviour extends EnemyBehaviour {
+        
+}
+
+export class CowardBehaviour extends EnemyBehaviour {
+        
+}
+
+export class Enemy extends Unit {
+        constructor(
+                world: World,
+                pos: Vector,
+                behaviour: EnemyBehaviour,
+                public hp: number,
+                public maxHp: number,
+                public damage: number,
+        ) {
+                super(world, pos);
+        }
+
+        tryWalk(delta: Vector): boolean {
+                if (delta.x * delta.y != 0 || Math.abs(delta.x) + Math.abs(delta.y) != 1) {
+                        return false;
+                }
+                return this.tryMoveTo(add(this.pos, delta));
+        }
+
+        render(ctx: CanvasRenderingContext2D) {
+                ctx.fillStyle = '#000000';
+                if (canSee(this, this.world.player)) {
+                        ctx.fillStyle = '#ff0000'       
+                }
+                ctx.beginPath();
+                ctx.arc(this.pos.x + 0.5, this.pos.y + 0.5, 0.3, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.closePath();
+        }
+}
+
 
 export class World {
         readonly player = new Player(this, { x: 4, y: 4 }, 10, 10, 3);
-        readonly units: Unit[] = [this.player];
+        readonly enemy = new Enemy(this, { x: 10, y: 4 }, new AggressiveBehaviour(), 10, 10, 3);
+        readonly units: Unit[] = [this.player, this.enemy];
         private randomizer: SeededRandomUtilities;
         private walls: boolean[][];
 
