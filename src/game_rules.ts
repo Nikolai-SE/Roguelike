@@ -237,13 +237,9 @@ export class World {
                 this.walls = this.generate_walls();
                 this.player = new Player(this, giveAllowedPosition(this.walls), 10, 10, 3)
                 const numberEnemies = Math.floor(Math.random() * (width + height) / 2)
+                const createrEnemy = new CreateEnemy(this)
                 for (let i = 0; i < numberEnemies; i++) {
-                        this.enemies.push(new Enemy(
-                                this,
-                                giveAllowedPosition(this.walls),
-                                new CowardBehaviour(),
-                                10, 10, 3
-                        ))
+                        this.enemies.push(createrEnemy.get())
                 }
         }
 
@@ -272,6 +268,10 @@ export class World {
                         }
                 }
                 return walls;
+        }
+
+        getWalls(): boolean[][] {
+                return this.walls
         }
 
         getUnitAt(pos: Vector): Unit | null {
@@ -348,4 +348,34 @@ function giveAllowedPosition(walls: boolean[][]): Vector {
                 y = Math.floor(Math.random() * maxY)
         } while (walls[x][y])
         return { x: x, y: y }
+}
+
+export class CreateEnemy {
+        private world: World
+        private behaviours: EnemyBehaviour[] = [new AggressiveBehaviour(), new PassiveBehaviour(), new CowardBehaviour()]
+        private len: number = this.behaviours.length
+        private random: SeededRandomUtilities = new SeededRandomUtilities()
+        constructor(world: World) {
+                this.world = world
+        }
+
+        private getRandomBehavior(): EnemyBehaviour {
+                return this.behaviours[this.random.getRandomIntegar(this.len)]
+        }
+
+        private getRandomBefore(m: number): number {
+                return this.random.getRandomIntegar(1, m)
+        }
+
+        get() {
+                return new Enemy(
+                        this.world,
+                        giveAllowedPosition(this.world.getWalls()),
+                        this.getRandomBehavior(),
+                        this.getRandomBefore(10),
+                        this.getRandomBefore(10),
+                        this.getRandomBefore(10)
+                )
+        }
+
 }
