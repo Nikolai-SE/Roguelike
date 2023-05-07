@@ -114,40 +114,40 @@ function canSee(unit1: Unit, unit2: Unit): boolean {
 
 export abstract class EnemyBehaviour {
         wasAttacked: boolean = false
-        
-        moveTowardsThePlayer(player: Player, enemy: Enemy) : Vector {
+
+        moveTowardsThePlayer(player: Player, enemy: Enemy): Vector {
                 if (player.pos.x == enemy.pos.x) {
-                        return {x: 0, y: player.pos.y > enemy.pos.y ? 1 : -1}
+                        return { x: 0, y: player.pos.y > enemy.pos.y ? 1 : -1 }
                 }
                 if (player.pos.y == enemy.pos.y) {
-                        return {x: player.pos.x > enemy.pos.x ? 1 : -1, y: 0}
+                        return { x: player.pos.x > enemy.pos.x ? 1 : -1, y: 0 }
                 }
-                return {x: 0, y: 0}
+                return { x: 0, y: 0 }
         }
 
-        moveFromThePlayer(player: Player, enemy: Enemy) : Vector {
+        moveFromThePlayer(player: Player, enemy: Enemy): Vector {
                 if (player.pos.x == enemy.pos.x) {
-                        return {x: 0, y: player.pos.y > enemy.pos.y ? -1 : 1}
+                        return { x: 0, y: player.pos.y > enemy.pos.y ? -1 : 1 }
                 }
                 if (player.pos.y == enemy.pos.y) {
-                        return {x: player.pos.x > enemy.pos.x ? -1 : 1, y: 0}
+                        return { x: player.pos.x > enemy.pos.x ? -1 : 1, y: 0 }
                 }
-                return {x: 0, y: 0}
+                return { x: 0, y: 0 }
         }
 
-        moveOnPlace(enemy:Enemy) {
-                return {x: 0, y: 0}
+        moveOnPlace(enemy: Enemy) {
+                return { x: 0, y: 0 }
         }
 
-        moveRandom(enemy:Enemy) {
-                return {x: 0, y: 0} //TODO: move random lol
+        moveRandom(enemy: Enemy) {
+                return { x: 0, y: 0 } //TODO: move random lol
         }
 
-        abstract move(player: Player, enemy: Enemy):void
+        abstract move(player: Player, enemy: Enemy): void
 }
 
 export class PassiveBehaviour extends EnemyBehaviour {
-        move(player: Player, enemy: Enemy):void {
+        move(player: Player, enemy: Enemy): void {
                 if (this.wasAttacked) {
                         if (canSee(player, enemy)) {
                                 enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
@@ -159,7 +159,7 @@ export class PassiveBehaviour extends EnemyBehaviour {
 }
 
 export class AggressiveBehaviour extends EnemyBehaviour {
-        move(player: Player, enemy: Enemy):void {
+        move(player: Player, enemy: Enemy): void {
                 if (canSee(player, enemy)) {
                         enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
                 } else {
@@ -169,7 +169,7 @@ export class AggressiveBehaviour extends EnemyBehaviour {
 }
 
 export class CowardBehaviour extends EnemyBehaviour {
-        move(player: Player, enemy: Enemy):void {
+        move(player: Player, enemy: Enemy): void {
                 if (canSee(player, enemy)) {
                         enemy.tryWalk(this.moveFromThePlayer(player, enemy))
                 } else {
@@ -192,7 +192,7 @@ export class Enemy extends Unit {
                 this.behaviour = behaviour
         }
 
-        move():void {
+        move(): void {
                 this.behaviour.move(this.world.player, this)
         }
 
@@ -217,10 +217,12 @@ export class Enemy extends Unit {
 
 
 export class World {
+        readonly updateFrequency: number = 250
         readonly player: Player;
-        readonly units: Unit[] = new Array;
+        readonly enemies: Enemy[] = new Array;
         private randomizer: SeededRandomUtilities;
         private walls: boolean[][];
+        private lastUpdate: number = 0
 
         constructor(
                 generator_seed: number = -1,
@@ -234,12 +236,12 @@ export class World {
                 this.randomizer = new SeededRandomUtilities(generator_seed.toString());
                 this.walls = this.generate_walls();
                 this.player = new Player(this, giveAllowedPosition(this.walls), 10, 10, 3)
-                const numberUnits = Math.floor(Math.random() * (width + height) / 2)
-                for (let i = 0; i < numberUnits; i++) {
-                        this.units.push(new Enemy(
+                const numberEnemies = Math.floor(Math.random() * (width + height) / 2)
+                for (let i = 0; i < numberEnemies; i++) {
+                        this.enemies.push(new Enemy(
                                 this,
                                 giveAllowedPosition(this.walls),
-                                new AggressiveBehaviour(),
+                                new CowardBehaviour(),
                                 10, 10, 3
                         ))
                 }
@@ -274,7 +276,7 @@ export class World {
 
         getUnitAt(pos: Vector): Unit | null {
                 // Считаем, что юнитов в принципе очень мало в сравнении с клетками
-                for (const u of this.units) {
+                for (const u of this.enemies) {
                         if (eq(pos, u.pos)) {
                                 return u;
                         }
@@ -294,8 +296,11 @@ export class World {
         }
 
         update(absTime: number, dt: number) {
-                for (const u of this.units) {
-                        (u as Enemy).move()
+                if (absTime - this.lastUpdate > this.updateFrequency) {
+                        for (const u of this.enemies) {
+                                (u as Enemy).move()
+                        }
+                        this.lastUpdate = absTime
                 }
         }
 }
@@ -312,7 +317,7 @@ export class WorldMock extends World {
 
         getUnitAt(pos: Vector): Unit | null {
                 // Считаем, что юнитов в принципе очень мало в сравнении с клетками
-                for (const u of this.units) {
+                for (const u of this.enemies) {
                         if (eq(pos, u.pos)) {
                                 return u;
                         }

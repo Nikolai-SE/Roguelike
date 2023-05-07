@@ -11,7 +11,7 @@ export class Camera {
 
         private world = this.game.world;
         private player = this.world.player;
-        private units = this.world.units;
+        private enemies = this.world.enemies;
         
         /**
          * Updates the camera position to the center depending on the time difference from the previous update, previous camera center and player position.
@@ -56,7 +56,7 @@ export class Camera {
                         }
                 }
 
-                for (const u of this.units) {
+                for (const u of this.enemies) {
                         u.render(ctx);
                 }
                 this.player.render(ctx)
