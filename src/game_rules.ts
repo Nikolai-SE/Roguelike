@@ -81,10 +81,9 @@ export class Player extends Unit {
         }
 }
 
-
 export class World {
-        readonly player = new Player(this, { x: 4, y: 4 }, 10, 10, 3);
-        readonly units: Unit[] = [this.player];
+        readonly player: Player;
+        readonly units: Unit[];
         private randomizer: SeededRandomUtilities;
         private walls: boolean[][];
 
@@ -99,6 +98,8 @@ export class World {
                 }
                 this.randomizer = new SeededRandomUtilities(generator_seed.toString());
                 this.walls = this.generate_walls();
+                this.player = new Player(this, giveAllowedPosition(this.walls), 10, 10, 3)
+                this.units = [this.player]
         }
 
         private generate_walls(): boolean[][] {
@@ -151,7 +152,7 @@ export class World {
 }
 
 
-export class WorldMock extends World{
+export class WorldMock extends World {
         private widthMock = 15;
         private heightMock = 15;
 
@@ -179,4 +180,15 @@ export class WorldMock extends World{
                         return white;
                 }
         }
+}
+
+function giveAllowedPosition(walls: boolean[][]): Vector {
+        const maxX = walls.length
+        const maxY = walls[0].length
+        let x, y
+        do {
+                x = Math.floor(Math.random() * maxX)
+                y = Math.floor(Math.random() * maxY)
+        } while (walls[x][y])
+        return { x: x, y: y }
 }
