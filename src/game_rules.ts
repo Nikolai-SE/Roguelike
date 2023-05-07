@@ -39,6 +39,9 @@ function fight(aggressor: Unit, defender: Unit) {
 }
 
 export abstract class Unit {
+        public level: number = 1
+        public xp: number = 0
+        public limitXp: number = 2
         constructor(
                 readonly world: World,
                 private _pos: Vector,
@@ -73,13 +76,22 @@ export abstract class Unit {
                 ctx.fillStyle = '#7fbfff';
         }
 
-        onKill(killedUnit: Unit) : void {
-
+        onKill(killedUnit: Unit): void {
+                this.xp += killedUnit.level
+                if (this.xp > this.limitXp) {
+                        this.xp %= this.limitXp
+                        this.level++
+                        this.maxHp++
+                        this.damage++
+                        this.hp = this.maxHp
+                        this.limitXp += this.level
+                }
+                console.log(this.xp, this.level, this.limitXp)
         }
 
         abstract death(): void
 
-        checkDeath() : boolean {
+        checkDeath(): boolean {
                 if (this.hp <= 0) {
                         this.death()
                         return true
@@ -114,9 +126,9 @@ export class Player extends Unit {
                 ctx.closePath();
         }
 
-        death():void { //TODO: death
-                
-        } 
+        death(): void { //TODO: death
+
+        }
 }
 
 function canSee(aggressor: Unit, defender: Unit): boolean {
@@ -252,11 +264,11 @@ export class Enemy extends Unit {
                 ctx.closePath();
         }
 
-        death():void { //TODO: death
+        death(): void { //TODO: death
                 console.log("this one's dead. enemy count before: " + this.world.enemies.length)
                 this.world.enemies.splice(this.world.enemies.indexOf(this), 1)
                 console.log("this one's dead. enemy count after: " + this.world.enemies.length)
-        } 
+        }
 }
 
 
