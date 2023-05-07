@@ -110,25 +110,76 @@ function canSee(unit1: Unit, unit2: Unit) : boolean {
         }
 
         return true;
-} 
+}
 
-export class EnemyBehaviour {
+export abstract class EnemyBehaviour {
         wasAttacked: boolean = false
+        
+        moveTowardsThePlayer(player: Player, enemy: Enemy) : Vector {
+                if (player.pos.x == enemy.pos.x) {
+                        return {x: 0, y: player.pos.y > enemy.pos.y ? 1 : -1}
+                }
+                if (player.pos.y == enemy.pos.y) {
+                        return {x: player.pos.x > enemy.pos.x ? 1 : -1, y: 0}
+                }
+                return {x: 0, y: 0}
+        }
+
+        moveFromThePlayer(player: Player, enemy: Enemy) : Vector {
+                if (player.pos.x == enemy.pos.x) {
+                        return {x: 0, y: player.pos.y > enemy.pos.y ? -1 : 1}
+                }
+                if (player.pos.y == enemy.pos.y) {
+                        return {x: player.pos.x > enemy.pos.x ? -1 : 1, y: 0}
+                }
+                return {x: 0, y: 0}
+        }
+
+        moveOnPlace(enemy:Enemy) {
+                return {x: 0, y: 0}
+        }
+
+        moveRandom(enemy:Enemy) {
+                return {x: 0, y: 0} //TODO: move random lol
+        }
+
+        abstract move(player: Player, enemy: Enemy):void
 }
 
 export class PassiveBehaviour extends EnemyBehaviour {
-        
+        move(player: Player, enemy: Enemy):void {
+                if (this.wasAttacked) {
+                        if (canSee(player, enemy)) {
+                                enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
+                        } else {
+                                enemy.tryWalk(this.moveRandom(enemy))
+                        }
+                }
+        }
 }
 
 export class AggressiveBehaviour extends EnemyBehaviour {
-        
+        move(player: Player, enemy: Enemy):void {
+                if (canSee(player, enemy)) {
+                        enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
+                } else {
+                        enemy.tryWalk(this.moveRandom(enemy))
+                }
+        }
 }
 
 export class CowardBehaviour extends EnemyBehaviour {
-        
+        move(player: Player, enemy: Enemy):void {
+                if (canSee(player, enemy)) {
+                        enemy.tryWalk(this.moveFromThePlayer(player, enemy))
+                } else {
+                        enemy.tryWalk(this.moveRandom(enemy))
+                }
+        }
 }
 
 export class Enemy extends Unit {
+        behaviour: EnemyBehaviour
         constructor(
                 world: World,
                 pos: Vector,
@@ -138,6 +189,11 @@ export class Enemy extends Unit {
                 public damage: number,
         ) {
                 super(world, pos);
+                this.behaviour = behaviour
+        }
+
+        move():void {
+                this.behaviour
         }
 
         tryWalk(delta: Vector): boolean {
