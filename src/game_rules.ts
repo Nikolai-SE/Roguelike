@@ -174,6 +174,7 @@ export class PassiveBehaviour extends EnemyBehaviour {
 export class AggressiveBehaviour extends EnemyBehaviour {
         move(player: Player, enemy: Enemy): void {
                 if (canSee(player, enemy)) {
+                        console.log("agressive enemy tries to walk to the player. Player's pos: " + player.pos.x + " " + player.pos.y + " enemy's pos: " + enemy.pos.x + " " + enemy.pos.y)
                         enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
                 } else {
                         enemy.tryWalk(this.moveRandom(enemy))
@@ -293,6 +294,9 @@ export class World {
                         if (eq(pos, u.pos)) {
                                 return u;
                         }
+                }
+                if (eq(this.player.pos, pos)) {
+                        return this.player
                 }
                 return null;
         }
