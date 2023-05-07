@@ -26,13 +26,13 @@ const wall = new SolidCell(false, '#bfa145');
 const black = new SolidCell(true, '#222222');
 const white = new SolidCell(true, '#ffffff');
 
-function fight(aggressor: Unit, defender: Unit) {
-        defender.hp -= aggressor.damage
+function fight(aggressor: Unit, defender: Unit, absTime: number) {
+        aggressor.attack(defender, absTime)
         if (defender.checkDeath()) {
                 aggressor.onKill(defender)
                 return
         }
-        aggressor.hp -= defender.damage
+        defender.attack(aggressor, absTime)
         if (aggressor.checkDeath()) {
                 defender.onKill(aggressor)
         }
@@ -64,7 +64,7 @@ export abstract class Unit {
                 }
                 const unitAtCell = this.world.getUnitAt(pos)
                 if (unitAtCell != null) {
-                        fight(this, unitAtCell)
+                        fight(this, unitAtCell, this.world.lastUpdate)
                         return false
                 }
                 this._pos.x = pos.x;
@@ -86,10 +86,11 @@ export abstract class Unit {
                         this.hp = this.maxHp
                         this.limitXp += this.level
                 }
-                console.log(this.xp, this.level, this.limitXp)
         }
 
         abstract death(): void
+
+        abstract attack(unit: Unit, absTime: number): void
 
         checkDeath(): boolean {
                 if (this.hp <= 0) {
@@ -128,6 +129,14 @@ export class Player extends Unit {
 
         death(): void { //TODO: death
 
+        }
+
+        attack(unit: Unit, absTime: number) { //TODO: change to world lstUpdate
+                let enemy = unit as Enemy
+                enemy.hp -= this.damage
+                if (Math.random() < 0.5) {
+                        enemy.behaviour = new Confusion(enemy.behaviour, 3000, absTime)
+                }
         }
 }
 
@@ -189,15 +198,25 @@ export abstract class EnemyBehaviour {
                 return { x: 0, y: 0 }
         }
 
-        moveRandom(enemy: Enemy) {
-                return { x: 0, y: 0 } //TODO: move random lol
+        moveRandom(enemy: Enemy): Vector {
+                const num = new SeededRandomUtilities().getRandomIntegar(3);
+                switch (num) {
+                        case 0:
+                                return { x: 0, y: -1 };
+                        case 1:
+                                return { x: -1, y: 0 };
+                        case 2:
+                                return { x: 0, y: 1 };
+                        default:
+                                return { x: 1, y: 0 };
+                }
         }
 
-        abstract move(player: Player, enemy: Enemy): void
+        abstract move(player: Player, enemy: Enemy, absTime: number): void
 }
 
 export class PassiveBehaviour extends EnemyBehaviour {
-        move(player: Player, enemy: Enemy): void {
+        move(player: Player, enemy: Enemy, absTime: number): void {
                 if (this.wasAttacked) {
                         if (canSee(player, enemy)) {
                                 enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
@@ -209,7 +228,7 @@ export class PassiveBehaviour extends EnemyBehaviour {
 }
 
 export class AggressiveBehaviour extends EnemyBehaviour {
-        move(player: Player, enemy: Enemy): void {
+        move(player: Player, enemy: Enemy, absTime: number): void {
                 if (canSee(player, enemy)) {
                         enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
                 } else {
@@ -219,11 +238,33 @@ export class AggressiveBehaviour extends EnemyBehaviour {
 }
 
 export class CowardBehaviour extends EnemyBehaviour {
-        move(player: Player, enemy: Enemy): void {
+        move(player: Player, enemy: Enemy, absTime: number): void {
                 if (canSee(player, enemy)) {
                         enemy.tryWalk(this.moveFromThePlayer(player, enemy))
                 } else {
                         enemy.tryWalk(this.moveRandom(enemy))
+                }
+        }
+}
+
+export class Confusion extends EnemyBehaviour {
+        private behaviour: EnemyBehaviour
+        private duration: number
+        private timeStart: number
+        constructor(behaviour: EnemyBehaviour, duration: number, timeStart: number) {
+                super()
+                this.behaviour = behaviour
+                this.duration = duration
+                this.timeStart = timeStart
+        }
+
+
+
+        move(player: Player, enemy: Enemy, absTime: number): void {
+                if (absTime - this.timeStart > this.duration) {
+                        this.behaviour.move(player, enemy, absTime)
+                } else {
+                        enemy.tryWalk(this.behaviour.moveRandom(enemy))
                 }
         }
 }
@@ -242,8 +283,8 @@ export class Enemy extends Unit {
                 this.behaviour = behaviour
         }
 
-        move(): void {
-                this.behaviour.move(this.world.player, this)
+        move(absTime: number): void {
+                this.behaviour.move(this.world.player, this, absTime)
         }
 
         tryWalk(delta: Vector): boolean {
@@ -264,10 +305,12 @@ export class Enemy extends Unit {
                 ctx.closePath();
         }
 
+        attack(unit: Unit, absTime: number) {
+                unit.hp -= this.damage
+        }
+
         death(): void { //TODO: death
-                console.log("this one's dead. enemy count before: " + this.world.enemies.length)
                 this.world.enemies.splice(this.world.enemies.indexOf(this), 1)
-                console.log("this one's dead. enemy count after: " + this.world.enemies.length)
         }
 }
 
@@ -278,7 +321,7 @@ export class World {
         readonly enemies: Enemy[] = new Array;
         private randomizer: SeededRandomUtilities;
         private walls: boolean[][];
-        private lastUpdate: number = 0
+        public lastUpdate: number = 0
 
         constructor(
                 generator_seed: number = -1,
@@ -357,7 +400,7 @@ export class World {
         update(absTime: number, dt: number) {
                 if (absTime - this.lastUpdate > this.updateFrequency) {
                         for (const u of this.enemies) {
-                                u.move()
+                                u.move(absTime)
                         }
                         this.lastUpdate = absTime
                 }
