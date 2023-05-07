@@ -128,7 +128,6 @@ export class Player extends Unit {
         }
 
         death(): void { //TODO: death
-
         }
 
         attack(unit: Unit, absTime: number) { //TODO: change to world lstUpdate
@@ -456,7 +455,7 @@ export class CreateEnemy {
         private world: World
         private behaviours: EnemyBehaviour[] = [new AggressiveBehaviour(), new PassiveBehaviour(), new CowardBehaviour()]
         private len: number = this.behaviours.length
-        private random: SeededRandomUtilities
+        private random: SeededRandomUtilities//TODO use randomizer from Nick
         constructor(world: World, generator_seed = -1) {
                 this.world = world
                 this.random = new SeededRandomUtilities(generator_seed.toString())
