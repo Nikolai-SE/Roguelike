@@ -89,8 +89,8 @@ export class World {
 
         constructor(
                 generator_seed: number = -1,
-                private width = 15,
-                private height = 15
+                private width = 20,
+                private height = 20
         ) {
                 if (generator_seed == -1) {
                         const date_ = new Date();
@@ -183,6 +183,9 @@ export class WorldMock extends World {
 }
 
 function giveAllowedPosition(walls: boolean[][]): Vector {
+        if (!walls[0]) {
+                return { x: 0, y: 0 }
+        }
         const maxX = walls.length
         const maxY = walls[0].length
         let x, y
