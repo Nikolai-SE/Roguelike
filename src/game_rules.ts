@@ -27,11 +27,19 @@ const black = new SolidCell(true, '#222222');
 const white = new SolidCell(true, '#ffffff');
 
 function fight(unit1: Unit, unit2: Unit) {
-        unit1.hp -= unit2.damage
         unit2.hp -= unit1.damage
+        if (unit2.checkDeath()) {
+                unit1.onKill(unit2)
+                return
+        }
+        unit1.hp -= unit2.damage
+        if (unit1.checkDeath()) {
+                unit2.onKill(unit1)
+                return
+        }
 }
 
-export class Unit {
+export abstract class Unit {
         constructor(
                 readonly world: World,
                 private _pos: Vector,
@@ -65,6 +73,20 @@ export class Unit {
         render(ctx: CanvasRenderingContext2D) {
                 ctx.fillStyle = '#7fbfff';
         }
+
+        onKill(killedUnit: Unit) : void {
+
+        }
+
+        abstract death(): void
+
+        checkDeath() : boolean {
+                if (this.hp <= 0) {
+                        this.death()
+                        return true
+                }
+                return false
+        }
 }
 
 export class Player extends Unit {
@@ -92,6 +114,10 @@ export class Player extends Unit {
                 ctx.fill();
                 ctx.closePath();
         }
+
+        death():void { //TODO: death
+                
+        } 
 }
 
 function canSee(unit1: Unit, unit2: Unit): boolean {
@@ -227,6 +253,10 @@ export class Enemy extends Unit {
                 ctx.fill();
                 ctx.closePath();
         }
+
+        death():void { //TODO: death
+                delete this.world.enemies[this.world.enemies.indexOf(this)]
+        } 
 }
 
 
