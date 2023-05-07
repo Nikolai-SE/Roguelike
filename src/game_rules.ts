@@ -151,7 +151,7 @@ export class Enemy extends Unit {
                 ctx.fillStyle = '#000000';
                 if (canSee(this, this.world.player)) {
                         ctx.fillStyle = '#ff0000'       
-                }
+                } // TODO: delete later
                 ctx.beginPath();
                 ctx.arc(this.pos.x + 0.5, this.pos.y + 0.5, 0.3, 0, 2 * Math.PI);
                 ctx.fill();
@@ -161,9 +161,9 @@ export class Enemy extends Unit {
 
 
 export class World {
-        readonly player = new Player(this, { x: 4, y: 4 }, 10, 10, 3);
         readonly enemy = new Enemy(this, { x: 10, y: 4 }, new AggressiveBehaviour(), 10, 10, 3);
-        readonly units: Unit[] = [this.player, this.enemy];
+        readonly player: Player;
+        readonly units: Unit[];
         private randomizer: SeededRandomUtilities;
         private walls: boolean[][];
 
@@ -178,6 +178,8 @@ export class World {
                 }
                 this.randomizer = new SeededRandomUtilities(generator_seed.toString());
                 this.walls = this.generate_walls();
+                this.player = new Player(this, giveAllowedPosition(this.walls), 10, 10, 3)
+                this.units = [this.player, this.enemy]
         }
 
         private generate_walls(): boolean[][] {
@@ -258,4 +260,18 @@ export class WorldMock extends World{
                         return white;
                 }
         }
+}
+
+function giveAllowedPosition(walls: boolean[][]): Vector {
+        if (!walls[0]) {
+                return { x: 0, y: 0 }
+        }
+        const maxX = walls.length
+        const maxY = walls[0].length
+        let x, y
+        do {
+                x = Math.floor(Math.random() * maxX)
+                y = Math.floor(Math.random() * maxY)
+        } while (walls[x][y])
+        return { x: x, y: y }
 }
