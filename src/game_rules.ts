@@ -1,4 +1,5 @@
 import { CELL_SIZE } from "./common_constants";
+import { Equipment, Helmet, Sword } from "./equipment";
 import { Vector, add, eq } from "./vector";
 import SeededRandomUtilities from 'seeded-random-utilities';
 
@@ -21,10 +22,10 @@ class SolidCell {
         }
 }
 
-const bedrock = new SolidCell(false, '#ffbf7f');
-const wall = new SolidCell(false, '#bfa145');
-const black = new SolidCell(true, '#222222');
-const white = new SolidCell(true, '#ffffff');
+export const bedrock = new SolidCell(false, '#ffbf7f');
+export const wall = new SolidCell(false, '#bfa145');
+export const black = new SolidCell(true, '#222222');
+export const white = new SolidCell(true, '#ffffff');
 
 export class Unit {
         constructor(
@@ -55,6 +56,52 @@ export class Unit {
 }
 
 export class Player extends Unit {
+
+        private inventory = class Inventory {
+                used: Equipment[] = [];
+                unused: Equipment[] = [];
+
+                /**
+                 * addToUse: void
+                 * transfer equipment from unused by index to used
+                 * index: number 
+                 */
+                public fromUnusdToUse(index: number): boolean {
+                        let removed = this.unused.slice(index, 1);
+                        if (removed.length > 0) {
+                                this.used.concat(removed);
+                                return true;
+                        }
+                        else {
+                                return false;
+                        }
+                }
+
+                /**
+                 * addToUnused: boolean
+                 * transfer equipment from used by index to unused
+                 * index: number 
+                 */
+                public fromUsedToUnused(index: number): boolean {
+                        let removed = this.used.slice(index, 1);
+                        if (removed.length > 0) {
+                                this.unused.concat(removed);
+                                return true;
+                        }
+                        else {
+                                return false;
+                        }
+                }
+
+                /**
+                 * addToUnused
+                 * equipment: Equipment                 
+                 */
+                public addToUnused(equipment: Equipment): void {
+                        this.unused.push(equipment);
+                }
+        }
+
         constructor(
                 world: World,
                 pos: Vector,
@@ -87,21 +134,30 @@ export class World {
         readonly units: Unit[] = [this.player];
         private randomizer: SeededRandomUtilities;
         private walls: boolean[][];
+        private equipment: Map<Vector, Equipment>;
 
         constructor(
                 generator_seed: number = -1,
-                private width = 15,
-                private height = 15
+                private width: number = 15,
+                private height: number = 15
         ) {
                 if (generator_seed == -1) {
                         const date_ = new Date();
                         generator_seed = date_.getTime();
                 }
                 this.randomizer = new SeededRandomUtilities(generator_seed.toString());
-                this.walls = this.generate_walls();
+                this.walls = this.generateWalls();
+                this.equipment = this.generateEquipment(5);
         }
 
-        private generate_walls(): boolean[][] {
+        private getRandomVector(maxVector: Vector): Vector {
+                return {
+                        x: this.randomizer.getRandomIntInclusive(maxVector.x),
+                        y: this.randomizer.getRandomIntInclusive(maxVector.y)
+                };
+        }
+
+        private generateWalls(): boolean[][] {
                 var walls: boolean[][] = [];
                 for (let i = 0; i < this.width; i++) {
                         walls[i] = []
@@ -128,6 +184,22 @@ export class World {
                 return walls;
         }
 
+        // simple equipment generator
+        private generateEquipment(numberOfEquipment: number): Map<Vector, Equipment> {
+                let equipment = new Map<Vector, Equipment>();
+                for (let i = 1; i < numberOfEquipment; i++) {
+                        let pos = this.getRandomVector({ x: this.width, y: this.height });
+                        while (!this.getCellAt(pos).isWalkable || equipment.has(pos))
+                                pos = this.getRandomVector({ x: this.width, y: this.height });
+                        
+                        if(this.randomizer.getRandomBool())
+                                equipment.set(pos, new Helmet());
+                        else
+                                equipment.set(pos, new Sword());
+                }
+                return equipment;
+        }
+
         getUnitAt(pos: Vector): Unit | null {
                 // Считаем, что юнитов в принципе очень мало в сравнении с клетками
                 for (const u of this.units) {
@@ -137,7 +209,6 @@ export class World {
                 }
                 return null;
         }
-
 
         getCellAt(pos: Vector): CellType {
                 if (pos.x < 0 || pos.y < 0 || pos.x >= this.width || pos.y >= this.height) {
@@ -148,35 +219,29 @@ export class World {
                         return white;
                 }
         }
-}
 
-
-export class WorldMock extends World{
-        private widthMock = 15;
-        private heightMock = 15;
-
-        constructor(
-        ) {
-                super(0, 0, 0);
+        /**
+         * getEquipmentAt
+         * @param pos position at world
+         * @returns equipment at position of world
+         */
+        getEquipmentAt(pos: Vector): Equipment | null {
+                let equip = this.equipment.get(pos);
+                if (equip == undefined)
+                        return null;
+                return equip;
         }
 
-        getUnitAt(pos: Vector): Unit | null {
-                // Считаем, что юнитов в принципе очень мало в сравнении с клетками
-                for (const u of this.units) {
-                        if (eq(pos, u.pos)) {
-                                return u;
-                        }
-                }
-                return null;
-        }
-
-        getCellAt(pos: Vector): CellType {
-                if (pos.x < 0 || pos.y < 0 || pos.x >= this.widthMock || pos.y >= this.heightMock) {
-                        return bedrock;
-                } else if ((pos.x + pos.y) % 4 === 2) {
-                        return wall;
-                } else {
-                        return white;
-                }
+        /**
+         * getAndRemoveEquipmentAt
+         * @param pos position at world
+         * @returns equipment at position of world and remove it from collection
+         */
+        getAndRemoveEquipmentAt(pos: Vector): Equipment | null {
+                let equip = this.equipment.get(pos);
+                if (equip == undefined)
+                        return null;
+                this.equipment.delete(pos);
+                return equip;
         }
 }
