@@ -59,6 +59,7 @@ export class Camera {
                 for (const u of this.units) {
                         u.render(ctx);
                 }
+                this.player.render(ctx)
                 ctx.restore();
         }
 }

@@ -81,7 +81,7 @@ export class Player extends Unit {
         }
 }
 
-function canSee(unit1: Unit, unit2: Unit) : boolean {
+function canSee(unit1: Unit, unit2: Unit): boolean {
         const subtracktedPosition = sub(unit1.pos, unit2.pos)
         if (subtracktedPosition.x != 0 && subtracktedPosition.y != 0) {
                 return false;
@@ -193,7 +193,7 @@ export class Enemy extends Unit {
         }
 
         move():void {
-                this.behaviour
+                this.behaviour.move(this.world.player, this)
         }
 
         tryWalk(delta: Vector): boolean {
@@ -206,7 +206,7 @@ export class Enemy extends Unit {
         render(ctx: CanvasRenderingContext2D) {
                 ctx.fillStyle = '#000000';
                 if (canSee(this, this.world.player)) {
-                        ctx.fillStyle = '#ff0000'       
+                        ctx.fillStyle = '#ff0000'
                 } // TODO: delete later
                 ctx.beginPath();
                 ctx.arc(this.pos.x + 0.5, this.pos.y + 0.5, 0.3, 0, 2 * Math.PI);
@@ -217,9 +217,8 @@ export class Enemy extends Unit {
 
 
 export class World {
-        readonly enemy = new Enemy(this, { x: 10, y: 4 }, new AggressiveBehaviour(), 10, 10, 3);
         readonly player: Player;
-        readonly units: Unit[];
+        readonly units: Unit[] = new Array;
         private randomizer: SeededRandomUtilities;
         private walls: boolean[][];
 
@@ -235,7 +234,15 @@ export class World {
                 this.randomizer = new SeededRandomUtilities(generator_seed.toString());
                 this.walls = this.generate_walls();
                 this.player = new Player(this, giveAllowedPosition(this.walls), 10, 10, 3)
-                this.units = [this.player, this.enemy]
+                const numberUnits = Math.floor(Math.random() * (width + height) / 2)
+                for (let i = 0; i < numberUnits; i++) {
+                        this.units.push(new Enemy(
+                                this,
+                                giveAllowedPosition(this.walls),
+                                new AggressiveBehaviour(),
+                                10, 10, 3
+                        ))
+                }
         }
 
         private generate_walls(): boolean[][] {
@@ -285,10 +292,16 @@ export class World {
                         return white;
                 }
         }
+
+        update(absTime: number, dt: number) {
+                for (const u of this.units) {
+                        (u as Enemy).move()
+                }
+        }
 }
 
 
-export class WorldMock extends World{
+export class WorldMock extends World {
         private widthMock = 15;
         private heightMock = 15;
 
