@@ -57,7 +57,7 @@ export class Unit {
 
 export class Player extends Unit {
 
-        private inventory = class Inventory {
+        protected inventory = new class Inventory {
                 used: Equipment[] = [];
                 unused: Equipment[] = [];
 
@@ -66,7 +66,7 @@ export class Player extends Unit {
                  * transfer equipment from unused by index to used
                  * index: number 
                  */
-                public fromUnusdToUse(index: number): boolean {
+                fromUnusdToUse(index: number): boolean {
                         let removed = this.unused.slice(index, 1);
                         if (removed.length > 0) {
                                 this.used.concat(removed);
@@ -82,7 +82,7 @@ export class Player extends Unit {
                  * transfer equipment from used by index to unused
                  * index: number 
                  */
-                public fromUsedToUnused(index: number): boolean {
+                fromUsedToUnused(index: number): boolean {
                         let removed = this.used.slice(index, 1);
                         if (removed.length > 0) {
                                 this.unused.concat(removed);
@@ -97,7 +97,7 @@ export class Player extends Unit {
                  * addToUnused
                  * equipment: Equipment                 
                  */
-                public addToUnused(equipment: Equipment): void {
+                addToUnused(equipment: Equipment): void {
                         this.unused.push(equipment);
                 }
         }
@@ -117,6 +117,14 @@ export class Player extends Unit {
                         return false;
                 }
                 return this.tryMoveTo(add(this.pos, delta));
+        }
+
+        tryToTakeEquipment(): boolean {
+                let equip = this.world.getAndRemoveEquipmentAt(this.pos)
+                if(equip == null)
+                        return false;
+                this.inventory.addToUnused(equip);
+                return true;
         }
 
         render(ctx: CanvasRenderingContext2D) {
