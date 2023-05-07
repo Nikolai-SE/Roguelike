@@ -26,16 +26,15 @@ const wall = new SolidCell(false, '#bfa145');
 const black = new SolidCell(true, '#222222');
 const white = new SolidCell(true, '#ffffff');
 
-function fight(unit1: Unit, unit2: Unit) {
-        unit2.hp -= unit1.damage
-        if (unit2.checkDeath()) {
-                unit1.onKill(unit2)
+function fight(aggressor: Unit, defender: Unit) {
+        defender.hp -= aggressor.damage
+        if (defender.checkDeath()) {
+                aggressor.onKill(defender)
                 return
         }
-        unit1.hp -= unit2.damage
-        if (unit1.checkDeath()) {
-                unit2.onKill(unit1)
-                return
+        aggressor.hp -= defender.damage
+        if (aggressor.checkDeath()) {
+                defender.onKill(aggressor)
         }
 }
 
@@ -120,29 +119,29 @@ export class Player extends Unit {
         } 
 }
 
-function canSee(unit1: Unit, unit2: Unit): boolean {
-        const subtracktedPosition = sub(unit1.pos, unit2.pos)
+function canSee(aggressor: Unit, defender: Unit): boolean {
+        const subtracktedPosition = sub(aggressor.pos, defender.pos)
         if (subtracktedPosition.x != 0 && subtracktedPosition.y != 0) {
                 return false;
         }
 
         if (subtracktedPosition.x == 0) {
-                const x = unit1.pos.x
-                const leftCol = Math.min(unit1.pos.y, unit2.pos.y)
-                const rightCol = Math.max(unit1.pos.y, unit2.pos.y)
+                const x = aggressor.pos.x
+                const leftCol = Math.min(aggressor.pos.y, defender.pos.y)
+                const rightCol = Math.max(aggressor.pos.y, defender.pos.y)
                 for (let y = leftCol + 1; y < rightCol; y++) {
-                        if (unit1.world.getCellAt({ x, y }) != white) {
+                        if (aggressor.world.getCellAt({ x, y }) != white) {
                                 return false
                         }
                 }
         }
 
         if (subtracktedPosition.y == 0) {
-                const y = unit1.pos.y
-                const leftRow = Math.min(unit1.pos.x, unit2.pos.x)
-                const rightRow = Math.max(unit1.pos.x, unit2.pos.x)
+                const y = aggressor.pos.y
+                const leftRow = Math.min(aggressor.pos.x, defender.pos.x)
+                const rightRow = Math.max(aggressor.pos.x, defender.pos.x)
                 for (let x = leftRow + 1; x < rightRow; x++) {
-                        if (unit1.world.getCellAt({ x, y }) != white) {
+                        if (aggressor.world.getCellAt({ x, y }) != white) {
                                 return false
                         }
                 }
@@ -200,7 +199,6 @@ export class PassiveBehaviour extends EnemyBehaviour {
 export class AggressiveBehaviour extends EnemyBehaviour {
         move(player: Player, enemy: Enemy): void {
                 if (canSee(player, enemy)) {
-                        console.log("agressive enemy tries to walk to the player. Player's pos: " + player.pos.x + " " + player.pos.y + " enemy's pos: " + enemy.pos.x + " " + enemy.pos.y)
                         enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
                 } else {
                         enemy.tryWalk(this.moveRandom(enemy))
@@ -255,7 +253,9 @@ export class Enemy extends Unit {
         }
 
         death():void { //TODO: death
-                delete this.world.enemies[this.world.enemies.indexOf(this)]
+                console.log("this one's dead. enemy count before: " + this.world.enemies.length)
+                this.world.enemies.splice(this.world.enemies.indexOf(this), 1)
+                console.log("this one's dead. enemy count after: " + this.world.enemies.length)
         } 
 }
 
