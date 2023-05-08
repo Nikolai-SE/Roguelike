@@ -73,6 +73,7 @@ export class HUD {
 
         private world = this.game.world;
         private player = this.world.player;
+        private inventory = this.player.inventory;
 
         onUpdate(absTime: number, dt: number) {
         }
@@ -105,5 +106,33 @@ export class HUD {
                 ctx.fillText(text, 36, bounds.y - 72);
                 text = `Player damage: ${this.player.damage}`;
                 ctx.fillText(text, 36, bounds.y - 36);
+                
+
+                ctx.save();
+                ctx.translate(bounds.x / 2, bounds.y / 2);
+                ctx.scale(CELL_SIZE / 2, CELL_SIZE / 2);
+                
+                ctx.translate(0, 0);
+                for(let i = 0; i < this.inventory.used.length; i++){
+                        this.inventory.unused[i].render(ctx, {x: 0 + i, y: 0})
+                }
+                ctx.restore();
+
+
+                ctx.save();
+                let coef = 1.5 * CELL_SIZE;
+                ctx.scale(coef, coef);
+                
+                let col = 5;
+                let colBound = bounds.x / coef;
+
+                let row = bounds.y / coef - 1 - this.inventory.unused.length / (colBound - col);
+
+                for(let i = 0; i < this.inventory.unused.length; i++){
+                        if(i + col == colBound)
+                                col -= colBound;
+                        this.inventory.unused[i].render(ctx, {x: i + col , y: row});
+                }
+                ctx.restore();
         }
 }

@@ -45,7 +45,6 @@ export class Helmet extends Equipment {
         ctx.lineTo(bounds.x + 0.85, bounds.y + 0.4);
         ctx.lineTo(bounds.x + 0.5, bounds.y + 0.05);
         ctx.lineTo(bounds.x + 0.15, bounds.y + 0.4);
-        ctx.stroke();
         ctx.fill();
         ctx.closePath();
     }
