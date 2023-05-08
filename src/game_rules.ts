@@ -52,7 +52,7 @@ export class World {
                 const getRandomPosition = new GetRandomPosition(this.walls, this.randomizer)
                 this.player = new Player(this, getRandomPosition.get(), 10, 10, 3);
                 const numberEnemies = this.randomizer.getRandomIntegar((width + height) / 2);
-                const createrEnemy = new CreateEnemy(this, this.walls, this.randomizer);
+                const createrEnemy = new CreateEnemy(this, this.walls);
                 for (let i = 0; i < numberEnemies; i++) {
                         this.enemies.push(createrEnemy.get());
                 }
