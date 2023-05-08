@@ -87,6 +87,8 @@ export class GamePage {
          * 
          * 2. If 'w', 'a', 's' or 'd' being pressed, it is passed to the GameWorld that player is trying to make a move in a corresponding direction.
          * 3. If 't' being pressed player takes an equipment from cell where player is. 
+         * 4. If 'e' being pressed player puts on an equipment with index which player enters after pressing. 
+         * 5. If 'r' being pressed player takes off an equipment with index which player enters after pressing. 
          * @param ev - keyboard event to react to
          * @returns - Page (this GamePage or MainMenu page)
          */
@@ -122,12 +124,28 @@ export class GamePage {
                         case 'D':
                                 this.world.player.tryWalk({ x: 1, y: 0 });
                                 break;
+
                         case 't':
                         case 'T':
                                 this.world.player.tryToTakeEquipment();
                                 break;
+
+                        case 'e':
+                        case 'E':
+                                let indexEquip = Number(window.prompt("Enter index of equipment to put on.   1, 2, ...", ""));
+                                if (!Number.isNaN(indexEquip) && indexEquip > 0) {
+                                        this.world.player.tryToPutOnEquipment(indexEquip - 1);
+                                }
+                                break;
+                        case 'r':
+                        case 'R':
+                                let indexRemove = Number(window.prompt("Enter index of equipment to take off.  1, 2, ...", ""));
+                                if (!Number.isNaN(indexRemove) && indexRemove > 0) {
+                                        this.world.player.tryToTakeOffEquipment(indexRemove - 1);
+                                }
+                                break;
                 }
                 return this;
         }
-        
+
 }

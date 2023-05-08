@@ -169,6 +169,22 @@ export class Player extends Unit {
         this.inventory.addToUnused(equip);
         return true;
     }
+
+    tryToTakeOffEquipment(index: number): boolean {
+        let equip = this.inventory.used.splice(index, 1);
+        if (equip.length == 0)
+            return false;
+        this.inventory.unused.push(equip[0]);
+        return true;
+    }
+
+    tryToPutOnEquipment(index: number): boolean {
+        let equip = this.inventory.unused.splice(index, 1);
+        if (equip.length == 0)
+            return false;
+        this.inventory.used.push(equip[0]);
+        return true;
+    }
 }
 
 function canSee(aggressor: Unit, defender: Unit): boolean {
