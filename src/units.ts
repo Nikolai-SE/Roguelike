@@ -2,13 +2,13 @@ import { World, white } from "./game_rules"
 import SeededRandomUtilities from "seeded-random-utilities"
 import { Vector, add, sub } from "./common_constants"
 
-function fight(aggressor: Unit, defender: Unit, absTime: number) {
-    aggressor.attack(defender, absTime) //TODO: ; in the ends
+function fight(aggressor: Unit, defender: Unit) {
+    aggressor.attack(defender) //TODO: ; in the ends
     if (defender.checkDeath()) {
             aggressor.onKill(defender)
             return
     }
-    defender.attack(aggressor, absTime)
+    defender.attack(aggressor)
     if (aggressor.checkDeath()) {
             defender.onKill(aggressor)
     }
@@ -40,7 +40,7 @@ export abstract class Unit {
             }
             const unitAtCell = this.world.getUnitAt(pos)
             if (unitAtCell != null) {
-                    fight(this, unitAtCell, this.world.lastUpdate)
+                    fight(this, unitAtCell)
                     return false
             }
             this._pos.x = pos.x;
@@ -66,7 +66,7 @@ export abstract class Unit {
 
     abstract death(): void
 
-    abstract attack(unit: Unit, absTime: number): void
+    abstract attack(unit: Unit): void
 
     checkDeath(): boolean {
             if (this.hp <= 0) {
@@ -107,11 +107,12 @@ export class Player extends Unit {
             
     }
 
-    attack(unit: Unit, absTime: number) { //TODO: change to world lstUpdate
+    attack(unit: Unit) { //TODO: ; and types
             let enemy = unit as Enemy
             enemy.hp -= this.damage
+            let moveDuration = 8
             if (this.world.randomizer.getRandomBool()) {
-                    enemy.behaviour = new Confusion(enemy.behaviour, 3000, absTime)
+                    enemy.behaviour = new Confusion(enemy.behaviour, moveDuration, this.world.turnsCnt)
             }
     }
 }
@@ -168,7 +169,7 @@ export abstract class EnemyBehaviour {
             return { x: 0, y: 0 }
     }
 
-    abstract move(player: Player, enemy: Enemy, absTime: number): void
+    abstract move(player: Player, enemy: Enemy): void
 }
 
 export abstract class EnemyMaybeMoveTowardsThePlayer extends EnemyBehaviour {
@@ -184,7 +185,7 @@ export abstract class EnemyMaybeMoveTowardsThePlayer extends EnemyBehaviour {
 }
 
 export class PassiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
-    move(player: Player, enemy: Enemy, absTime: number): void {
+    move(player: Player, enemy: Enemy): void {
             if (this.wasAttacked) {
                     if (canSee(player, enemy)) {
                             enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
@@ -196,7 +197,7 @@ export class PassiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
 }
 
 export class AggressiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
-    move(player: Player, enemy: Enemy, absTime: number): void {
+    move(player: Player, enemy: Enemy): void {
             if (canSee(player, enemy)) {
                     enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
             } else {
@@ -216,7 +217,7 @@ export class CowardBehaviour extends EnemyBehaviour {
             return { x: 0, y: 0 }
     }
 
-    move(player: Player, enemy: Enemy, absTime: number): void {
+    move(player: Player, enemy: Enemy): void {
             if (canSee(player, enemy)) {
                     enemy.tryWalk(this.moveFromThePlayer(player, enemy))
             } else {
@@ -238,9 +239,9 @@ export class Confusion extends EnemyBehaviour {
 
 
 
-    move(player: Player, enemy: Enemy, absTime: number): void {
-            if (absTime - this.timeStart > this.duration) {
-                    this.behaviour.move(player, enemy, absTime)
+    move(player: Player, enemy: Enemy): void {
+            if (player.world.turnsCnt - this.timeStart > this.duration) {
+                    this.behaviour.move(player, enemy)
             } else {
                     enemy.tryWalk(moveRandom(enemy))
             }
@@ -261,8 +262,8 @@ export class Enemy extends Unit {
             this.behaviour = behaviour
     }
 
-    move(absTime: number): void {
-            this.behaviour.move(this.world.player, this, absTime)
+    move(): void {
+            this.behaviour.move(this.world.player, this)
     }
 
     tryWalk(delta: Vector): boolean {
@@ -283,7 +284,7 @@ export class Enemy extends Unit {
             ctx.closePath();
     }
 
-    attack(unit: Unit, absTime: number) {
+    attack(unit: Unit) {
             unit.hp -= this.damage
     }
 

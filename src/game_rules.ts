@@ -113,8 +113,9 @@ export class World {
 
         update(absTime: number, dt: number) {
                 if (absTime - this.lastUpdate > this.updateFrequency) {
+                        this.turnsCnt++
                         for (const u of this.enemies) {
-                                u.move(absTime)
+                                u.move()
                         }
                         this.lastUpdate = absTime
                 }
