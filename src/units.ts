@@ -78,6 +78,7 @@ export abstract class Unit {
 }
 
 export class Player extends Unit {
+    private moveDuration: number = 8;
     constructor(
         world: World,
         pos: Vector,
@@ -110,9 +111,8 @@ export class Player extends Unit {
     attack(unit: Unit) { //TODO: ; and types
         let enemy = unit as Enemy; // TODO: class for Mobs in case if we need NPCs
         enemy.hp -= this.damage;
-        let moveDuration = 8;
         if (this.world.randomizer.getRandomBool()) {
-            enemy.behaviour = new Confusion(enemy.behaviour, moveDuration, this.world.turnsCnt);
+            enemy.behaviour = new Confusion(enemy.behaviour, this.moveDuration, this.world.turnsCnt);
         }
     }
 }
@@ -229,18 +229,18 @@ export class CowardBehaviour extends EnemyBehaviour {
 export class Confusion extends EnemyBehaviour {
     private behaviour: EnemyBehaviour;
     private duration: number;
-    private timeStart: number;
-    constructor(behaviour: EnemyBehaviour, duration: number, timeStart: number) {
+    private turnsCntStart: number;
+    constructor(behaviour: EnemyBehaviour, duration: number, turnsCntStart: number) {
         super();
         this.behaviour = behaviour;
         this.duration = duration;
-        this.timeStart = timeStart;
+        this.turnsCntStart = turnsCntStart;
     }
 
 
 
     move(player: Player, enemy: Enemy): void {
-        if (player.world.turnsCnt - this.timeStart > this.duration) {
+        if (player.world.turnsCnt - this.turnsCntStart > this.duration) {
             this.behaviour.move(player, enemy);
         } else {
             enemy.tryWalk(moveRandom(enemy));
