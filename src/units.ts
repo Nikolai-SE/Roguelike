@@ -105,7 +105,7 @@ export class Player extends Unit {
     }
 
     death(): void { //TODO: death
-
+        this.world.gameOver = true;
     }
 
     attack(unit: Unit) { //TODO: ; and types

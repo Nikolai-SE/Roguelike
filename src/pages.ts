@@ -60,6 +60,9 @@ export class GamePage {
          * @returns this GamePage
          */
         update(absTime: number, dt: number): Page {
+                if (this.world.gameOver) {
+                        return new MainMenuPage();
+                }
                 this.camera.update(absTime, dt);
                 this.world.update(absTime, dt);
                 this.hud.onUpdate(absTime, dt);

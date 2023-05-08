@@ -37,6 +37,7 @@ export class World {
         private walls: boolean[][];
         public lastUpdate: number = 0;
         public turnsCnt: number = 0;
+        public gameOver: boolean = false;
 
         constructor(
                 generator_seed: number = -1,
