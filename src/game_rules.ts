@@ -57,7 +57,7 @@ export class Unit {
 
 export class Player extends Unit {
 
-        protected inventory = new class Inventory {
+        readonly inventory = new class Inventory {
                 used: Equipment[] = [];
                 unused: Equipment[] = [];
 
