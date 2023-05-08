@@ -169,7 +169,7 @@ export abstract class EnemyBehaviour {
         return { x: 0, y: 0 };
     }
 
-    abstract move(player: Player, enemy: Enemy): void
+    abstract move(player: Player, enemy: Enemy): EnemyBehaviour
 }
 
 export abstract class EnemyMaybeMoveTowardsThePlayer extends EnemyBehaviour {
@@ -185,7 +185,7 @@ export abstract class EnemyMaybeMoveTowardsThePlayer extends EnemyBehaviour {
 }
 
 export class PassiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
-    move(player: Player, enemy: Enemy): void {
+    move(player: Player, enemy: Enemy): EnemyBehaviour {
         if (this.wasAttacked) {
             if (canSee(player, enemy)) {
                 enemy.tryWalk(this.moveTowardsThePlayer(player, enemy));
@@ -193,16 +193,18 @@ export class PassiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
                 enemy.tryWalk(moveRandom(enemy));
             }
         }
+        return this;
     }
 }
 
 export class AggressiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
-    move(player: Player, enemy: Enemy): void {
+    move(player: Player, enemy: Enemy): EnemyBehaviour {
         if (canSee(player, enemy)) {
             enemy.tryWalk(this.moveTowardsThePlayer(player, enemy));
         } else {
             enemy.tryWalk(moveRandom(enemy));
         }
+        return this;
     }
 }
 
@@ -217,12 +219,13 @@ export class CowardBehaviour extends EnemyBehaviour {
         return { x: 0, y: 0 };
     }
 
-    move(player: Player, enemy: Enemy): void {
+    move(player: Player, enemy: Enemy): EnemyBehaviour {
         if (canSee(player, enemy)) {
             enemy.tryWalk(this.moveFromThePlayer(player, enemy));
         } else {
             enemy.tryWalk(moveRandom(enemy));
         }
+        return this;
     }
 }
 
@@ -239,12 +242,13 @@ export class Confusion extends EnemyBehaviour {
 
 
 
-    move(player: Player, enemy: Enemy): void {
+    move(player: Player, enemy: Enemy): EnemyBehaviour {
         if (player.world.turnsCnt - this.turnsCntStart > this.duration) {
-            this.behaviour.move(player, enemy);
+            return this.behaviour;
         } else {
             enemy.tryWalk(moveRandom(enemy));
         }
+        return this;
     }
 }
 
@@ -263,7 +267,7 @@ export class Enemy extends Unit {
     }
 
     move(): void {
-        this.behaviour.move(this.world.player, this);
+        this.behaviour = this.behaviour.move(this.world.player, this);
     }
 
     tryWalk(delta: Vector): boolean {
