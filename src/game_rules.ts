@@ -118,13 +118,10 @@ export class World {
 
         getUnitAt(pos: Vector): Unit | null {
                 // Считаем, что юнитов в принципе очень мало в сравнении с клетками
-                for (const u of this.enemies) {
+                for (const u of this.units) {
                         if (eq(pos, u.pos)) {
                                 return u;
                         }
-                }
-                if (eq(this.player.pos, pos)) {
-                        return this.player;
                 }
                 return null;
         }
