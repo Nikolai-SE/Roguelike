@@ -11,8 +11,8 @@ export class Camera {
 
         private world = this.game.world;
         private player = this.world.player;
-        private enemies = this.world.enemies;
-        
+        private units = this.world.units;
+
         /**
          * Updates the camera position to the center depending on the time difference from the previous update, previous camera center and player position.
          * @param absTime - absolute time from the start of this game
@@ -53,13 +53,15 @@ export class Camera {
                         for (let y = yMin; y <= yMax; ++y) {
                                 const ct = this.world.getCellAt({ x, y });
                                 ct.render(ctx, { x, y });
+                                const equip = this.world.getEquipmentAt({ x, y });
+                                if (equip != null)
+                                        equip.render(ctx, { x, y });
                         }
                 }
 
-                for (const u of this.enemies) {
+                for (const u of this.units) {
                         u.render(ctx);
                 }
-                this.player.render(ctx)
                 ctx.restore();
         }
 }

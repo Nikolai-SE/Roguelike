@@ -1,5 +1,6 @@
-import { CELL_SIZE } from "./common_constants";
-import { Vector, add, eq, sub } from "./vector";
+import { CELL_SIZE, toIndexString } from "./common_constants";
+import { Equipment, Helmet, Sword } from "./equipment";
+import { Vector, eq } from "./vector";
 import SeededRandomUtilities from 'seeded-random-utilities';
 import { Player, Unit, Enemy, CreateEnemy, GetRandomPosition } from "./units";
 
@@ -38,18 +39,19 @@ export class World {
         public lastUpdate: number = 0;
         public turnsCnt: number = 0;
         public gameOver: boolean = false;
+        private equipment: Map<String, Equipment>;
 
         constructor(
                 generator_seed: number = -1,
-                private width = 15,
-                private height = 15
+                private width: number = 15,
+                private height: number = 15
         ) {
                 if (generator_seed == -1) {
                         const date_ = new Date();
                         generator_seed = date_.getTime();
                 }
                 this.randomizer = new SeededRandomUtilities(generator_seed.toString());
-                this.walls = this.generate_walls();
+                this.walls = this.generateWalls();
                 const getRandomPosition = new GetRandomPosition(this.walls, this.randomizer);
                 this.player = new Player(this, getRandomPosition.get(), 10, 10, 3);
                 const numberEnemies = this.randomizer.getRandomIntegar((width + height) / 2);
@@ -57,11 +59,19 @@ export class World {
                 for (let i = 0; i < numberEnemies; i++) {
                         this.enemies.push(createrEnemy.get());
                 }
-                this.units = Object.assign([], this.enemies)
-                this.units.push(this.player)
+                this.units = Object.assign([], this.enemies);
+                this.units.push(this.player);
+                this.equipment = this.generateEquipment(5);
         }
 
-        private generate_walls(): boolean[][] {
+        private getRandomVector(maxVector: Vector): Vector {
+                return {
+                        x: this.randomizer.getRandomIntInclusive(maxVector.x),
+                        y: this.randomizer.getRandomIntInclusive(maxVector.y)
+                };
+        }
+
+        private generateWalls(): boolean[][] {
                 var walls: boolean[][] = [];
                 for (let i = 0; i < this.width; i++) {
                         walls[i] = [];
@@ -90,6 +100,22 @@ export class World {
                 return walls;
         }
 
+        // simple equipment generator
+        private generateEquipment(numberOfEquipment: number): Map<String, Equipment> {
+                let equipment = new Map<String, Equipment>();
+                for (let i = 0; i < numberOfEquipment; i++) {
+                        let pos = this.getRandomVector({ x: this.width, y: this.height });
+                        while (!this.getCellAt(pos).isWalkable || equipment.has(toIndexString(pos)))
+                                pos = this.getRandomVector({ x: this.width, y: this.height });
+
+                        if (this.randomizer.getRandomBool())
+                                equipment.set(toIndexString(pos), new Helmet());
+                        else
+                                equipment.set(toIndexString(pos), new Sword());
+                }
+                return equipment;
+        }
+
         getUnitAt(pos: Vector): Unit | null {
                 // Считаем, что юнитов в принципе очень мало в сравнении с клетками
                 for (const u of this.enemies) {
@@ -102,7 +128,6 @@ export class World {
                 }
                 return null;
         }
-
 
         getCellAt(pos: Vector): CellType {
                 if (pos.x < 0 || pos.y < 0 || pos.x >= this.width || pos.y >= this.height) {
@@ -123,35 +148,29 @@ export class World {
                         this.lastUpdate = absTime;
                 }
         }
-}
 
-
-export class WorldMock extends World {
-        private widthMock = 15;
-        private heightMock = 15;
-
-        constructor(
-        ) {
-                super(0, 0, 0);
+        /**
+         * getEquipmentAt
+         * @param pos position at world
+         * @returns equipment at position of world
+         */
+        getEquipmentAt(pos: Vector): Equipment | null {
+                let equip = this.equipment.get(toIndexString(pos));
+                if (equip == undefined)
+                        return null;
+                return equip;
         }
 
-        getUnitAt(pos: Vector): Unit | null {
-                // Считаем, что юнитов в принципе очень мало в сравнении с клетками
-                for (const u of this.enemies) {
-                        if (eq(pos, u.pos)) {
-                                return u;
-                        }
-                }
-                return null;
-        }
-
-        getCellAt(pos: Vector): CellType {
-                if (pos.x < 0 || pos.y < 0 || pos.x >= this.widthMock || pos.y >= this.heightMock) {
-                        return bedrock;
-                } else if ((pos.x + pos.y) % 4 === 2) {
-                        return wall;
-                } else {
-                        return white;
-                }
+        /**
+         * getAndRemoveEquipmentAt
+         * @param pos position at world
+         * @returns equipment at position of world and remove it from collection
+         */
+        getAndRemoveEquipmentAt(pos: Vector): Equipment | null {
+                let equip = this.equipment.get(toIndexString(pos));
+                if (equip == undefined)
+                        return null;
+                this.equipment.delete(toIndexString(pos));
+                return equip;
         }
 }

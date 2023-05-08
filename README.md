@@ -332,7 +332,7 @@ cd Roguelike
 ```
 
 ```shell
-npm i
+npm ci
 npx webpack s
 ```
 
@@ -350,3 +350,11 @@ sudo kill -9 `sudo lsof -t -i:9000`
 
 При любых изменениях исходного кода игра пересоберётся и перезапустится автоматически.
 
+Тесты можно запустить командой
+```shell
+npm test
+```
+или
+```shell
+npx mocha
+```

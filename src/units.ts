@@ -1,4 +1,5 @@
 import { World, white } from "./game_rules"
+import { Equipment, Helmet, Sword } from "./equipment"
 import SeededRandomUtilities from "seeded-random-utilities"
 import { Vector, add, sub } from "./common_constants"
 
@@ -114,6 +115,59 @@ export class Player extends Unit {
         if (this.world.randomizer.getRandomBool()) {
             enemy.behaviour = new Confusion(enemy.behaviour, this.moveDuration, this.world.turnsCnt);
         }
+    }
+
+    protected inventory = new class Inventory {
+        used: Equipment[] = [];
+        unused: Equipment[] = [];
+
+        /**
+         * addToUse: void
+         * transfer equipment from unused by index to used
+         * index: number 
+         */
+        fromUnusdToUse(index: number): boolean { //TODO: fix spelling
+            let removed = this.unused.slice(index, 1);
+            if (removed.length > 0) {
+                this.used.concat(removed);
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        /**
+         * addToUnused: boolean
+         * transfer equipment from used by index to unused
+         * index: number 
+         */
+        fromUsedToUnused(index: number): boolean {
+            let removed = this.used.slice(index, 1);
+            if (removed.length > 0) {
+                this.unused.concat(removed);
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        /**
+         * addToUnused
+         * equipment: Equipment                 
+         */
+        addToUnused(equipment: Equipment): void {
+            this.unused.push(equipment);
+        }
+    }
+
+    tryToTakeEquipment(): boolean {
+        let equip = this.world.getAndRemoveEquipmentAt(this.pos)
+        if (equip == null)
+            return false;
+        this.inventory.addToUnused(equip);
+        return true;
     }
 }
 
@@ -294,6 +348,7 @@ export class Enemy extends Unit {
 
     death(): void { //TODO: death
         this.world.enemies.splice(this.world.enemies.indexOf(this), 1);
+        this.world.units.splice(this.world.units.indexOf(this), 1);
     }
 }
 

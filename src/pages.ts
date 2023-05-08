@@ -86,6 +86,7 @@ export class GamePage {
          * 1.2 If after that any other key is pressed, prompt disappears and game session is continued, returning this GamePage
          * 
          * 2. If 'w', 'a', 's' or 'd' being pressed, it is passed to the GameWorld that player is trying to make a move in a corresponding direction.
+         * 3. If 't' being pressed player takes an equipment from cell where player is. 
          * @param ev - keyboard event to react to
          * @returns - Page (this GamePage or MainMenu page)
          */
@@ -120,6 +121,10 @@ export class GamePage {
                         case 'd':
                         case 'D':
                                 this.world.player.tryWalk({ x: 1, y: 0 });
+                                break;
+                        case 't':
+                        case 'T':
+                                this.world.player.tryToTakeEquipment();
                                 break;
                 }
                 return this;
