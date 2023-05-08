@@ -133,7 +133,7 @@ export class Player extends Unit {
         attack(unit: Unit, absTime: number) { //TODO: change to world lstUpdate
                 let enemy = unit as Enemy
                 enemy.hp -= this.damage
-                if (Math.random() < 0.5) {
+                if (this.world.randomizer.getRandomBool()) {
                         enemy.behaviour = new Confusion(enemy.behaviour, 3000, absTime)
                 }
         }
@@ -320,9 +320,9 @@ export class World {
         readonly updateFrequency: number = 250
         readonly player: Player;
         readonly enemies: Enemy[] = new Array;
-        private randomizer: SeededRandomUtilities;
+        readonly randomizer: SeededRandomUtilities;
         private walls: boolean[][];
-        public lastUpdate: number = 0
+        public lastUpdate: number = 0;
 
         constructor(
                 generator_seed: number = -1,
@@ -335,11 +335,12 @@ export class World {
                 }
                 this.randomizer = new SeededRandomUtilities(generator_seed.toString());
                 this.walls = this.generate_walls();
-                this.player = new Player(this, giveAllowedPosition(this.walls), 10, 10, 3)
-                const numberEnemies = Math.floor(Math.random() * (width + height) / 2)
-                const createrEnemy = new CreateEnemy(this)
+                const getRandomPosition = new GetRamdomPosition(this.walls, this.randomizer)
+                this.player = new Player(this, getRandomPosition.get(), 10, 10, 3);
+                const numberEnemies = this.randomizer.getRandomIntegar((width + height) / 2);
+                const createrEnemy = new CreateEnemy(this, this.walls, this.randomizer);
                 for (let i = 0; i < numberEnemies; i++) {
-                        this.enemies.push(createrEnemy.get())
+                        this.enemies.push(createrEnemy.get());
                 }
         }
 
@@ -368,10 +369,6 @@ export class World {
                         }
                 }
                 return walls;
-        }
-
-        getWalls(): boolean[][] {
-                return this.walls
         }
 
         getUnitAt(pos: Vector): Unit | null {
@@ -439,42 +436,56 @@ export class WorldMock extends World {
         }
 }
 
-function giveAllowedPosition(walls: boolean[][]): Vector {
-        if (!walls[0]) {
-                return { x: 0, y: 0 }
+class GetRamdomPosition {
+        private randomizer: SeededRandomUtilities;
+        readonly walls: boolean[][];
+        constructor(walls: boolean[][], randomizer: SeededRandomUtilities) {
+                this.walls = walls;
+                this.randomizer = randomizer;
         }
-        const maxX = walls.length
-        const maxY = walls[0].length
-        let x, y
-        do {
-                x = Math.floor(Math.random() * maxX)
-                y = Math.floor(Math.random() * maxY)
-        } while (walls[x][y])
-        return { x: x, y: y }
+
+        public get(): Vector {
+                if (!this.walls[0]) {
+                        return { x: 0, y: 0 }
+                }
+                const maxX = this.walls.length
+                const maxY = this.walls[0].length
+                let x, y
+                do {
+                        x = this.randomizer.getRandomIntegar(maxX)
+                        y = this.randomizer.getRandomIntegar(maxY)
+                } while (this.walls[x][y])
+                return { x: x, y: y }
+        }
 }
 
+
 export class CreateEnemy {
-        private world: World
-        private behaviours: EnemyBehaviour[] = [new AggressiveBehaviour(), new PassiveBehaviour(), new CowardBehaviour()]
-        private len: number = this.behaviours.length
-        private random: SeededRandomUtilities//TODO use randomizer from Nick
-        constructor(world: World, generator_seed = -1) {
-                this.world = world
-                this.random = new SeededRandomUtilities(generator_seed.toString())
+        private world: World;
+        readonly walls: boolean[][];
+        private randomizer: SeededRandomUtilities;
+        private getRandomPosition: GetRamdomPosition
+        private behaviours: EnemyBehaviour[] = [new AggressiveBehaviour(), new PassiveBehaviour(), new CowardBehaviour()];
+        private len: number = this.behaviours.length;
+        constructor(world: World, walls: boolean[][], randomizer: SeededRandomUtilities) {
+                this.world = world;
+                this.walls = walls;
+                this.randomizer = randomizer;
+                this.getRandomPosition = new GetRamdomPosition(walls, randomizer);
         }
 
         private getRandomBehavior(): EnemyBehaviour {
-                return this.behaviours[this.random.getRandomIntegar(this.len)]
+                return this.behaviours[this.randomizer.getRandomIntegar(this.len)]
         }
 
         private getRandomBefore(m: number): number {
-                return this.random.getRandomIntegar(1, m)
+                return this.randomizer.getRandomIntegar(1, m)
         }
 
         get() {
                 return new Enemy(
                         this.world,
-                        giveAllowedPosition(this.world.getWalls()),
+                        this.getRandomPosition.get(),
                         this.getRandomBehavior(),
                         this.getRandomBefore(10),
                         this.getRandomBefore(10),
