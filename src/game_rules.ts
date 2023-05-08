@@ -1,7 +1,7 @@
 import { CELL_SIZE } from "./common_constants";
 import { Vector, add, eq, sub } from "./vector";
 import SeededRandomUtilities from 'seeded-random-utilities';
-import { Player, Unit, Enemy, CreateEnemy, GetRamdomPosition } from "./units";
+import { Player, Unit, Enemy, CreateEnemy, GetRandomPosition } from "./units";
 
 export interface CellType {
         isWalkable: boolean,
@@ -49,7 +49,7 @@ export class World {
                 }
                 this.randomizer = new SeededRandomUtilities(generator_seed.toString());
                 this.walls = this.generate_walls();
-                const getRandomPosition = new GetRamdomPosition(this.walls, this.randomizer)
+                const getRandomPosition = new GetRandomPosition(this.walls, this.randomizer)
                 this.player = new Player(this, getRandomPosition.get(), 10, 10, 3);
                 const numberEnemies = this.randomizer.getRandomIntegar((width + height) / 2);
                 const createrEnemy = new CreateEnemy(this, this.walls, this.randomizer);

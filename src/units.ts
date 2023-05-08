@@ -295,15 +295,15 @@ export class Enemy extends Unit {
 export class CreateEnemy {
     private world: World;
     readonly walls: boolean[][];
-    private randomizer: SeededRandomUtilities; //TODO: взять из world
-    private getRandomPosition: GetRamdomPosition
+    private randomizer: SeededRandomUtilities; //TODO: random Ramdom из world
+    private getRandomPosition: GetRandomPosition
     private behaviours: EnemyBehaviour[] = [new AggressiveBehaviour(), new PassiveBehaviour(), new CowardBehaviour()];
     private len: number = this.behaviours.length;
     constructor(world: World, walls: boolean[][], randomizer: SeededRandomUtilities) {
             this.world = world;
             this.walls = walls;
             this.randomizer = randomizer;
-            this.getRandomPosition = new GetRamdomPosition(walls, randomizer); //TODO: fix spelling
+            this.getRandomPosition = new GetRandomPosition(walls, randomizer);
     }
 
     private getRandomBehavior(): EnemyBehaviour {
@@ -327,7 +327,7 @@ export class CreateEnemy {
 
 }
 
-export class GetRamdomPosition {
+export class GetRandomPosition {
     private randomizer: SeededRandomUtilities;
     readonly walls: boolean[][];
     constructor(walls: boolean[][], randomizer: SeededRandomUtilities) {
