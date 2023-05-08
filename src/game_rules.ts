@@ -170,25 +170,25 @@ function canSee(aggressor: Unit, defender: Unit): boolean {
         return true;
 }
 
+function moveRandom(enemy: Enemy): Vector {
+        const num = new SeededRandomUtilities().getRandomIntegar(3);
+        switch (num) {
+                case 0:
+                        return { x: 0, y: -1 };
+                case 1:
+                        return { x: -1, y: 0 };
+                case 2:
+                        return { x: 0, y: 1 };
+                default:
+                        return { x: 1, y: 0 };
+        }
+}
+
 export abstract class EnemyBehaviour {
         wasAttacked: boolean = false
 
         moveOnPlace(enemy: Enemy) {
                 return { x: 0, y: 0 }
-        }
-
-        moveRandom(enemy: Enemy): Vector {
-                const num = new SeededRandomUtilities().getRandomIntegar(3);
-                switch (num) {
-                        case 0:
-                                return { x: 0, y: -1 };
-                        case 1:
-                                return { x: -1, y: 0 };
-                        case 2:
-                                return { x: 0, y: 1 };
-                        default:
-                                return { x: 1, y: 0 };
-                }
         }
 
         abstract move(player: Player, enemy: Enemy, absTime: number): void
@@ -212,7 +212,7 @@ export class PassiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
                         if (canSee(player, enemy)) {
                                 enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
                         } else {
-                                enemy.tryWalk(this.moveRandom(enemy))
+                                enemy.tryWalk(moveRandom(enemy))
                         }
                 }
         }
@@ -223,7 +223,7 @@ export class AggressiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
                 if (canSee(player, enemy)) {
                         enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
                 } else {
-                        enemy.tryWalk(this.moveRandom(enemy))
+                        enemy.tryWalk(moveRandom(enemy))
                 }
         }
 }
@@ -243,7 +243,7 @@ export class CowardBehaviour extends EnemyBehaviour {
                 if (canSee(player, enemy)) {
                         enemy.tryWalk(this.moveFromThePlayer(player, enemy))
                 } else {
-                        enemy.tryWalk(this.moveRandom(enemy))
+                        enemy.tryWalk(moveRandom(enemy))
                 }
         }
 }
@@ -265,7 +265,7 @@ export class Confusion extends EnemyBehaviour {
                 if (absTime - this.timeStart > this.duration) {
                         this.behaviour.move(player, enemy, absTime)
                 } else {
-                        enemy.tryWalk(this.behaviour.moveRandom(enemy))
+                        enemy.tryWalk(moveRandom(enemy))
                 }
         }
 }
