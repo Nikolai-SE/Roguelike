@@ -114,7 +114,7 @@ export class HUD {
                 
                 ctx.translate(0, 0);
                 for(let i = 0; i < this.inventory.used.length; i++){
-                        this.inventory.unused[i].render(ctx, {x: 0 + i, y: 0})
+                        this.inventory.used[i].render(ctx, {x: 0 + i, y: 0})
                 }
                 ctx.restore();
 
