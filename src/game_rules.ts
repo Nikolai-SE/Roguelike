@@ -173,26 +173,6 @@ function canSee(aggressor: Unit, defender: Unit): boolean {
 export abstract class EnemyBehaviour {
         wasAttacked: boolean = false
 
-        moveTowardsThePlayer(player: Player, enemy: Enemy): Vector {
-                if (player.pos.x == enemy.pos.x) {
-                        return { x: 0, y: player.pos.y > enemy.pos.y ? 1 : -1 }
-                }
-                if (player.pos.y == enemy.pos.y) {
-                        return { x: player.pos.x > enemy.pos.x ? 1 : -1, y: 0 }
-                }
-                return { x: 0, y: 0 }
-        }
-
-        moveFromThePlayer(player: Player, enemy: Enemy): Vector {
-                if (player.pos.x == enemy.pos.x) {
-                        return { x: 0, y: player.pos.y > enemy.pos.y ? -1 : 1 }
-                }
-                if (player.pos.y == enemy.pos.y) {
-                        return { x: player.pos.x > enemy.pos.x ? -1 : 1, y: 0 }
-                }
-                return { x: 0, y: 0 }
-        }
-
         moveOnPlace(enemy: Enemy) {
                 return { x: 0, y: 0 }
         }
@@ -214,7 +194,19 @@ export abstract class EnemyBehaviour {
         abstract move(player: Player, enemy: Enemy, absTime: number): void
 }
 
-export class PassiveBehaviour extends EnemyBehaviour {
+export abstract class EnemyMaybeMoveTowardsThePlayer extends EnemyBehaviour {
+        moveTowardsThePlayer(player: Player, enemy: Enemy): Vector {
+                if (player.pos.x == enemy.pos.x) {
+                        return { x: 0, y: player.pos.y > enemy.pos.y ? 1 : -1 }
+                }
+                if (player.pos.y == enemy.pos.y) {
+                        return { x: player.pos.x > enemy.pos.x ? 1 : -1, y: 0 }
+                }
+                return { x: 0, y: 0 }
+        }
+}
+
+export class PassiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
         move(player: Player, enemy: Enemy, absTime: number): void {
                 if (this.wasAttacked) {
                         if (canSee(player, enemy)) {
@@ -226,7 +218,7 @@ export class PassiveBehaviour extends EnemyBehaviour {
         }
 }
 
-export class AggressiveBehaviour extends EnemyBehaviour {
+export class AggressiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
         move(player: Player, enemy: Enemy, absTime: number): void {
                 if (canSee(player, enemy)) {
                         enemy.tryWalk(this.moveTowardsThePlayer(player, enemy))
@@ -237,6 +229,16 @@ export class AggressiveBehaviour extends EnemyBehaviour {
 }
 
 export class CowardBehaviour extends EnemyBehaviour {
+        moveFromThePlayer(player: Player, enemy: Enemy): Vector {
+                if (player.pos.x == enemy.pos.x) {
+                        return { x: 0, y: player.pos.y > enemy.pos.y ? -1 : 1 }
+                }
+                if (player.pos.y == enemy.pos.y) {
+                        return { x: player.pos.x > enemy.pos.x ? -1 : 1, y: 0 }
+                }
+                return { x: 0, y: 0 }
+        }
+
         move(player: Player, enemy: Enemy, absTime: number): void {
                 if (canSee(player, enemy)) {
                         enemy.tryWalk(this.moveFromThePlayer(player, enemy))
