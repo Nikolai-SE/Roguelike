@@ -29,7 +29,7 @@ export const white = new SolidCell(true, '#ffffff');
 
 
 export class World {
-        readonly updateFrequency: number = 250
+        readonly updateFrequency: number = 250;
         readonly player: Player;
         readonly units: Unit[] = new Array;
         readonly enemies: Enemy[] = new Array;
@@ -50,7 +50,7 @@ export class World {
                 }
                 this.randomizer = new SeededRandomUtilities(generator_seed.toString());
                 this.walls = this.generate_walls();
-                const getRandomPosition = new GetRandomPosition(this.walls, this.randomizer)
+                const getRandomPosition = new GetRandomPosition(this.walls, this.randomizer);
                 this.player = new Player(this, getRandomPosition.get(), 10, 10, 3);
                 const numberEnemies = this.randomizer.getRandomIntegar((width + height) / 2);
                 const createrEnemy = new CreateEnemy(this, this.walls);
@@ -64,10 +64,12 @@ export class World {
         private generate_walls(): boolean[][] {
                 var walls: boolean[][] = [];
                 for (let i = 0; i < this.width; i++) {
-                        walls[i] = []
-                        if (i % 2 === 1)
-                                for (let j = 1; j < this.height; j += 2)
+                        walls[i] = [];
+                        if (i % 2 === 1) {
+                                for (let j = 1; j < this.height; j += 2) {
                                         walls[i][j] = true;
+                                }
+                        }
                 }
 
                 for (let i = 1; i < this.height; i += 2)
@@ -96,7 +98,7 @@ export class World {
                         }
                 }
                 if (eq(this.player.pos, pos)) {
-                        return this.player
+                        return this.player;
                 }
                 return null;
         }
@@ -114,11 +116,11 @@ export class World {
 
         update(absTime: number, dt: number) {
                 if (absTime - this.lastUpdate > this.updateFrequency) {
-                        this.turnsCnt++
+                        this.turnsCnt++;
                         for (const u of this.enemies) {
-                                u.move()
+                                u.move();
                         }
-                        this.lastUpdate = absTime
+                        this.lastUpdate = absTime;
                 }
         }
 }
