@@ -128,6 +128,7 @@ export class Player extends Unit {
         }
 
         death(): void { //TODO: death
+                
         }
 
         attack(unit: Unit, absTime: number) { //TODO: change to world lstUpdate
@@ -319,10 +320,12 @@ export class Enemy extends Unit {
 export class World {
         readonly updateFrequency: number = 250
         readonly player: Player;
+        readonly units: Unit[] = new Array;
         readonly enemies: Enemy[] = new Array;
         private randomizer: SeededRandomUtilities;
         private walls: boolean[][];
-        public lastUpdate: number = 0
+        private lastUpdate: number = 0;
+        public turnsCnt: number = 0;
 
         constructor(
                 generator_seed: number = -1,
@@ -341,6 +344,8 @@ export class World {
                 for (let i = 0; i < numberEnemies; i++) {
                         this.enemies.push(createrEnemy.get())
                 }
+                this.units = Object.assign([], this.enemies)
+                this.units.push(this.player)
         }
 
         private generate_walls(): boolean[][] {
