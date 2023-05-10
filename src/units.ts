@@ -162,6 +162,10 @@ export class Player extends Unit {
         }
     }
 
+    /**
+     * Attemtp to take equipment from currect cell of player
+     * @returns true if equipment is taken
+     */
     tryToTakeEquipment(): boolean {
         let equip = this.world.getAndRemoveEquipmentAt(this.pos)
         if (equip == null)
@@ -170,6 +174,11 @@ export class Player extends Unit {
         return true;
     }
 
+    /**
+     * Attempt to take off equipment  from player and put it to inventory
+     * @param index of equipment to take off
+     * @returns true if equipment is taken off 
+     */
     tryToTakeOffEquipment(index: number): boolean {
         let equip = this.inventory.used.splice(index, 1);
         if (equip.length == 0)
@@ -178,6 +187,11 @@ export class Player extends Unit {
         return true;
     }
 
+    /**
+     *  Attempt to put equipment on the player from inventory
+     * @param index index of equipment to put on
+     * @returns true if equipment is put on
+     */
     tryToPutOnEquipment(index: number): boolean {
         let equip = this.inventory.unused.splice(index, 1);
         if (equip.length == 0)
