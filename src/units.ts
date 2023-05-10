@@ -65,6 +65,19 @@ export abstract class Unit {
     }
 
     /**
+     * Tries to walk this unit on a given delta vector. 
+     * Returns true if this action was successful.
+     * @param delta - desired shift
+     * @returns true if this action was successful
+     */
+        public tryWalk(delta: Vector): boolean {
+            if (delta.x * delta.y != 0 || Math.abs(delta.x) + Math.abs(delta.y) != 1) {
+                return false;
+            }
+            return this.tryMoveTo(add(this.pos, delta));
+        }
+
+    /**
      * Renders the unit
      * @param ctx - rendering context
      */
@@ -123,19 +136,6 @@ export class Player extends Unit {
         public damage: number,
     ) {
         super(world, pos, hp, maxHp, damage);
-    }
-
-    /**
-     * Tries to walk this unit on a given delta vector. 
-     * Returns true if this action was successful.
-     * @param delta - desired shift
-     * @returns true if this action was successful
-     */
-    public tryWalk(delta: Vector): boolean {
-        if (delta.x * delta.y != 0 || Math.abs(delta.x) + Math.abs(delta.y) != 1) {
-            return false;
-        }
-        return this.tryMoveTo(add(this.pos, delta));
     }
 
     /**
@@ -456,17 +456,17 @@ export class Enemy extends Unit {
         this.behaviour = behaviour;
     }
 
+    /**
+     * Moves enemy according to his behaviour
+     */
     move(): void {
         this.behaviour = this.behaviour.move(this.world.player, this);
     }
 
-    tryWalk(delta: Vector): boolean {
-        if (delta.x * delta.y != 0 || Math.abs(delta.x) + Math.abs(delta.y) != 1) {
-            return false;
-        }
-        return this.tryMoveTo(add(this.pos, delta));
-    }
-
+    /**
+     * Renders an enemy
+     * @param ctx 
+     */
     render(ctx: CanvasRenderingContext2D) {
         ctx.fillStyle = '#000000';
         if (canSee(this, this.world.player)) {
@@ -478,11 +478,18 @@ export class Enemy extends Unit {
         ctx.closePath();
     }
 
-    attack(unit: Unit) {
-        unit.hp -= this.damage;
+    /**
+     * Attacks the defending unit
+     * @param defender 
+     */
+    attack(defender: Unit) {
+        defender.hp -= this.damage;
     }
 
-    death(): void { //TODO: death
+    /**
+     * Action on death
+     */
+    death(): void {
         this.world.enemies.splice(this.world.enemies.indexOf(this), 1);
         this.world.units.splice(this.world.units.indexOf(this), 1);
     }
