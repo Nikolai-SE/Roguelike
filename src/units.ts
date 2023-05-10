@@ -42,7 +42,14 @@ export abstract class Unit {
         };
     }
 
-    protected tryMoveTo(pos: Vector): boolean {
+    /**
+     * Tries to move this unit to given position.
+     * If it is walkable and not occupied by another unit - moves this unit.
+     * If there is another unit at this position - initiates the fight with this unit as an attacker.
+     * @param pos - desired position to move to
+     * @returns whether this unit actually moved
+     */
+    public tryMoveTo(pos: Vector): boolean {
         const walkable: boolean = this.world.getCellAt(pos).isWalkable;
         if (!walkable) {
             return false;
@@ -118,14 +125,24 @@ export class Player extends Unit {
         super(world, pos, hp, maxHp, damage);
     }
 
-    tryWalk(delta: Vector): boolean {
+    /**
+     * Tries to walk this unit on a given delta vector. 
+     * Returns true if this action was successful.
+     * @param delta - desired shift
+     * @returns true if this action was successful
+     */
+    public tryWalk(delta: Vector): boolean {
         if (delta.x * delta.y != 0 || Math.abs(delta.x) + Math.abs(delta.y) != 1) {
             return false;
         }
         return this.tryMoveTo(add(this.pos, delta));
     }
 
-    render(ctx: CanvasRenderingContext2D) {
+    /**
+     * Renders the player
+     * @param ctx - rendering context
+     */
+    public render(ctx: CanvasRenderingContext2D): void {
         ctx.fillStyle = '#7fbfff';
         ctx.beginPath();
         ctx.arc(this.pos.x + 0.5, this.pos.y + 0.5, 0.3, 0, 2 * Math.PI);
@@ -133,11 +150,18 @@ export class Player extends Unit {
         ctx.closePath();
     }
 
-    death(): void { //TODO: death
+    /**
+     * With the death of a player initiates GameOver state of player's world.
+     */
+    public death(): void {
         this.world.gameOver = true;
     }
 
-    attack(unit: Unit) { //TODO: ; and types
+    /**
+     * Attacks the unit. Calculates all the modificators and the damage dealt to the defending unit
+     * @param unit - defender
+     */
+    public attack(unit: Unit) {
         let enemy = unit as Enemy; // TODO: class for Mobs in case if we need NPCs
         enemy.hp -= this.damage;
         if (this.world.randomizer.getRandomBool()) {
@@ -154,7 +178,7 @@ export class Player extends Unit {
          * transfer equipment from unused by index to used
          * index: number 
          */
-        fromUnusdToUse(index: number): boolean { //TODO: fix spelling
+        fromUnusedToUse(index: number): boolean { //TODO: fix spelling
             let removed = this.unused.slice(index, 1);
             if (removed.length > 0) {
                 this.used.concat(removed);
@@ -166,9 +190,9 @@ export class Player extends Unit {
         }
 
         /**
-         * addToUnused: boolean
-         * transfer equipment from used by index to unused
-         * index: number 
+         * Tries to unequip the equipment at given index
+         * @param index - index of the equipment
+         * @returns whether equipment at given index was unequipped
          */
         fromUsedToUnused(index: number): boolean {
             let removed = this.used.slice(index, 1);
@@ -182,8 +206,8 @@ export class Player extends Unit {
         }
 
         /**
-         * addToUnused
-         * equipment: Equipment                 
+         * Moves given equipment in the inventory
+         * @param equipment
          */
         addToUnused(equipment: Equipment): void {
             this.unused.push(equipment);
@@ -191,7 +215,7 @@ export class Player extends Unit {
     }
 
     /**
-     * Attemtp to take equipment from currect cell of player
+     * Attempt to take equipment from currect cell of player
      * @returns true if equipment is taken
      */
     tryToTakeEquipment(): boolean {
