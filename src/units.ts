@@ -5,21 +5,21 @@ import { Vector, add, sub } from "./common_constants"
 
 /**
  * Initiates a fight between attacker and defending Unit. 
- * The agressor has the first strike.
- * If he kills the other Unit with this strike, agressor will not receive a counter attack.
- * @param agressor - a unit who attacked
+ * The unit1 has the first strike.
+ * If he kills the other Unit with this strike, unit1 will not receive a counter attack.
+ * @param attacker - a unit who attacked
  * @param defender - a unit who is defending
  * @returns void
  */
-function fight(agressor: Unit, defender: Unit): void {
-    agressor.attack(defender);
+function fight(attacker: Unit, defender: Unit): void {
+    attacker.attack(defender);
     if (defender.checkDeath()) {
-        agressor.onKill(defender);
+        attacker.onKill(defender);
         return;
     }
-    defender.attack(agressor);
-    if (agressor.checkDeath()) {
-        defender.onKill(agressor);
+    defender.attack(attacker);
+    if (attacker.checkDeath()) {
+        defender.onKill(attacker);
     }
 }
 
@@ -159,7 +159,7 @@ export class Player extends Unit {
 
     /**
      * Attacks the unit. Calculates all the modificators and the damage dealt to the defending unit
-     * @param unit - defender
+     * @param unit - unit2
      */
     public attack(unit: Unit) {
         let enemy = unit as Enemy; // TODO: class for Mobs in case if we need NPCs
@@ -253,29 +253,36 @@ export class Player extends Unit {
     }
 }
 
-function canSee(agressor: Unit, defender: Unit): boolean {
-    const subtracktedPosition: Vector = sub(agressor.pos, defender.pos);
+/**
+ * Calculates whether units can see one another. 
+ * This is true when both units are on the same line and there is not any walls between them.
+ * @param unit1 
+ * @param unit2 
+ * @returns whether units can see one another
+ */
+function canSee(unit1: Unit, unit2: Unit): boolean {
+    const subtracktedPosition: Vector = sub(unit1.pos, unit2.pos);
     if (subtracktedPosition.x != 0 && subtracktedPosition.y != 0) {
         return false;
     }
 
     if (subtracktedPosition.x == 0) {
-        const x: number = agressor.pos.x;
-        const leftCol: number = Math.min(agressor.pos.y, defender.pos.y);
-        const rightCol: number = Math.max(agressor.pos.y, defender.pos.y);
+        const x: number = unit1.pos.x;
+        const leftCol: number = Math.min(unit1.pos.y, unit2.pos.y);
+        const rightCol: number = Math.max(unit1.pos.y, unit2.pos.y);
         for (let y = leftCol + 1; y < rightCol; y++) {
-            if (agressor.world.getCellAt({ x, y }) != white) {
+            if (unit1.world.getCellAt({ x, y }) != white) {
                 return false;
             }
         }
     }
 
     if (subtracktedPosition.y == 0) {
-        const y: number = agressor.pos.y;
-        const leftRow: number = Math.min(agressor.pos.x, defender.pos.x);
-        const rightRow: number = Math.max(agressor.pos.x, defender.pos.x);
+        const y: number = unit1.pos.y;
+        const leftRow: number = Math.min(unit1.pos.x, unit2.pos.x);
+        const rightRow: number = Math.max(unit1.pos.x, unit2.pos.x);
         for (let x = leftRow + 1; x < rightRow; x++) {
-            if (agressor.world.getCellAt({ x, y }) != white) {
+            if (unit1.world.getCellAt({ x, y }) != white) {
                 return false;
             }
         }
@@ -284,6 +291,11 @@ function canSee(agressor: Unit, defender: Unit): boolean {
     return true;
 }
 
+/**
+ * Calculates a move at a random direction.
+ * @param enemy 
+ * @returns 
+ */
 function moveRandom(enemy: Enemy): Vector {
     const num: number = new SeededRandomUtilities().getRandomIntegar(3);
     switch (num) {
