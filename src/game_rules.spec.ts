@@ -11,7 +11,7 @@ import { Player, Unit } from "./units";
 
         constructor(
         ) {
-                super(-1, 15, 15);
+                super(0, 15, 15);
                 this.player = new Player(this, { x: 4, y: 4 }, 10, 10, 3);
         }
 
