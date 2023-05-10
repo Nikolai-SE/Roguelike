@@ -3,15 +3,23 @@ import { Equipment, Helmet, Sword } from "./equipment"
 import SeededRandomUtilities from "seeded-random-utilities"
 import { Vector, add, sub } from "./common_constants"
 
-function fight(aggressor: Unit, defender: Unit) {
-    aggressor.attack(defender) //TODO: ; in the ends
+/**
+ * Initiates a fight between attacker and defending Unit. 
+ * The agressor has the first strike.
+ * If he kills the other Unit with this strike, agressor will not receive a counter attack.
+ * @param agressor - a unit who attacked
+ * @param defender - a unit who is defending
+ * @returns void
+ */
+function fight(agressor: Unit, defender: Unit): void {
+    agressor.attack(defender);
     if (defender.checkDeath()) {
-        aggressor.onKill(defender);
+        agressor.onKill(defender);
         return;
     }
-    defender.attack(aggressor)
-    if (aggressor.checkDeath()) {
-        defender.onKill(aggressor);
+    defender.attack(agressor);
+    if (agressor.checkDeath()) {
+        defender.onKill(agressor);
     }
 }
 
@@ -34,7 +42,7 @@ export abstract class Unit {
         };
     }
 
-    tryMoveTo(pos: Vector): boolean {
+    protected tryMoveTo(pos: Vector): boolean {
         const walkable: boolean = this.world.getCellAt(pos).isWalkable;
         if (!walkable) {
             return false;
@@ -49,15 +57,24 @@ export abstract class Unit {
         return true;
     }
 
-    render(ctx: CanvasRenderingContext2D) {
+    /**
+     * Renders the unit
+     * @param ctx - rendering context
+     */
+    public render(ctx: CanvasRenderingContext2D) {
         ctx.fillStyle = '#7fbfff';
     }
 
-    onKill(killedUnit: Unit): void {
+    /**
+     * Called whenever this unit kills another unit. 
+     * Serves to register the fact and grant killer with according bonuses in xp that might lead to leveling the killer up.
+     * @param killedUnit 
+     */
+    public onKill(killedUnit: Unit): void {
         this.xp += killedUnit.level;
         if (this.xp > this.limitXp) {
             this.xp %= this.limitXp;
-            this.level++;
+            this.level++; //TODO: вынести levelUp в отдельную функцию
             this.maxHp++;
             this.damage++;
             this.hp = this.maxHp;
@@ -65,10 +82,21 @@ export abstract class Unit {
         }
     }
 
-    abstract death(): void
+    /**
+     * Called when this unit is dead.
+     */
+    public abstract death(): void
 
+    /**
+     * Called when this unit is attacking another.
+     * @param unit - attacked unit
+     */
     abstract attack(unit: Unit): void
 
+    /**
+     * Checks whether this unit is dead. If he is, calles death() method.
+     * @returns whether this unit is dead.
+     */
     checkDeath(): boolean {
         if (this.hp <= 0) {
             this.death();
@@ -201,29 +229,29 @@ export class Player extends Unit {
     }
 }
 
-function canSee(aggressor: Unit, defender: Unit): boolean {
-    const subtracktedPosition: Vector = sub(aggressor.pos, defender.pos);
+function canSee(agressor: Unit, defender: Unit): boolean {
+    const subtracktedPosition: Vector = sub(agressor.pos, defender.pos);
     if (subtracktedPosition.x != 0 && subtracktedPosition.y != 0) {
         return false;
     }
 
     if (subtracktedPosition.x == 0) {
-        const x: number = aggressor.pos.x;
-        const leftCol: number = Math.min(aggressor.pos.y, defender.pos.y);
-        const rightCol: number = Math.max(aggressor.pos.y, defender.pos.y);
+        const x: number = agressor.pos.x;
+        const leftCol: number = Math.min(agressor.pos.y, defender.pos.y);
+        const rightCol: number = Math.max(agressor.pos.y, defender.pos.y);
         for (let y = leftCol + 1; y < rightCol; y++) {
-            if (aggressor.world.getCellAt({ x, y }) != white) {
+            if (agressor.world.getCellAt({ x, y }) != white) {
                 return false;
             }
         }
     }
 
     if (subtracktedPosition.y == 0) {
-        const y: number = aggressor.pos.y;
-        const leftRow: number = Math.min(aggressor.pos.x, defender.pos.x);
-        const rightRow: number = Math.max(aggressor.pos.x, defender.pos.x);
+        const y: number = agressor.pos.y;
+        const leftRow: number = Math.min(agressor.pos.x, defender.pos.x);
+        const rightRow: number = Math.max(agressor.pos.x, defender.pos.x);
         for (let x = leftRow + 1; x < rightRow; x++) {
-            if (aggressor.world.getCellAt({ x, y }) != white) {
+            if (agressor.world.getCellAt({ x, y }) != white) {
                 return false;
             }
         }
