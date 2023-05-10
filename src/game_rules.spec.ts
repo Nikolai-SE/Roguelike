@@ -1,16 +1,18 @@
 import { ok } from "assert";
 import { World, CellType, bedrock, wall, white, } from "./game_rules";
 import { Vector, eq } from "./common_constants";
-import { Unit } from "./units";
+import { Player, Unit } from "./units";
 
 
  class WorldMock extends World{
         private widthMock = 15;
         private heightMock = 15;
+        readonly player: Player;
 
         constructor(
         ) {
                 super(-1, 15, 15);
+                this.player = new Player(this, { x: 4, y: 4 }, 10, 10, 3);
         }
 
         getUnitAt(pos: Vector): Unit | null {
