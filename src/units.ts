@@ -70,12 +70,12 @@ export abstract class Unit {
      * @param delta - desired shift
      * @returns true if this action was successful
      */
-        public tryWalk(delta: Vector): boolean {
-            if (delta.x * delta.y != 0 || Math.abs(delta.x) + Math.abs(delta.y) != 1) {
-                return false;
-            }
-            return this.tryMoveTo(add(this.pos, delta));
+    public tryWalk(delta: Vector): boolean {
+        if (delta.x * delta.y != 0 || Math.abs(delta.x) + Math.abs(delta.y) != 1) {
+            return false;
         }
+        return this.tryMoveTo(add(this.pos, delta));
+    }
 
     /**
      * Renders the unit
@@ -178,7 +178,7 @@ export class Player extends Unit {
          * @param index - index of the equipment
          * @returns whether equipment at given index was equipped
          */
-        fromUnusedToUse(index: number): boolean { 
+        fromUnusedToUse(index: number): boolean {
             let removed = this.unused.splice(index, 1);
             if (removed.length > 0) {
                 this.used = this.used.concat(removed);
@@ -485,16 +485,14 @@ export class Enemy extends Unit {
 
 export class CreateEnemy {
     private world: World;
-    readonly walls: boolean[][];
     private randomizer: SeededRandomUtilities;
     private getRandomPosition: GetRandomPosition
     private behaviours: EnemyBehaviour[] = [new AggressiveBehaviour(), new PassiveBehaviour(), new CowardBehaviour()];
     private len: number = this.behaviours.length;
-    constructor(world: World, walls: boolean[][]) {
+    constructor(world: World, width: number, height: number, randomizer: SeededRandomUtilities) {
         this.world = world;
-        this.walls = walls;
-        this.randomizer = this.world.randomizer;
-        this.getRandomPosition = new GetRandomPosition(walls, this.randomizer);
+        this.randomizer = randomizer;
+        this.getRandomPosition = new GetRandomPosition(world, width, height, this.randomizer);
     }
 
     private getRandomBehavior(): EnemyBehaviour {
@@ -520,23 +518,22 @@ export class CreateEnemy {
 
 export class GetRandomPosition {
     private randomizer: SeededRandomUtilities;
-    readonly walls: boolean[][];
-    constructor(walls: boolean[][], randomizer: SeededRandomUtilities) {
-        this.walls = walls;
+    private width: number;
+    private height: number;
+    readonly world: World;
+    constructor(world: World, width: number, height: number, randomizer: SeededRandomUtilities) {
+        this.world = world;
+        this.width = width;
+        this.height = height;
         this.randomizer = randomizer;
     }
 
     public get(): Vector {
-        if (!this.walls[0]) {
-            return { x: 0, y: 0 };
-        }
-        const maxX: number = this.walls.length;
-        const maxY: number = this.walls[0].length;
         let x, y: number;
         do {
-            x = this.randomizer.getRandomIntegar(maxX);
-            y = this.randomizer.getRandomIntegar(maxY);
-        } while (this.walls[x][y]);
+            x = this.randomizer.getRandomIntegar(this.width);
+            y = this.randomizer.getRandomIntegar(this.height);
+        } while (this.world.getCellAt({ x, y }).isWalkable);
         return { x: x, y: y };
     }
 }

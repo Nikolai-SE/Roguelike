@@ -52,10 +52,10 @@ export class World {
                 }
                 this.randomizer = new SeededRandomUtilities(generator_seed.toString());
                 this.walls = this.generateWalls();
-                const getRandomPosition = new GetRandomPosition(this.walls, this.randomizer);
+                const getRandomPosition = new GetRandomPosition(this, width, height, this.randomizer);
                 this.player = new Player(this, getRandomPosition.get(), 10, 10, 3);
                 const numberEnemies = this.randomizer.getRandomIntegar((width + height) / 2);
-                const createrEnemy = new CreateEnemy(this, this.walls);
+                const createrEnemy = new CreateEnemy(this, width, height, this.randomizer);
                 for (let i = 0; i < numberEnemies; i++) {
                         this.enemies.push(createrEnemy.get());
                 }
