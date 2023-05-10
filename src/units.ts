@@ -244,7 +244,7 @@ export class Player extends Unit {
 /**
  * Calculates whether units can see one another. 
  * This is true when both units are on the same line and there is not any walls between them.
- * @param unit1 
+ * @param unit1
  * @param unit2 
  * @returns whether units can see one another
  */
@@ -259,7 +259,7 @@ function canSee(unit1: Unit, unit2: Unit): boolean {
         const leftCol: number = Math.min(unit1.pos.y, unit2.pos.y);
         const rightCol: number = Math.max(unit1.pos.y, unit2.pos.y);
         for (let y = leftCol + 1; y < rightCol; y++) {
-            if (unit1.world.getCellAt({ x, y }) != white) {
+            if (!unit1.world.getCellAt({ x, y }).isWalkable) {
                 return false;
             }
         }
@@ -270,7 +270,7 @@ function canSee(unit1: Unit, unit2: Unit): boolean {
         const leftRow: number = Math.min(unit1.pos.x, unit2.pos.x);
         const rightRow: number = Math.max(unit1.pos.x, unit2.pos.x);
         for (let x = leftRow + 1; x < rightRow; x++) {
-            if (unit1.world.getCellAt({ x, y }) != white) {
+            if (!unit1.world.getCellAt({ x, y }).isWalkable) {
                 return false;
             }
         }
@@ -495,14 +495,27 @@ export class CreateEnemy {
         this.getRandomPosition = new GetRandomPosition(world, width, height, this.randomizer);
     }
 
+    /**
+     * Returns a randomly selected mob behavior
+     * @returns
+     */
     private getRandomBehavior(): EnemyBehaviour {
         return this.behaviours[this.randomizer.getRandomIntegar(this.len)];
     }
 
+    /**
+     * Returns a random number from 0 to m inclusive
+     * @param m
+     * @returns
+     */
     private getRandomBefore(m: number): number {
         return this.randomizer.getRandomIntegar(1, m);
     }
 
+    /**
+     * Returns new Enemy
+     * @returns
+     */
     get() {
         return new Enemy(
             this.world,
@@ -528,12 +541,16 @@ export class GetRandomPosition {
         this.randomizer = randomizer;
     }
 
+    /**
+     * Returns a vector with coordinates of a free cell
+     * @returns
+     */
     public get(): Vector {
         let x, y: number;
         do {
             x = this.randomizer.getRandomIntegar(this.width);
             y = this.randomizer.getRandomIntegar(this.height);
-        } while (this.world.getCellAt({ x, y }).isWalkable);
+        } while (!this.world.getCellAt({ x, y }).isWalkable);
         return { x: x, y: y };
     }
 }
