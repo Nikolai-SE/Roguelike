@@ -174,19 +174,17 @@ export class Player extends Unit {
         unused: Equipment[] = [];
 
         /**
-         * addToUse: void
-         * transfer equipment from unused by index to used
-         * index: number 
+         * Tries to equip the equipment at given index
+         * @param index - index of the equipment
+         * @returns whether equipment at given index was equipped
          */
-        fromUnusedToUse(index: number): boolean { //TODO: fix spelling
-            let removed = this.unused.slice(index, 1);
+        fromUnusedToUse(index: number): boolean { 
+            let removed = this.unused.splice(index, 1);
             if (removed.length > 0) {
-                this.used.concat(removed);
+                this.used = this.used.concat(removed);
                 return true;
             }
-            else {
-                return false;
-            }
+            return false;
         }
 
         /**
@@ -195,14 +193,12 @@ export class Player extends Unit {
          * @returns whether equipment at given index was unequipped
          */
         fromUsedToUnused(index: number): boolean {
-            let removed = this.used.slice(index, 1);
+            let removed = this.used.splice(index, 1);
             if (removed.length > 0) {
-                this.unused.concat(removed);
+                this.unused = this.unused.concat(removed);
                 return true;
             }
-            else {
-                return false;
-            }
+            return false;
         }
 
         /**
@@ -232,11 +228,7 @@ export class Player extends Unit {
      * @returns true if equipment is taken off 
      */
     tryToTakeOffEquipment(index: number): boolean {
-        let equip = this.inventory.used.splice(index, 1);
-        if (equip.length == 0)
-            return false;
-        this.inventory.unused.push(equip[0]);
-        return true;
+        return this.inventory.fromUsedToUnused(index);
     }
 
     /**
@@ -245,11 +237,7 @@ export class Player extends Unit {
      * @returns true if equipment is put on
      */
     tryToPutOnEquipment(index: number): boolean {
-        let equip = this.inventory.unused.splice(index, 1);
-        if (equip.length == 0)
-            return false;
-        this.inventory.used.push(equip[0]);
-        return true;
+        return this.inventory.fromUnusedToUse(index);
     }
 }
 
