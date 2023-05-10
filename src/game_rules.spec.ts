@@ -9,7 +9,7 @@ import { Vector, eq } from "./common_constants";
 
         constructor(
         ) {
-                super(-1, 15, 15);
+                super(0, 15, 15);
         }
 
         getUnitAt(pos: Vector): Unit | null {
