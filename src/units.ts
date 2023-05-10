@@ -433,7 +433,7 @@ export class Confusion extends EnemyBehaviour {
      * @returns 
      */
     move(player: Player, enemy: Enemy): EnemyBehaviour {
-        if (player.world.turnsCnt - this.turnsCntStart > tuis.duration) {
+        if (player.world.turnsCnt - this.turnsCntStart > this.duration) {
             return this.behaviour;
         } else {
             enemy.tryWalk(moveRandom(enemy));
