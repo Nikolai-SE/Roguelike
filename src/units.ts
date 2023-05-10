@@ -313,14 +313,31 @@ function moveRandom(enemy: Enemy): Vector {
 export abstract class EnemyBehaviour {
     wasAttacked: boolean = false;
 
+    /**
+     * Move on place
+     * @param enemy 
+     * @returns 
+     */
     moveOnPlace(enemy: Enemy) {
         return { x: 0, y: 0 };
     }
 
+    /**
+     * Make a move
+     * @param player player
+     * @param enemy enemy
+     */
     abstract move(player: Player, enemy: Enemy): EnemyBehaviour
 }
 
 export abstract class EnemyMaybeMoveTowardsThePlayer extends EnemyBehaviour {
+    /**
+     * Move towards the player.
+     * Routing is simple - we just move in a player's direction on a line.
+     * @param player 
+     * @param enemy 
+     * @returns 
+     */
     moveTowardsThePlayer(player: Player, enemy: Enemy): Vector {
         if (player.pos.x == enemy.pos.x) {
             return { x: 0, y: player.pos.y > enemy.pos.y ? 1 : -1 };
@@ -333,7 +350,14 @@ export abstract class EnemyMaybeMoveTowardsThePlayer extends EnemyBehaviour {
 }
 
 export class PassiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
-    move(player: Player, enemy: Enemy): EnemyBehaviour {
+    /**
+     * Moves randomly except if was attacked by somebody.
+     * In this case moves towards the attacker.
+     * @param player 
+     * @param enemy 
+     * @returns 
+     */
+    move(player: Player, enemy: Enemy): EnemyBehaviour { //TODO: сделать так, чтобы поведение соответствовало описанию
         if (this.wasAttacked) {
             if (canSee(player, enemy)) {
                 enemy.tryWalk(this.moveTowardsThePlayer(player, enemy));
@@ -346,6 +370,13 @@ export class PassiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
 }
 
 export class AggressiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
+    /**
+     * Moves randomly except when sees the player. 
+     * In this case moves towards the player.
+     * @param player 
+     * @param enemy 
+     * @returns 
+     */
     move(player: Player, enemy: Enemy): EnemyBehaviour {
         if (canSee(player, enemy)) {
             enemy.tryWalk(this.moveTowardsThePlayer(player, enemy));
@@ -367,6 +398,13 @@ export class CowardBehaviour extends EnemyBehaviour {
         return { x: 0, y: 0 };
     }
 
+    /**
+     * Moves randomly except when sees the player. 
+     * In this case moves from the player.
+     * @param player 
+     * @param enemy 
+     * @returns 
+     */
     move(player: Player, enemy: Enemy): EnemyBehaviour {
         if (canSee(player, enemy)) {
             enemy.tryWalk(this.moveFromThePlayer(player, enemy));
@@ -388,10 +426,14 @@ export class Confusion extends EnemyBehaviour {
         this.turnsCntStart = turnsCntStart;
     }
 
-
-
+    /**
+     * Behaviour modifier that makes enemy move randomly while under this effect.
+     * @param player 
+     * @param enemy 
+     * @returns 
+     */
     move(player: Player, enemy: Enemy): EnemyBehaviour {
-        if (player.world.turnsCnt - this.turnsCntStart > this.duration) {
+        if (player.world.turnsCnt - this.turnsCntStart > tuis.duration) {
             return this.behaviour;
         } else {
             enemy.tryWalk(moveRandom(enemy));
