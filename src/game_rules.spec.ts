@@ -4,7 +4,7 @@ import { Vector, eq } from "./common_constants";
 import { Player, Unit } from "./units";
 
 
- class WorldMock extends World{
+ export class WorldMock extends World{
         private widthMock = 15;
         private heightMock = 15;
         readonly player: Player;
