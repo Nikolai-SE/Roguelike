@@ -131,19 +131,22 @@ export class GamePage {
                                 break;
 
                         case 'e':
-                        case 'E':
-                                let indexEquip = Number(window.prompt("Enter index of equipment to put on.   1, 2, ...", ""));
+                        case 'E': {
+                                const indexEquip = Number(window.prompt("Enter index of equipment to put on.   1, 2, ...", ""));
                                 if (!Number.isNaN(indexEquip) && indexEquip > 0) {
                                         this.world.player.tryToPutOnEquipment(indexEquip - 1);
                                 }
                                 break;
+                        }
+
                         case 'r':
-                        case 'R':
-                                let indexRemove = Number(window.prompt("Enter index of equipment to take off.  1, 2, ...", ""));
+                        case 'R': {
+                                const indexRemove = Number(window.prompt("Enter index of equipment to take off.  1, 2, ...", ""));
                                 if (!Number.isNaN(indexRemove) && indexRemove > 0) {
                                         this.world.player.tryToTakeOffEquipment(indexRemove - 1);
                                 }
                                 break;
+                        }
                 }
                 return this;
         }

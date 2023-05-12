@@ -93,7 +93,7 @@ export class World {
                         let k = 0, prev = 0;
                         while (k < this.height) {
                                 while (k < this.height && !walls[i - 1][k]) k++;
-                                let r = this.randomizer.getRandomIntInclusive(k - 1, prev);
+                                const r = this.randomizer.getRandomIntInclusive(k - 1, prev);
                                 walls[i][r - r % 2] = false;
                                 prev = k++;
                         }
@@ -103,7 +103,7 @@ export class World {
 
         // simple equipment generator
         private generateEquipment(numberOfEquipment: number): Map<String, Equipment> {
-                let equipment = new Map<String, Equipment>();
+                const equipment = new Map<String, Equipment>();
                 for (let i = 0; i < numberOfEquipment; i++) {
                         let pos = this.getRandomVector({ x: this.width, y: this.height });
                         while (!this.getCellAt(pos).isWalkable || equipment.has(toIndexString(pos)))

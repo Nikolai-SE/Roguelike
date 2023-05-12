@@ -27,6 +27,7 @@ export abstract class Unit {
         public level: number = 1;
         public xp: number = 0;
         public limitXp: number = 2;
+
         constructor(
                 readonly world: World,
                 private _pos: Vector,
@@ -128,6 +129,7 @@ export abstract class Unit {
 
 export class Player extends Unit {
         private moveDuration: number = 8;
+
         constructor(
                 world: World,
                 pos: Vector,
@@ -162,7 +164,7 @@ export class Player extends Unit {
          * @param unit - unit2
          */
         public attack(unit: Unit) {
-                let enemy = unit as Enemy; // TODO: class for Mobs in case if we need NPCs
+                const enemy = unit as Enemy; // TODO: class for Mobs in case if we need NPCs
                 enemy.hp -= this.damage;
                 if (this.world.randomizer.getRandomBool()) {
                         enemy.behaviour = new Confusion(enemy.behaviour, this.moveDuration, this.world.turnsCnt);
@@ -179,7 +181,7 @@ export class Player extends Unit {
                  * @returns whether equipment at given index was equipped
                  */
                 fromUnusedToUse(index: number): boolean {
-                        let removed = this.unused.splice(index, 1);
+                        const removed = this.unused.splice(index, 1);
                         if (removed.length > 0) {
                                 this.used = this.used.concat(removed);
                                 return true;
@@ -193,7 +195,7 @@ export class Player extends Unit {
                  * @returns whether equipment at given index was unequipped
                  */
                 fromUsedToUnused(index: number): boolean {
-                        let removed = this.used.splice(index, 1);
+                        const removed = this.used.splice(index, 1);
                         if (removed.length > 0) {
                                 this.unused = this.unused.concat(removed);
                                 return true;
@@ -215,7 +217,7 @@ export class Player extends Unit {
          * @returns true if equipment is taken
          */
         tryToTakeEquipment(): boolean {
-                let equip = this.world.getAndRemoveEquipmentAt(this.pos)
+                const equip = this.world.getAndRemoveEquipmentAt(this.pos)
                 if (equip === undefined) {
                         return false;
                 }
@@ -405,14 +407,12 @@ export class CowardBehaviour extends EnemyBehaviour {
 }
 
 export class Confusion extends EnemyBehaviour {
-        private behaviour: EnemyBehaviour;
-        private duration: number;
-        private turnsCntStart: number;
-        constructor(behaviour: EnemyBehaviour, duration: number, turnsCntStart: number) {
+        constructor(
+                private behaviour: EnemyBehaviour,
+                private duration: number,
+                private turnsCntStart: number
+        ) {
                 super();
-                this.behaviour = behaviour;
-                this.duration = duration;
-                this.turnsCntStart = turnsCntStart;
         }
 
         /**
@@ -432,17 +432,15 @@ export class Confusion extends EnemyBehaviour {
 }
 
 export class Enemy extends Unit {
-        behaviour: EnemyBehaviour;
         constructor(
                 world: World,
                 pos: Vector,
-                behaviour: EnemyBehaviour,
+                public behaviour: EnemyBehaviour,
                 public hp: number,
                 public maxHp: number,
                 public damage: number,
         ) {
                 super(world, pos, hp, maxHp, damage);
-                this.behaviour = behaviour;
         }
 
         /**
@@ -485,14 +483,16 @@ export class Enemy extends Unit {
 }
 
 export class CreateEnemy {
-        private world: World;
-        private randomizer: SeededRandomUtilities;
         private getRandomPosition: GetRandomPosition
         private behaviours: EnemyBehaviour[] = [new AggressiveBehaviour(), new PassiveBehaviour(), new CowardBehaviour()];
         private len: number = this.behaviours.length;
-        constructor(world: World, width: number, height: number, randomizer: SeededRandomUtilities) {
-                this.world = world;
-                this.randomizer = randomizer;
+
+        constructor(
+                private world: World,
+                width: number,
+                height: number,
+                private randomizer: SeededRandomUtilities
+        ) {
                 this.getRandomPosition = new GetRandomPosition(world, width, height, this.randomizer);
         }
 
@@ -531,16 +531,12 @@ export class CreateEnemy {
 }
 
 export class GetRandomPosition {
-        private randomizer: SeededRandomUtilities;
-        private width: number;
-        private height: number;
-        readonly world: World;
-        constructor(world: World, width: number, height: number, randomizer: SeededRandomUtilities) {
-                this.world = world;
-                this.width = width;
-                this.height = height;
-                this.randomizer = randomizer;
-        }
+        constructor(
+                readonly world: World,
+                private width: number,
+                private height: number,
+                private randomizer: SeededRandomUtilities
+        ) { }
 
         /**
          * Returns a vector with coordinates of a free cell

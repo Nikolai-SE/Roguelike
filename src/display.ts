@@ -120,13 +120,13 @@ export class HUD {
 
 
                 ctx.save();
-                let coef = 1.5 * CELL_SIZE;
+                const coef = 1.5 * CELL_SIZE;
                 ctx.scale(coef, coef);
 
                 let col = 5;
-                let colBound = bounds.x / coef;
+                const colBound = bounds.x / coef;
 
-                let row = bounds.y / coef - 1 - this.inventory.unused.length / (colBound - col);
+                const row = bounds.y / coef - 1 - this.inventory.unused.length / (colBound - col);
 
                 for(let i = 0; i < this.inventory.unused.length; i++){
                         if(i + col === colBound) {
