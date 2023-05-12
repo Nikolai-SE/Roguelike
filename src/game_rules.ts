@@ -1,6 +1,6 @@
-import { CELL_SIZE, toIndexString } from "./common_constants";
+import { CELL_SIZE } from "./common_constants";
 import { Equipment, Helmet, Sword } from "./equipment";
-import { Vector, eq } from "./vector";
+import { Vector, eq, toIndexString } from "./vector";
 import SeededRandomUtilities from 'seeded-random-utilities';
 import { Player, Unit, Enemy, CreateEnemy, GetRandomPosition } from "./units";
 
@@ -42,15 +42,15 @@ export class World {
         private equipment: Map<String, Equipment>;
 
         constructor(
-                generator_seed: number = -1,
+                generatorSeed: number = -1,
                 private width: number = 15,
-                private height: number = 15
+                private height: number = 15,
         ) {
-                if (generator_seed == -1) {
+                if (generatorSeed === -1) {
                         const date_ = new Date();
-                        generator_seed = date_.getTime();
+                        generatorSeed = date_.getTime();
                 }
-                this.randomizer = new SeededRandomUtilities(generator_seed.toString());
+                this.randomizer = new SeededRandomUtilities(generatorSeed.toString());
                 this.walls = this.generateWalls();
                 const getRandomPosition = new GetRandomPosition(this, width, height, this.randomizer);
                 this.player = new Player(this, getRandomPosition.get(), 10, 10, 3);
@@ -67,7 +67,7 @@ export class World {
         private getRandomVector(maxVector: Vector): Vector {
                 return {
                         x: this.randomizer.getRandomIntInclusive(maxVector.x),
-                        y: this.randomizer.getRandomIntInclusive(maxVector.y)
+                        y: this.randomizer.getRandomIntInclusive(maxVector.y),
                 };
         }
 
@@ -82,8 +82,9 @@ export class World {
                         }
                 }
 
-                for (let i = 1; i < this.height; i += 2)
+                for (let i = 1; i < this.height; i += 2) {
                         walls[0][i] = this.randomizer.getRandomBool();
+                }
 
                 for (let i = 1; i < this.width; i += 2) {
                         for (let j = 0; j < this.height; j += 2) {
@@ -108,10 +109,11 @@ export class World {
                         while (!this.getCellAt(pos).isWalkable || equipment.has(toIndexString(pos)))
                                 pos = this.getRandomVector({ x: this.width, y: this.height });
 
-                        if (this.randomizer.getRandomBool())
+                        if (this.randomizer.getRandomBool()) {
                                 equipment.set(toIndexString(pos), new Helmet());
-                        else
+                        } else {
                                 equipment.set(toIndexString(pos), new Sword());
+                        }
                 }
                 return equipment;
         }
@@ -152,9 +154,10 @@ export class World {
          * @returns equipment at position of world
          */
         getEquipmentAt(pos: Vector): Equipment | null {
-                let equip = this.equipment.get(toIndexString(pos));
-                if (equip == undefined)
+                const equip = this.equipment.get(toIndexString(pos));
+                if (equip === undefined) {
                         return null;
+                }
                 return equip;
         }
 
@@ -163,10 +166,11 @@ export class World {
          * @param pos position at world
          * @returns equipment at position of world and remove it from collection
          */
-        getAndRemoveEquipmentAt(pos: Vector): Equipment | null {
-                let equip = this.equipment.get(toIndexString(pos));
-                if (equip == undefined)
-                        return null;
+        getAndRemoveEquipmentAt(pos: Vector): Equipment | undefined {
+                const equip = this.equipment.get(toIndexString(pos));
+                if (equip === undefined) {
+                        return undefined;
+                }
                 this.equipment.delete(toIndexString(pos));
                 return equip;
         }

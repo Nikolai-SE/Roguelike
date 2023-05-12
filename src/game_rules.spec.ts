@@ -1,6 +1,6 @@
 import { ok } from "assert";
 import { World, CellType, bedrock, wall, white, } from "./game_rules";
-import { Vector, eq } from "./common_constants";
+import { Vector, eq } from "./vector";
 import { Player, Unit } from "./units";
 
 

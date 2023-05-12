@@ -7,7 +7,7 @@ import { WorldMock } from "./game_rules.spec";
 describe('Player Inventory', () => {
         it('should be equal to itself', () => {
             let player = new Player(new WorldMock(), {x: 0, y:0}, 0, 0, 0);
-            
+
             let inv = player.inventory;
 
             inv.addToUnused(new Sword());

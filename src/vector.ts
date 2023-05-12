@@ -3,6 +3,10 @@ export interface Vector {
         y: number;
 }
 
+export function toIndexString(v: Vector): String {
+        return v.x.toString() + "@" + v.y.toString();
+}
+
 export function eq(v: Vector, u: Vector): boolean {
         return v.x === u.x && v.y === u.y;
 }

@@ -26,7 +26,7 @@ export class MainMenuPage {
                 const textBounds = ctx.measureText(text);
                 const pos = div(sub(bounds, {
                         x: textBounds.actualBoundingBoxRight - textBounds.actualBoundingBoxLeft,
-                        y: 36
+                        y: 36,
                 }), 2);
                 ctx.fillStyle = '#ffffff';
                 ctx.fillText(text, pos.x, pos.y);
@@ -38,7 +38,7 @@ export class MainMenuPage {
          * @returns Page - this MainMenu
          */
         onKeyDown(ev: KeyboardEvent): Page {
-                if (ev.key === 'n' || ev.key == 'N') {
+                if (ev.key === 'n' || ev.key === 'N') {
                         return new GamePage();
                 }
                 return this;
@@ -80,15 +80,15 @@ export class GamePage {
         }
 
         /**
-         * Reacts to keyboard events. 
+         * Reacts to keyboard events.
          * 1 If Escape key is pressed once, player is warned that pressing it once again will result in finishing current game session.
          * 1.1 If after that Escape is pressed once again, current game is over and MainMenu is returned
          * 1.2 If after that any other key is pressed, prompt disappears and game session is continued, returning this GamePage
-         * 
+         *
          * 2. If 'w', 'a', 's' or 'd' being pressed, it is passed to the GameWorld that player is trying to make a move in a corresponding direction.
-         * 3. If 't' being pressed player takes an equipment from cell where player is. 
-         * 4. If 'e' being pressed player puts on an equipment with index which player enters after pressing. 
-         * 5. If 'r' being pressed player takes off an equipment with index which player enters after pressing. 
+         * 3. If 't' being pressed player takes an equipment from cell where player is.
+         * 4. If 'e' being pressed player puts on an equipment with index which player enters after pressing.
+         * 5. If 'r' being pressed player takes off an equipment with index which player enters after pressing.
          * @param ev - keyboard event to react to
          * @returns - Page (this GamePage or MainMenu page)
          */
