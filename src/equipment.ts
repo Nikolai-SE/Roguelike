@@ -9,8 +9,7 @@ export class Equipment {
                 return points;
         }
 
-        render(ctx: CanvasRenderingContext2D, bounds: Vector) {
-        }
+        render(ctx: CanvasRenderingContext2D, bounds: Vector): void { }
 }
 
 export class Sword extends Equipment {
@@ -37,7 +36,7 @@ export class Helmet extends Equipment {
                 return Math.max(points - 2, 1);
         }
 
-        render(ctx: CanvasRenderingContext2D, bounds: Vector) {
+        render(ctx: CanvasRenderingContext2D, bounds: Vector): void {
                 ctx.fillStyle = '#A5A192';
                 ctx.strokeStyle = '#A5A192';
                 ctx.beginPath();

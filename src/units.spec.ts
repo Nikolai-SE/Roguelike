@@ -1,40 +1,67 @@
-import { ok } from "assert";
+import { ok, equal } from "assert";
 import { Helmet, Sword } from "./equipment";
-import { Player } from "./units";
+import { Enemy, PassiveBehaviour, Player } from "./units";
 import { WorldMock } from "./game_rules.spec";
 
 
 describe('Player Inventory', () => {
         it('should be equal to itself', () => {
-                const player = new Player(new WorldMock(), { x: 0, y: 0 }, 0, 0, 0);
+                const player = new WorldMock().player;
                 const inv = player.inventory;
 
                 inv.addToUnused(new Sword());
                 inv.addToUnused(new Helmet());
                 inv.addToUnused(new Helmet());
 
-                let l1 = inv.unused.length;
-                let l2 = inv.used.length;
-                ok(l1 === 3);
-                ok(l2 === 0);
+                equal(inv.unused.length, 3);
+                equal(inv.used.length, 0);
 
                 player.tryToPutOnEquipment(0);
 
-                l1 = inv.unused.length;
-                l2 = inv.used.length;
-                ok(l1 === 2);
-                ok(l2 === 1);
+                equal(inv.unused.length, 2);
+                equal(inv.used.length, 1);
 
                 player.tryToPutOnEquipment(1);
-                l1 = inv.unused.length;
-                l2 = inv.used.length;
-                ok(l1 === 1);
-                ok(l2 === 2);
+                equal(inv.unused.length, 1);
+                equal(inv.used.length, 2);
 
                 player.tryToTakeOffEquipment(1);
-                l1 = inv.unused.length;
-                l2 = inv.used.length;
-                ok(l1 === 2);
-                ok(l2 === 1);
+                equal(inv.unused.length, 2);
+                equal(inv.used.length, 1);
+        });
+
+        it('should apply damage effects', () => {
+                const world = new WorldMock();
+                const player = world.player;
+                const enemy = new Enemy(world, { x: 3, y: 4 }, new PassiveBehaviour(), 100, 100, 1);
+                const strongEnemy = new Enemy(world, { x: 3, y: 4 }, new PassiveBehaviour(), 100, 100, 10);
+
+                const inv = player.inventory;
+                inv.addToUnused(new Sword());
+                inv.addToUnused(new Helmet());
+
+                equal(player.damage, 3);
+                equal(player.hp, 100);
+
+                equal(enemy.hp, 100);
+                player.attack(enemy);
+                equal(enemy.hp, 97);
+
+                inv.fromUnusedToUse(0);
+                equal(player.damage, 6);
+
+                player.attack(enemy);
+                equal(enemy.hp, 91);
+
+                enemy.attack(player);
+                equal(player.hp, 99);
+                strongEnemy.attack(player);
+                equal(player.hp, 89);
+
+                inv.fromUnusedToUse(0);
+                enemy.attack(player);
+                equal(player.hp, 88);
+                strongEnemy.attack(player);
+                equal(player.hp, 80);
         });
 });

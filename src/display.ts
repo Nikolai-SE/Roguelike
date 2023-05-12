@@ -18,11 +18,11 @@ export class Camera {
          * @param absTime - absolute time from the start of this game
          * @param dt - time difference from the previous update
          */
-        update(absTime: number, dt: number) {
+        update(absTime: number, dt: number): void {
                 const k = Math.exp(-2e-3 * dt);
                 this.center = add(
                         mul(k, this.center),
-                        mul(1 - k, this.player.pos)
+                        mul(1 - k, this.player.pos),
                 );
         }
 
@@ -41,7 +41,7 @@ export class Camera {
          * @param ctx - canvas
          * @param bounds - world bounds vector
          */
-        render(ctx: CanvasRenderingContext2D, bounds: Vector) {
+        render(ctx: CanvasRenderingContext2D, bounds: Vector): void {
                 ctx.save();
                 ctx.translate(bounds.x / 2, bounds.y / 2);
                 ctx.scale(CELL_SIZE, CELL_SIZE);
@@ -54,8 +54,9 @@ export class Camera {
                                 const ct = this.world.getCellAt({ x, y });
                                 ct.render(ctx, { x, y });
                                 const equip = this.world.getEquipmentAt({ x, y });
-                                if (equip != null)
+                                if (equip != null) {
                                         equip.render(ctx, { x, y });
+                                }
                         }
                 }
 
@@ -75,15 +76,14 @@ export class HUD {
         private player = this.world.player;
         private inventory = this.player.inventory;
 
-        onUpdate(absTime: number, dt: number) {
-        }
+        onUpdate(absTime: number, dt: number): void { }
 
         /**
          * Renders HUD data: player's HP, max HP, damage. Renders prompts to exit
          * @param ctx
          * @param bounds
          */
-        render(ctx: CanvasRenderingContext2D, bounds: Vector) {
+        render(ctx: CanvasRenderingContext2D, bounds: Vector): void {
                 ctx.fillStyle = '#ff0000';
                 ctx.strokeStyle = '#ff0000';
                 ctx.beginPath();
@@ -113,8 +113,8 @@ export class HUD {
                 ctx.scale(CELL_SIZE / 2, CELL_SIZE / 2);
 
                 ctx.translate(0, 0);
-                for(let i = 0; i < this.inventory.used.length; i++){
-                        this.inventory.used[i].render(ctx, {x: 0 + i, y: 0})
+                for (let i = 0; i < this.inventory.used.length; i++) {
+                        this.inventory.used[i].render(ctx, { x: 0 + i, y: 0 });
                 }
                 ctx.restore();
 
@@ -128,11 +128,11 @@ export class HUD {
 
                 const row = bounds.y / coef - 1 - this.inventory.unused.length / (colBound - col);
 
-                for(let i = 0; i < this.inventory.unused.length; i++){
-                        if(i + col === colBound) {
+                for (let i = 0; i < this.inventory.unused.length; i++) {
+                        if (i + col === colBound) {
                                 col -= colBound;
                         }
-                        this.inventory.unused[i].render(ctx, {x: i + col , y: row});
+                        this.inventory.unused[i].render(ctx, { x: i + col, y: row });
                 }
                 ctx.restore();
         }

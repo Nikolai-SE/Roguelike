@@ -3,9 +3,9 @@ import { Camera, HUD } from "./display";
 import { World } from "./game_rules";
 
 export interface Page {
-        update(absTime: number, dt: number): Page
-        onKeyDown(ev: KeyboardEvent): Page
-        render(ctx: CanvasRenderingContext2D, bounds: Vector): void
+        update(absTime: number, dt: number): Page;
+        onKeyDown(ev: KeyboardEvent): Page;
+        render(ctx: CanvasRenderingContext2D, bounds: Vector): void;
 }
 
 export class MainMenuPage {
@@ -74,7 +74,7 @@ export class GamePage {
          * @param ctx - canvas to render on
          * @param bounds - bounds of canvas
          */
-        render(ctx: CanvasRenderingContext2D, bounds: Vector) {
+        render(ctx: CanvasRenderingContext2D, bounds: Vector): void {
                 this.camera.render(ctx, bounds);
                 this.hud.render(ctx, bounds);
         }

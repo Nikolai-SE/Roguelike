@@ -3,7 +3,7 @@ import { MainMenuPage, Page } from "./pages";
 let currentPage: Page = new MainMenuPage();
 let prevTime = 0;
 
-function onAnimationFrame(time: number) {
+function onAnimationFrame(time: number): void {
         const dt = time - prevTime;
         prevTime = time;
 
@@ -21,7 +21,7 @@ function onAnimationFrame(time: number) {
         requestAnimationFrame(onAnimationFrame);
 }
 
-function onKeyDown(evt: KeyboardEvent) {
+function onKeyDown(evt: KeyboardEvent): void {
         currentPage = currentPage.onKeyDown(evt);
 }
 

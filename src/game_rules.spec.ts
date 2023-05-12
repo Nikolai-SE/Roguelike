@@ -4,15 +4,14 @@ import { Vector, eq } from "./vector";
 import { Player, Unit } from "./units";
 
 
- export class WorldMock extends World{
+export class WorldMock extends World {
         private widthMock = 15;
         private heightMock = 15;
         readonly player: Player;
 
-        constructor(
-        ) {
+        constructor() {
                 super(0, 15, 15);
-                this.player = new Player(this, { x: 4, y: 4 }, 10, 10, 3);
+                this.player = new Player(this, { x: 4, y: 4 }, 100, 100, 3);
         }
 
         getUnitAt(pos: Vector): Unit | null {

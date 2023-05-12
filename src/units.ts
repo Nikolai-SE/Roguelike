@@ -24,23 +24,28 @@ function fight(attacker: Unit, defender: Unit): void {
 }
 
 export abstract class Unit {
-        public level: number = 1;
-        public xp: number = 0;
-        public limitXp: number = 2;
+        level: number = 1;
+        xp: number = 0;
+        limitXp: number = 2;
 
         constructor(
                 readonly world: World,
                 private _pos: Vector,
                 public hp: number,
                 public maxHp: number,
-                public damage: number,
+                private baseDamage: number,
         ) { }
 
         get pos(): Vector {
-                return {
-                        x: this._pos.x,
-                        y: this._pos.y,
-                };
+                return { ...this._pos };
+        }
+
+        /**
+         * Get the damage that this unit deals to others.
+         * Used in `attack` method for default implementation.
+         */
+        get damage(): number {
+                return this.baseDamage;
         }
 
         /**
@@ -50,7 +55,7 @@ export abstract class Unit {
          * @param pos - desired position to move to
          * @returns whether this unit actually moved
          */
-        public tryMoveTo(pos: Vector): boolean {
+        tryMoveTo(pos: Vector): boolean {
                 const walkable: boolean = this.world.getCellAt(pos).isWalkable;
                 if (!walkable) {
                         return false;
@@ -71,7 +76,7 @@ export abstract class Unit {
          * @param delta - desired shift
          * @returns true if this action was successful
          */
-        public tryWalk(delta: Vector): boolean {
+        tryWalk(delta: Vector): boolean {
                 if (delta.x * delta.y != 0 || Math.abs(delta.x) + Math.abs(delta.y) != 1) {
                         return false;
                 }
@@ -82,7 +87,7 @@ export abstract class Unit {
          * Renders the unit
          * @param ctx - rendering context
          */
-        public render(ctx: CanvasRenderingContext2D) {
+        render(ctx: CanvasRenderingContext2D): void {
                 ctx.fillStyle = '#7fbfff';
         }
 
@@ -91,13 +96,13 @@ export abstract class Unit {
          * Serves to register the fact and grant killer with according bonuses in xp that might lead to leveling the killer up.
          * @param killedUnit
          */
-        public onKill(killedUnit: Unit): void {
+        onKill(killedUnit: Unit) {
                 this.xp += killedUnit.level;
                 if (this.xp > this.limitXp) {
                         this.xp %= this.limitXp;
                         this.level++; //TODO: вынести levelUp в отдельную функцию
                         this.maxHp++;
-                        this.damage++;
+                        this.baseDamage++;
                         this.hp = this.maxHp;
                         this.limitXp += this.level;
                 }
@@ -106,13 +111,23 @@ export abstract class Unit {
         /**
          * Called when this unit is dead.
          */
-        public abstract death(): void
+        abstract death(): void;
 
         /**
          * Called when this unit is attacking another.
          * @param unit - attacked unit
          */
-        abstract attack(unit: Unit): void
+        attack(unit: Unit) {
+                unit.takeDamage(this.damage);
+        }
+
+        /**
+         * Take damage with appropriate modifiers.
+         * @param dmg — damage taken
+         */
+        takeDamage(dmg: number) {
+                this.hp -= dmg;
+        }
 
         /**
          * Checks whether this unit is dead. If he is, calles death() method.
@@ -163,9 +178,12 @@ export class Player extends Unit {
          * Attacks the unit. Calculates all the modificators and the damage dealt to the defending unit
          * @param unit - unit2
          */
-        public attack(unit: Unit) {
+        attack(unit: Unit): void {
+                unit.takeDamage(this.damage);
+
+                // Apply confusion only when a player hits an enemy,
+                // but not when an enemy hits an enemy
                 const enemy = unit as Enemy; // TODO: class for Mobs in case if we need NPCs
-                enemy.hp -= this.damage;
                 if (this.world.randomizer.getRandomBool()) {
                         enemy.behaviour = new Confusion(enemy.behaviour, this.moveDuration, this.world.turnsCnt);
                 }
@@ -212,12 +230,27 @@ export class Player extends Unit {
                 }
         }
 
+        get damage(): number {
+                let dmg = super.damage;
+                for (const item of this.inventory.used) {
+                        dmg = item.attackDecorator(dmg);
+                }
+                return dmg;
+        }
+
+        takeDamage(dmg: number): void {
+                for (const item of this.inventory.used) {
+                        dmg = item.getDamageDecorator(dmg);
+                }
+                super.takeDamage(dmg);
+        }
+
         /**
          * Attempt to take equipment from currect cell of player
          * @returns true if equipment is taken
          */
         tryToTakeEquipment(): boolean {
-                const equip = this.world.getAndRemoveEquipmentAt(this.pos)
+                const equip = this.world.getAndRemoveEquipmentAt(this.pos);
                 if (equip === undefined) {
                         return false;
                 }
@@ -290,14 +323,10 @@ function canSee(unit1: Unit, unit2: Unit): boolean {
 function moveRandom(enemy: Enemy): Vector {
         const num: number = new SeededRandomUtilities().getRandomIntegar(3);
         switch (num) {
-                case 0:
-                        return { x: 0, y: -1 };
-                case 1:
-                        return { x: -1, y: 0 };
-                case 2:
-                        return { x: 0, y: 1 };
-                default:
-                        return { x: 1, y: 0 };
+                case 0: return { x: 0, y: -1 };
+                case 1: return { x: -1, y: 0 };
+                case 2: return { x: 0, y: 1 };
+                default: return { x: 1, y: 0 };
         }
 }
 
@@ -309,7 +338,7 @@ export abstract class EnemyBehaviour {
          * @param enemy
          * @returns
          */
-        standStill(enemy: Enemy) {
+        standStill(enemy: Enemy): Vector {
                 return { x: 0, y: 0 };
         }
 
@@ -317,7 +346,7 @@ export abstract class EnemyBehaviour {
          * Make a move
          * @param enemy enemy
          */
-        abstract move(enemy: Enemy): EnemyBehaviour
+        abstract move(enemy: Enemy): EnemyBehaviour;
 }
 
 export abstract class EnemyMaybeMoveTowardsThePlayer extends EnemyBehaviour {
@@ -438,9 +467,9 @@ export class Enemy extends Unit {
                 public behaviour: EnemyBehaviour,
                 public hp: number,
                 public maxHp: number,
-                public damage: number,
+                baseDamage: number,
         ) {
-                super(world, pos, hp, maxHp, damage);
+                super(world, pos, hp, maxHp, baseDamage);
         }
 
         /**
@@ -454,7 +483,7 @@ export class Enemy extends Unit {
          * Renders an enemy
          * @param ctx
          */
-        render(ctx: CanvasRenderingContext2D) {
+        render(ctx: CanvasRenderingContext2D): void {
                 ctx.fillStyle = '#000000';
                 if (canSee(this, this.world.player)) {
                         ctx.fillStyle = '#ff0000';
@@ -469,14 +498,14 @@ export class Enemy extends Unit {
          * Attacks the defending unit
          * @param defender
          */
-        attack(defender: Unit) {
-                defender.hp -= this.damage;
+        attack(defender: Unit): void {
+                defender.takeDamage(this.damage);
         }
 
         /**
          * Action on death
          */
-        death(): void {
+        death() {
                 this.world.enemies.splice(this.world.enemies.indexOf(this), 1);
                 this.world.units.splice(this.world.units.indexOf(this), 1);
         }
@@ -542,12 +571,14 @@ export class GetRandomPosition {
          * Returns a vector with coordinates of a free cell
          * @returns
          */
-        public get(): Vector {
-                let x, y: number;
+        get(): Vector {
+                let cell: Vector;
                 do {
-                        x = this.randomizer.getRandomIntegar(this.width);
-                        y = this.randomizer.getRandomIntegar(this.height);
-                } while (!this.world.getCellAt({ x, y }).isWalkable);
-                return { x: x, y: y };
+                        cell = {
+                                x: this.randomizer.getRandomIntegar(this.width),
+                                y: this.randomizer.getRandomIntegar(this.height),
+                        };
+                } while (!this.world.getCellAt(cell).isWalkable);
+                return cell;
         }
 }

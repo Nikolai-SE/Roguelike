@@ -17,7 +17,7 @@ class SolidCell {
                 private readonly color: string,
         ) { }
 
-        render(ctx: CanvasRenderingContext2D, pos: Vector) {
+        render(ctx: CanvasRenderingContext2D, pos: Vector): void {
                 ctx.fillStyle = this.color;
                 ctx.fillRect(pos.x, pos.y, 1 + EPS, 1 + EPS);
         }
@@ -36,10 +36,10 @@ export class World {
         readonly enemies: Enemy[] = new Array;
         readonly randomizer: SeededRandomUtilities;
         private walls: boolean[][];
-        public lastUpdate: number = 0;
-        public turnsCnt: number = 0;
-        public gameOver: boolean = false;
         private equipment: Map<String, Equipment>;
+        lastUpdate: number = 0;
+        turnsCnt: number = 0;
+        gameOver: boolean = false;
 
         constructor(
                 generatorSeed: number = -1,
@@ -47,8 +47,8 @@ export class World {
                 private height: number = 15,
         ) {
                 if (generatorSeed === -1) {
-                        const date_ = new Date();
-                        generatorSeed = date_.getTime();
+                        const date = new Date();
+                        generatorSeed = date.getTime();
                 }
                 this.randomizer = new SeededRandomUtilities(generatorSeed.toString());
                 this.walls = this.generateWalls();
@@ -138,7 +138,7 @@ export class World {
                 }
         }
 
-        update(absTime: number, dt: number) {
+        update(absTime: number, dt: number): void {
                 if (absTime - this.lastUpdate > this.updateFrequency) {
                         this.turnsCnt++;
                         for (const u of this.enemies) {
