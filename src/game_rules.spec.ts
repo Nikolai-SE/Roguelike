@@ -5,27 +5,17 @@ import { Player, Unit } from "./units";
 
 
 export class WorldMock extends World {
-        private widthMock = 15;
-        private heightMock = 15;
         readonly player: Player;
+        readonly units: Unit[];
 
         constructor() {
                 super(0, 15, 15);
                 this.player = new Player(this, { x: 4, y: 4 }, 100, 100, 3);
-        }
-
-        getUnitAt(pos: Vector): Unit | null {
-                // Считаем, что юнитов в принципе очень мало в сравнении с клетками
-                for (const u of this.units) {
-                        if (eq(pos, u.pos)) {
-                                return u;
-                        }
-                }
-                return null;
+                this.units = [this.player];
         }
 
         getCellAt(pos: Vector): CellType {
-                if (pos.x < 0 || pos.y < 0 || pos.x >= this.widthMock || pos.y >= this.heightMock) {
+                if (pos.x < 0 || pos.y < 0 || pos.x >= 15 || pos.y >= 15) {
                         return bedrock;
                 } else if ((pos.x + pos.y) % 4 === 2) {
                         return wall;
