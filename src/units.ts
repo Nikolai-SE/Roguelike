@@ -11,7 +11,7 @@ import { Vector, add, sub } from "./vector";
  * @param defender - a unit who is defending
  * @returns void
  */
-function fight(attacker: Unit, defender: Unit): void {
+export function fight(attacker: Unit, defender: Unit): void {
         attacker.attack(defender);
         if (defender.checkDeath()) {
                 attacker.onKill(defender);

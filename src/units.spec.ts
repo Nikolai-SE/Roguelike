@@ -1,11 +1,33 @@
 import { ok, equal } from "assert";
 import { Helmet, Sword } from "./equipment";
-import { CreateEnemy, Enemy, PassiveBehaviour, Player } from "./units";
+import { CreateEnemy, Enemy, PassiveBehaviour, Player, fight } from "./units";
 import { WorldMock } from "./game_rules.spec";
 import { World } from "./game_rules";
 import { eq } from "./rectangle";
 import { Vector } from "./vector";
 
+describe('Fight System', () => {
+        // it('Two units should fight when trying to get on the same square', () => {
+        //         const world = new WorldMock();
+        //         const unit1 = world.player;
+        //         const unit2 = new Enemy(world, { x: 4, y: 3 }, new PassiveBehaviour(), 100, 100, 1);
+        //         unit2.tryWalk({ x: 0, y: 1 });
+
+        //         equal(unit1.hp, unit1.maxHp - unit2.damage);
+        //         equal(unit2.hp, unit2.maxHp - unit1.damage);
+        // });
+
+        it('If the attacker kills the defender, the attacker does not receive any damage', () => {
+                const world = new WorldMock();
+                const unit1 = world.player;
+                const unit2 = new Enemy(world, { x: 3, y: 4 }, new PassiveBehaviour(), 100, 100, 100);
+                
+                fight(unit2, unit1);
+
+                equal(unit2.hp, unit2.maxHp);
+                equal(unit1.checkDeath(), true);
+        })
+})
 
 describe('Player Inventory', () => {
         it('should be equal to itself', () => {
