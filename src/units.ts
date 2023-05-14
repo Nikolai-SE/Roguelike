@@ -560,25 +560,36 @@ export class CreateEnemy {
 }
 
 export class GetRandomPosition {
+        private busyCell: boolean[][];
         constructor(
                 readonly world: World,
                 private width: number,
                 private height: number,
                 private randomizer: SeededRandomUtilities
-        ) { }
+        ) {
+                this.busyCell = [];
+                for (let i = 0; i < height; i++) {
+                        this.busyCell[i] = [];
+                        for (let j = 0; j < width; j++) {
+                                const x: number = i;
+                                const y: number = j;
+                                const cell: Vector = { x, y };
+                                this.busyCell[i][j] = this.world.getCellAt(cell).isWalkable;
+                        }
+                }
+        }
 
         /**
          * Returns a vector with coordinates of a free cell
          * @returns
          */
         get(): Vector {
-                let cell: Vector;
+                let x, y: number;
                 do {
-                        cell = {
-                                x: this.randomizer.getRandomIntegar(this.width),
-                                y: this.randomizer.getRandomIntegar(this.height),
-                        };
-                } while (!this.world.getCellAt(cell).isWalkable);
-                return cell;
+                        x = this.randomizer.getRandomIntegar(this.width);
+                        y = this.randomizer.getRandomIntegar(this.height);
+                } while (!this.busyCell[x][y]);
+                this.busyCell[x][y] = true
+                return { x, y };
         }
 }
