@@ -472,6 +472,13 @@ export class Enemy extends Unit {
                 super(world, pos, hp, maxHp, baseDamage);
         }
 
+        private ctxFillStyle = '#000000';
+
+        setCtxFillStyle(fillStyle: string): Enemy {
+                this.ctxFillStyle = fillStyle;
+                return this;
+        }
+
         /**
          * Moves enemy according to his behaviour
          */
@@ -484,7 +491,7 @@ export class Enemy extends Unit {
          * @param ctx
          */
         render(ctx: CanvasRenderingContext2D): void {
-                ctx.fillStyle = '#000000';
+                ctx.fillStyle = this.ctxFillStyle;
                 if (canSee(this, this.world.player)) {
                         ctx.fillStyle = '#ff0000';
                 } // TODO: delete later
@@ -554,7 +561,7 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory{
                         SimpleEnemyFactory.MAX_HP,
                         SimpleEnemyFactory.MAX_HP,
                         SimpleEnemyFactory.MAX_DAMAGE
-                )
+                ).setCtxFillStyle('ffd700')
         }
 
         public createMediunEnemy(position: Vector): Enemy {
@@ -565,7 +572,7 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory{
                         2 * SimpleEnemyFactory.MAX_HP / 3,
                         2 * SimpleEnemyFactory.MAX_HP / 3,
                         3 * SimpleEnemyFactory.MAX_DAMAGE / 4
-                )
+                ).setCtxFillStyle('c7d1da')
         }
 
         public createEasyEnemy(position: Vector): Enemy {
