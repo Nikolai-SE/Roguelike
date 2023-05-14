@@ -546,22 +546,24 @@ export abstract class AbstractEnemyFactory {
         }
 
         /**
-         * createHardEnemy
+         * create hard-level enemy
          */
         public abstract createHardEnemy(position: Vector) : Enemy; 
 
         /**
-         * createMediunEnemy
+         * create medium-level enemy
          */
-        public abstract createMediunEnemy(position: Vector) : Enemy;
+        public abstract createMediumEnemy(position: Vector) : Enemy;
 
         /**
-         * createEasyEnemy
+         * create easy-level enemy
          */
         public abstract createEasyEnemy(position: Vector) : Enemy;
 }
 
-
+/**
+ * Factory produces default circle enemies
+ */
 export class SimpleEnemyFactory extends AbstractEnemyFactory{
 
         private static aggressiveBehaviour = new AggressiveBehaviour();
@@ -582,7 +584,7 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory{
                 ).setCtxFillStyle('ffd700');
         }
 
-        public createMediunEnemy(position: Vector): Enemy {
+        public createMediumEnemy(position: Vector): Enemy {
                 return new Enemy(
                         this.world,
                         position,
@@ -606,6 +608,9 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory{
 }
 
 
+/**
+ * Factory produces triangle enemies
+ */
 export class TriangleEnemyFactory extends AbstractEnemyFactory{
 
         private static aggressiveBehaviour = new AggressiveBehaviour();
@@ -644,7 +649,7 @@ export class TriangleEnemyFactory extends AbstractEnemyFactory{
                 .setEnemyRender(this.enemyRender);
         }
 
-        public createMediunEnemy(position: Vector): Enemy {
+        public createMediumEnemy(position: Vector): Enemy {
                 return new Enemy(
                         this.world,
                         position,
