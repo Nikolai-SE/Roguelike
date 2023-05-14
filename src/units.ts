@@ -556,26 +556,10 @@ export class CreateEnemy {
                         this.getRandomBefore(10)
                 )
         }
-
-        /**
-         * Returns true if the cell is occupied, false otherwise
-         * @returns
-         */
-        getCellAt(pos: Vector): boolean {
-                return this.getRandomPosition.getCellAt(pos);
-        }
-
-        /**
-         * Returns the number of generated enemies
-         * @returns
-         */
-        getCount(): number {
-                return this.getRandomPosition.getCount();
-        }
 }
 
 export class GetRandomPosition {
-        private busyCell: boolean[][];
+        private freeCell: boolean[][];
         private count: number = 0;
         constructor(
                 readonly world: World,
@@ -583,14 +567,14 @@ export class GetRandomPosition {
                 private height: number,
                 private randomizer: SeededRandomUtilities
         ) {
-                this.busyCell = [];
+                this.freeCell = [];
                 for (let i = 0; i < height; i++) {
-                        this.busyCell[i] = [];
+                        this.freeCell[i] = [];
                         for (let j = 0; j < width; j++) {
                                 const x: number = i;
                                 const y: number = j;
                                 const cell: Vector = { x, y };
-                                this.busyCell[i][j] = this.world.getCellAt(cell).isWalkable;
+                                this.freeCell[i][j] = this.world.getCellAt(cell).isWalkable;
                         }
                 }
         }
@@ -604,25 +588,9 @@ export class GetRandomPosition {
                 do {
                         x = this.randomizer.getRandomIntegar(this.width);
                         y = this.randomizer.getRandomIntegar(this.height);
-                } while (!this.busyCell[x][y]);
-                this.busyCell[x][y] = false;
+                } while (!this.freeCell[x][y]);
+                this.freeCell[x][y] = false;
                 this.count++;
                 return { x, y };
-        }
-
-        /**
-         * Returns true if the cell is occupied, false otherwise
-         * @returns
-         */
-        getCellAt(pos: Vector): boolean {
-                return this.busyCell[pos.x][pos.y];
-        }
-
-        /**
-         * Returns the number of generated enemies
-         * @returns
-         */
-        getCount(): number {
-                return this.count;
         }
 }
