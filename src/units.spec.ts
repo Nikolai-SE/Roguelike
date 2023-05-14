@@ -69,7 +69,7 @@ describe('Player Inventory', () => {
         });
 });
 
-describe('CreateEnemy', () => {
+describe('Create enemy', () => {
         it('must generate as many enemies as requested', () => {
                 const width: number = 15;
                 const height: number = 15;
