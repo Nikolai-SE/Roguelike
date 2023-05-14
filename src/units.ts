@@ -511,6 +511,75 @@ export class Enemy extends Unit {
         }
 }
 
+
+export abstract class AbstractEnemyFactory {
+
+        protected world: World;
+
+        constructor(world: World) {
+                this.world = world;
+        }
+
+        /**
+         * createHardEnemy
+         */
+        public abstract createHardEnemy(position: Vector) : Enemy; 
+
+        /**
+         * createMediunEnemy
+         */
+        public abstract createMediunEnemy(position: Vector) : Enemy;
+
+        /**
+         * createEasyEnemy
+         */
+        public abstract createEasyEnemy(position: Vector) : Enemy;
+}
+
+
+export class SimpleEnemyFactory extends AbstractEnemyFactory{
+
+        private static aggressiveBehaviour = new AggressiveBehaviour();
+        private static passiveBehaviour = new PassiveBehaviour();
+        private static cowardBehaviour = new CowardBehaviour();
+
+        private static MAX_HP = 10;
+        private static MAX_DAMAGE = 10;
+
+        public createHardEnemy(position: Vector): Enemy {
+                return new Enemy(
+                        this.world,
+                        position,
+                        SimpleEnemyFactory.aggressiveBehaviour,
+                        SimpleEnemyFactory.MAX_HP,
+                        SimpleEnemyFactory.MAX_HP,
+                        SimpleEnemyFactory.MAX_DAMAGE
+                )
+        }
+
+        public createMediunEnemy(position: Vector): Enemy {
+                return new Enemy(
+                        this.world,
+                        position,
+                        SimpleEnemyFactory.aggressiveBehaviour,
+                        2 * SimpleEnemyFactory.MAX_HP / 3,
+                        2 * SimpleEnemyFactory.MAX_HP / 3,
+                        3 * SimpleEnemyFactory.MAX_DAMAGE / 4
+                )
+        }
+
+        public createEasyEnemy(position: Vector): Enemy {
+                return new Enemy(
+                        this.world,
+                        position,
+                        SimpleEnemyFactory.aggressiveBehaviour,
+                        SimpleEnemyFactory.MAX_HP / 3,
+                        SimpleEnemyFactory.MAX_HP / 3,
+                        SimpleEnemyFactory.MAX_DAMAGE / 4
+                )
+        }        
+}
+
 export class CreateEnemy {
         private getRandomPosition: GetRandomPosition
         private behaviours: EnemyBehaviour[] = [new AggressiveBehaviour(), new PassiveBehaviour(), new CowardBehaviour()];
