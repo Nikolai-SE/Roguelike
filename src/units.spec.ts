@@ -1,7 +1,10 @@
 import { ok, equal } from "assert";
 import { Helmet, Sword } from "./equipment";
-import { Enemy, PassiveBehaviour, Player } from "./units";
+import { CreateEnemy, Enemy, PassiveBehaviour, Player } from "./units";
 import { WorldMock } from "./game_rules.spec";
+import { World } from "./game_rules";
+import { eq } from "./rectangle";
+import { Vector } from "./vector";
 
 
 describe('Player Inventory', () => {
@@ -65,3 +68,28 @@ describe('Player Inventory', () => {
                 equal(player.hp, 80);
         });
 });
+
+describe('CreateEnemy', () => {
+        it('must generate as many enemies as requested', () => {
+                const width: number = 15;
+                const height: number = 15;
+                const world: World = new World(-1, width, height);
+                const count: number = world.enemies.length;
+                let calcCount: number = 0;
+                let enemiesPos: boolean[][] = []
+                for (let i = 0; i < height; i++) {
+                        enemiesPos[i] = [];
+                        for (let j = 0; j < width; j++) {
+                                enemiesPos[i][j] = false;
+                        }
+                }
+                for (let enemy of world.enemies) {
+                        const pos: Vector = enemy.pos
+                        if (!enemiesPos[pos.x][pos.y]) {
+                                enemiesPos[pos.x][pos.y] = true;
+                                calcCount++;
+                        }
+                }
+                equal(count, calcCount)
+        })
+})

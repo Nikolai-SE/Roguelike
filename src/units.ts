@@ -557,10 +557,26 @@ export class CreateEnemy {
                 )
         }
 
+        /**
+         * Returns true if the cell is occupied, false otherwise
+         * @returns
+         */
+        getCellAt(pos: Vector): boolean {
+                return this.getRandomPosition.getCellAt(pos);
+        }
+
+        /**
+         * Returns the number of generated enemies
+         * @returns
+         */
+        getCount(): number {
+                return this.getRandomPosition.getCount();
+        }
 }
 
 export class GetRandomPosition {
         private busyCell: boolean[][];
+        private count: number = 0;
         constructor(
                 readonly world: World,
                 private width: number,
@@ -589,7 +605,24 @@ export class GetRandomPosition {
                         x = this.randomizer.getRandomIntegar(this.width);
                         y = this.randomizer.getRandomIntegar(this.height);
                 } while (!this.busyCell[x][y]);
-                this.busyCell[x][y] = true
+                this.busyCell[x][y] = false;
+                this.count++;
                 return { x, y };
+        }
+
+        /**
+         * Returns true if the cell is occupied, false otherwise
+         * @returns
+         */
+        getCellAt(pos: Vector): boolean {
+                return this.busyCell[pos.x][pos.y];
+        }
+
+        /**
+         * Returns the number of generated enemies
+         * @returns
+         */
+        getCount(): number {
+                return this.count;
         }
 }
