@@ -460,6 +460,24 @@ export class Confusion extends EnemyBehaviour {
         }
 }
 
+
+class EnemyRender {
+        public render(ctx: CanvasRenderingContext2D, position: Vector, canSee: boolean, ctxFillStyles: [any]) : void {
+                ctx.save();
+                ctx.fillStyle = ctxFillStyles[0];
+                if (canSee) {
+                        ctx.strokeStyle = '#ff0000';
+                }
+                ctx.beginPath();
+                ctx.arc(position.x + 0.5, position.y + 0.5, 0.3, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.closePath();
+                ctx.restore();
+        }   
+        
+        public static defaultRender = new EnemyRender();
+}
+
 export class Enemy extends Unit {
         constructor(
                 world: World,
@@ -470,6 +488,13 @@ export class Enemy extends Unit {
                 baseDamage: number,
         ) {
                 super(world, pos, hp, maxHp, baseDamage);
+        }
+
+        enemyRender = EnemyRender.defaultRender;
+
+        setEnemyRender(enemyRender: EnemyRender): Enemy {
+                this.enemyRender = enemyRender;
+                return this;
         }
 
         private ctxFillStyle = '#000000';
@@ -491,14 +516,7 @@ export class Enemy extends Unit {
          * @param ctx
          */
         render(ctx: CanvasRenderingContext2D): void {
-                ctx.fillStyle = this.ctxFillStyle;
-                if (canSee(this, this.world.player)) {
-                        ctx.fillStyle = '#ff0000';
-                } // TODO: delete later
-                ctx.beginPath();
-                ctx.arc(this.pos.x + 0.5, this.pos.y + 0.5, 0.3, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.closePath();
+                this.enemyRender.render(ctx, this.pos, canSee(this, this.world.player), [this.ctxFillStyle]);
         }
 
         /**
@@ -561,30 +579,93 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory{
                         SimpleEnemyFactory.MAX_HP,
                         SimpleEnemyFactory.MAX_HP,
                         SimpleEnemyFactory.MAX_DAMAGE
-                ).setCtxFillStyle('ffd700')
+                ).setCtxFillStyle('ffd700');
         }
 
         public createMediunEnemy(position: Vector): Enemy {
                 return new Enemy(
                         this.world,
                         position,
-                        SimpleEnemyFactory.aggressiveBehaviour,
+                        SimpleEnemyFactory.cowardBehaviour,
                         2 * SimpleEnemyFactory.MAX_HP / 3,
                         2 * SimpleEnemyFactory.MAX_HP / 3,
                         3 * SimpleEnemyFactory.MAX_DAMAGE / 4
-                ).setCtxFillStyle('c7d1da')
+                ).setCtxFillStyle('c7d1da');
         }
 
         public createEasyEnemy(position: Vector): Enemy {
                 return new Enemy(
                         this.world,
                         position,
-                        SimpleEnemyFactory.aggressiveBehaviour,
+                        SimpleEnemyFactory.passiveBehaviour,
                         SimpleEnemyFactory.MAX_HP / 3,
                         SimpleEnemyFactory.MAX_HP / 3,
                         SimpleEnemyFactory.MAX_DAMAGE / 4
-                )
+                );
         }        
+}
+
+
+export class TriangleEnemyFactory extends AbstractEnemyFactory{
+
+        private static aggressiveBehaviour = new AggressiveBehaviour();
+        private static cowardBehaviour = new CowardBehaviour();
+
+        private enemyRender = new class extends EnemyRender{
+                public render(ctx: CanvasRenderingContext2D, position: Vector, canSee: boolean, ctxFillStyles: [any]) : void {
+                        ctx.save();
+                        ctx.fillStyle = ctxFillStyles[0];
+                        if (canSee) {
+                                ctx.strokeStyle = '#ff0000';
+                        }
+                        ctx.beginPath();
+                        ctx.moveTo(position.x + 0.15, position.y + 0.85);
+                        ctx.lineTo(position.x + 0.85, position.y + 0.85);
+                        ctx.lineTo(position.x + 0.5, position.y + 0.15);
+                        ctx.lineTo(position.x + 0.15, position.y + 0.85);
+                        ctx.fill();
+                        ctx.closePath();
+                        ctx.restore();
+                }
+        }
+
+        private static MAX_HP = 12;
+        private static MAX_DAMAGE = 12;
+
+        public createHardEnemy(position: Vector): Enemy {
+                return new Enemy(
+                        this.world,
+                        position,
+                        TriangleEnemyFactory.aggressiveBehaviour,
+                        TriangleEnemyFactory.MAX_HP,
+                        TriangleEnemyFactory.MAX_HP,
+                        TriangleEnemyFactory.MAX_DAMAGE
+                ).setCtxFillStyle('ffd700')
+                .setEnemyRender(this.enemyRender);
+        }
+
+        public createMediunEnemy(position: Vector): Enemy {
+                return new Enemy(
+                        this.world,
+                        position,
+                        TriangleEnemyFactory.aggressiveBehaviour,
+                        2 * TriangleEnemyFactory.MAX_HP / 3,
+                        2 * TriangleEnemyFactory.MAX_HP / 3,
+                        3 * TriangleEnemyFactory.MAX_DAMAGE / 4
+                ).setCtxFillStyle('c7d1da')
+                .setEnemyRender(this.enemyRender);
+        }
+
+        public createEasyEnemy(position: Vector): Enemy {
+                return new Enemy(
+                        this.world,
+                        position,
+                        TriangleEnemyFactory.cowardBehaviour,
+                        TriangleEnemyFactory.MAX_HP / 3,
+                        TriangleEnemyFactory.MAX_HP / 3,
+                        TriangleEnemyFactory.MAX_DAMAGE / 4
+                ).setEnemyRender(this.enemyRender);
+        } 
 }
 
 export class CreateEnemy {
