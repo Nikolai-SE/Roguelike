@@ -756,6 +756,7 @@ export class GetRandomPosition {
         get(): Vector {
                 let x, y: number;
                 do {
+                        console.log("wtf");
                         x = this.randomizer.getRandomIntegar(this.width);
                         y = this.randomizer.getRandomIntegar(this.height);
                 } while (!this.freeCell[x][y]);

@@ -29,7 +29,7 @@ export class RandomWorldBuilder implements WorldBuilder {
     private numberOfEnemies: number;
     private world: World;
     private enemyFactory: AbstractEnemyFactory;
-    private getRandomPosition: GetRandomPosition;
+    private getRandomPosition: GetRandomPosition | null = null;
 
     constructor(
         width: number = 15,
@@ -46,7 +46,6 @@ export class RandomWorldBuilder implements WorldBuilder {
         this.numberOfEquipment = numberOfEquipment;
         this.enemyFactory = enemyFactory == undefined ? new SimpleEnemyFactory(this.world) : enemyFactory;
         this.numberOfEnemies = numberOfEnemies == undefined ? randomizer.getRandomIntegar(15, 7) : numberOfEnemies;
-        this.getRandomPosition = new GetRandomPosition(this.world, this.width, this.height, this.randomizer);
     }
 
     buildSize(): WorldBuilder {
@@ -86,6 +85,7 @@ export class RandomWorldBuilder implements WorldBuilder {
     }
 
     buildEnemies(): WorldBuilder {
+        this.getRandomPosition = this.getRandomPosition == null ? new GetRandomPosition(this.world, this.width, this.height, this.randomizer) : this.getRandomPosition;
         this.world.enemies = [];
 
         for (let i = 0; i < this.numberOfEnemies; i++) {
@@ -127,6 +127,7 @@ export class RandomWorldBuilder implements WorldBuilder {
     }
 
     buildPlayer(): WorldBuilder {
+        this.getRandomPosition = this.getRandomPosition == null ? new GetRandomPosition(this.world, this.width, this.height, this.randomizer) : this.getRandomPosition;
         this.world.player = new Player(this.world, this.getRandomPosition.get(), 10, 10, 3);
         return this;
     }
