@@ -5,11 +5,10 @@ import { Player, Unit } from "./units";
 
 
 export class WorldMock extends World {
-        readonly player: Player;
         readonly units: Unit[];
 
         constructor() {
-                super(0, 15, 15);
+                super();
                 this.player = new Player(this, { x: 4, y: 4 }, 100, 100, 3);
                 this.units = [this.player];
         }

@@ -5,6 +5,7 @@ import { WorldMock } from "./game_rules.spec";
 import { World } from "./game_rules";
 import { eq } from "./rectangle";
 import { Vector } from "./vector";
+import { RandomWorldBuilder, WorldBuilder } from "./world_builder";
 
 describe('Fight System', () => {
         it('Two units should fight when trying to get on the same square', () => {
@@ -93,12 +94,18 @@ describe('Player Inventory', () => {
 
 describe('Create enemy', () => {
         it('must generate as many enemies as requested', () => {
+                const builder: WorldBuilder = new RandomWorldBuilder;
+                const world: World = builder
+                        .buildSize()
+                        .buildWalls()
+                        .buildEnemies()
+                        .getResult();
                 const width: number = 15;
                 const height: number = 15;
-                const world: World = new World(-1, width, height);
+                world.boundaries = { x: width, y: height };
                 const count: number = world.enemies.length;
                 let calcCount: number = 0;
-                let enemiesPos: boolean[][] = []
+                let enemiesPos: boolean[][] = [];
                 for (let i = 0; i < height; i++) {
                         enemiesPos[i] = [];
                         for (let j = 0; j < width; j++) {
