@@ -100,9 +100,8 @@ describe('Create enemy', () => {
                         .buildWalls()
                         .buildEnemies()
                         .getResult();
-                const width: number = 15;
-                const height: number = 15;
-                world.boundaries = { x: width, y: height };
+                const width: number = world.boundaries.x;
+                const height: number = world.boundaries.y;
                 const count: number = world.enemies.length;
                 let calcCount: number = 0;
                 let enemiesPos: boolean[][] = [];

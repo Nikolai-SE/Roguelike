@@ -1,4 +1,4 @@
-import { Enemy, Player } from "./units";
+import { AbstractEnemyFactory, Enemy, GetRandomPosition, Player, SimpleEnemyFactory, UnitType } from "./units";
 import { Vector, toIndexString } from "./vector";
 import { World } from "./game_rules";
 import { Equipment } from "./equipment";
@@ -26,19 +26,25 @@ export class RandomWorldBuilder implements WorldBuilder {
     private height: number;
     private randomizer: SeededRandomUtilities;
     private numberOfEquipment: number;
+    private numberOfEnemies: number;
     private world: World;
+    private enemyFactory: AbstractEnemyFactory;
 
     constructor(
         width: number = 15,
         height: number = 15,
         numberOfEquipment: number = 7,
-        randomizer: SeededRandomUtilities = new SeededRandomUtilities()
+        numberOfEnemies: number | undefined = undefined,
+        randomizer: SeededRandomUtilities = new SeededRandomUtilities(),
+        enemyFactory: AbstractEnemyFactory | undefined = undefined
     ) {
         this.world = new World();
         this.width = width;
         this.height = height;
         this.randomizer = randomizer;
         this.numberOfEquipment = numberOfEquipment;
+        this.enemyFactory = enemyFactory == undefined ? new SimpleEnemyFactory(this.world) : enemyFactory;
+        this.numberOfEnemies = numberOfEnemies == undefined ? randomizer.getRandomIntegar(15, 7) : numberOfEnemies;
     }
 
     buildSize(): WorldBuilder {
@@ -78,7 +84,25 @@ export class RandomWorldBuilder implements WorldBuilder {
     }
 
     buildEnemies(): WorldBuilder {
-        throw new Error("Method not implemented.");
+        const getRandomPosition: GetRandomPosition = new GetRandomPosition(this.world, this.width, this.height, this.randomizer);
+        this.world.enemies = [];
+
+        for (let i = 0; i < this.numberOfEnemies; i++) {
+            const randomPosition: Vector = getRandomPosition.get();
+            switch (this.randomizer.getRandomIntegar(3, 1)) {
+                case 1:
+                    this.enemyFactory.createEasyEnemy(randomPosition);
+                    break;
+                case 2:
+                    this.enemyFactory.createMediumEnemy(randomPosition);
+                    break;
+                case 3:
+                    this.enemyFactory.createHardEnemy(randomPosition);
+                    break;
+                default:
+                    break;
+            }
+        }
         return this;
     }
 

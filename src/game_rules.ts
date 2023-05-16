@@ -70,11 +70,15 @@ export class World {
         }
 
         get enemies(): Enemy[] {
-                return this.units.get(UnitType.Player)! as Enemy[];
+                return this.units.get(UnitType.Enemy)! as Enemy[];
         }
 
         get equipment(): Map<String, Equipment> {
                 return this._equipment;
+        }
+
+        get boundaries(): Vector {
+                return { x: this._width, y: this._height };
         }
 
         getUnitAt(pos: Vector): Unit | null {
