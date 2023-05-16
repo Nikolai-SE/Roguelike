@@ -1,6 +1,7 @@
 import { Vector, sub, div } from "./vector";
 import { Camera, HUD } from "./display";
 import { World } from "./game_rules";
+import { WorldBuilder, RandomWorldBuilder } from "./world_builder";
 
 export interface Page {
         update(absTime: number, dt: number): Page;
@@ -46,7 +47,14 @@ export class MainMenuPage {
 }
 
 export class GamePage {
-        readonly world = new World();
+        private worldBuilder: WorldBuilder = new RandomWorldBuilder;
+        readonly world = this.worldBuilder
+                .buildSize()
+                .buildWalls()
+                .buildPlayer()
+                .buildEnemies()
+                .buildEquipment()
+                .getResult();
         readonly camera = new Camera({ x: 0, y: 0 }, this);
         readonly hud = new HUD(this);
         public _confirmExit = false;

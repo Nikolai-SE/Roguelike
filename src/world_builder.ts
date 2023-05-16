@@ -89,19 +89,21 @@ export class RandomWorldBuilder implements WorldBuilder {
 
         for (let i = 0; i < this.numberOfEnemies; i++) {
             const randomPosition: Vector = getRandomPosition.get();
+            let enemy: Enemy;
             switch (this.randomizer.getRandomIntegar(3, 1)) {
                 case 1:
-                    this.enemyFactory.createEasyEnemy(randomPosition);
+                    enemy = this.enemyFactory.createEasyEnemy(randomPosition);
                     break;
                 case 2:
-                    this.enemyFactory.createMediumEnemy(randomPosition);
+                    enemy = this.enemyFactory.createMediumEnemy(randomPosition);
                     break;
                 case 3:
-                    this.enemyFactory.createHardEnemy(randomPosition);
+                    enemy = this.enemyFactory.createHardEnemy(randomPosition);
                     break;
                 default:
-                    break;
+                    throw new Error("how did you get here?");
             }
+            this.world.enemies.push(enemy);
         }
         return this;
     }
