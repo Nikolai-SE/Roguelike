@@ -1,4 +1,4 @@
-import { Enemy, Unit, Player } from "./units";
+import { Enemy, Player } from "./units";
 import { Vector, toIndexString } from "./vector";
 import { World } from "./game_rules";
 import { Equipment } from "./equipment";
@@ -101,7 +101,6 @@ export class RandomWorldBuilder implements WorldBuilder {
 
     buildPlayer(): WorldBuilder {
         this.world.player = new Player(this.world, { x: 3, y: 4 }, 10, 10, 3);
-        this.world.units.push(this.world.player);
         return this;
     }
 

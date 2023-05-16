@@ -2,7 +2,7 @@ import { CELL_SIZE } from "./common_constants";
 import { Equipment, Helmet, Sword } from "./equipment";
 import { Vector, eq, toIndexString } from "./vector";
 import SeededRandomUtilities from 'seeded-random-utilities';
-import { Player, Unit, Enemy, CreateEnemy, GetRandomPosition } from "./units";
+import { Player, Unit, Enemy, CreateEnemy, GetRandomPosition, UnitType } from "./units";
 
 export interface CellType {
         isWalkable: boolean,
@@ -31,10 +31,8 @@ export const white = new SolidCell(true, '#ffffff');
 
 export class World {
         readonly updateFrequency: number = 250;
-        readonly units: Unit[] = new Array;
-        readonly enemies: Enemy[] = new Array;
+        readonly units: Map<UnitType, Unit[]> = new Map;
         readonly randomizer: SeededRandomUtilities = new SeededRandomUtilities;
-        private _player: Player = new Player(this, { x: 0, y: 0 }, 0, 0, 0);
         private _walls: boolean[][] = new Array;
         private _equipment: Map<String, Equipment> = new Map<String, Equipment>;
         private _width: number = 0;
@@ -59,19 +57,33 @@ export class World {
                 this._height = size.y;
         }
 
+        set enemies(enemies: Enemy[]) {
+                this.units.set(UnitType.Enemy, enemies);
+        }
+
         set player(player: Player) {
-                this._player = player;
+                this.units.set(UnitType.Player, [player]);
         }
 
         get player(): Player {
-                return this._player;
+                return this.units.get(UnitType.Player)![0] as Player;
+        }
+
+        get enemies(): Enemy[] {
+                return this.units.get(UnitType.Player)! as Enemy[];
+        }
+
+        get equipment(): Map<String, Equipment> {
+                return this._equipment;
         }
 
         getUnitAt(pos: Vector): Unit | null {
                 // Считаем, что юнитов в принципе очень мало в сравнении с клетками
-                for (const u of this.units) {
-                        if (eq(pos, u.pos)) {
-                                return u;
+                for (let [_, value] of this.units) {
+                        for (const u of value) {
+                                if (eq(pos, u.pos)) {
+                                        return u;
+                                }
                         }
                 }
                 return null;

@@ -4,6 +4,15 @@ import SeededRandomUtilities from "seeded-random-utilities";
 import { Vector, add, sub } from "./vector";
 
 /**
+ * Enumeration of unit types. 
+ * When adding a new implementation of Unit - it is obligatory to update this Enum with the added type.
+ */
+export enum UnitType {
+        Enemy,
+        Player
+}
+
+/**
  * Initiates a fight between attacker and defending Unit.
  * The unit1 has the first strike.
  * If he kills the other Unit with this strike, unit1 will not receive a counter attack.
@@ -462,7 +471,7 @@ export class Confusion extends EnemyBehaviour {
 
 
 class EnemyRender {
-        public render(ctx: CanvasRenderingContext2D, position: Vector, canSee: boolean, ctxFillStyles: [any]) : void {
+        public render(ctx: CanvasRenderingContext2D, position: Vector, canSee: boolean, ctxFillStyles: [any]): void {
                 ctx.save();
                 ctx.fillStyle = ctxFillStyles[0];
                 if (canSee) {
@@ -473,8 +482,8 @@ class EnemyRender {
                 ctx.fill();
                 ctx.closePath();
                 ctx.restore();
-        }   
-        
+        }
+
         public static defaultRender = new EnemyRender();
 }
 
@@ -532,7 +541,6 @@ export class Enemy extends Unit {
          */
         death() {
                 this.world.enemies.splice(this.world.enemies.indexOf(this), 1);
-                this.world.units.splice(this.world.units.indexOf(this), 1);
         }
 }
 
@@ -548,23 +556,23 @@ export abstract class AbstractEnemyFactory {
         /**
          * create hard-level enemy
          */
-        public abstract createHardEnemy(position: Vector) : Enemy; 
+        public abstract createHardEnemy(position: Vector): Enemy;
 
         /**
          * create medium-level enemy
          */
-        public abstract createMediumEnemy(position: Vector) : Enemy;
+        public abstract createMediumEnemy(position: Vector): Enemy;
 
         /**
          * create easy-level enemy
          */
-        public abstract createEasyEnemy(position: Vector) : Enemy;
+        public abstract createEasyEnemy(position: Vector): Enemy;
 }
 
 /**
  * Factory produces default circle enemies
  */
-export class SimpleEnemyFactory extends AbstractEnemyFactory{
+export class SimpleEnemyFactory extends AbstractEnemyFactory {
 
         private static aggressiveBehaviour = new AggressiveBehaviour();
         private static passiveBehaviour = new PassiveBehaviour();
@@ -604,20 +612,20 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory{
                         SimpleEnemyFactory.MAX_HP / 3,
                         SimpleEnemyFactory.MAX_DAMAGE / 4
                 );
-        }        
+        }
 }
 
 
 /**
  * Factory produces triangle enemies
  */
-export class TriangleEnemyFactory extends AbstractEnemyFactory{
+export class TriangleEnemyFactory extends AbstractEnemyFactory {
 
         private static aggressiveBehaviour = new AggressiveBehaviour();
         private static cowardBehaviour = new CowardBehaviour();
 
-        private enemyRender = new class extends EnemyRender{
-                public render(ctx: CanvasRenderingContext2D, position: Vector, canSee: boolean, ctxFillStyles: [any]) : void {
+        private enemyRender = new class extends EnemyRender {
+                public render(ctx: CanvasRenderingContext2D, position: Vector, canSee: boolean, ctxFillStyles: [any]): void {
                         ctx.save();
                         ctx.fillStyle = ctxFillStyles[0];
                         if (canSee) {
@@ -646,7 +654,7 @@ export class TriangleEnemyFactory extends AbstractEnemyFactory{
                         TriangleEnemyFactory.MAX_HP,
                         TriangleEnemyFactory.MAX_DAMAGE
                 ).setCtxFillStyle('ffd700')
-                .setEnemyRender(this.enemyRender);
+                        .setEnemyRender(this.enemyRender);
         }
 
         public createMediumEnemy(position: Vector): Enemy {
@@ -658,7 +666,7 @@ export class TriangleEnemyFactory extends AbstractEnemyFactory{
                         2 * TriangleEnemyFactory.MAX_HP / 3,
                         3 * TriangleEnemyFactory.MAX_DAMAGE / 4
                 ).setCtxFillStyle('c7d1da')
-                .setEnemyRender(this.enemyRender);
+                        .setEnemyRender(this.enemyRender);
         }
 
         public createEasyEnemy(position: Vector): Enemy {
@@ -670,7 +678,7 @@ export class TriangleEnemyFactory extends AbstractEnemyFactory{
                         TriangleEnemyFactory.MAX_HP / 3,
                         TriangleEnemyFactory.MAX_DAMAGE / 4
                 ).setEnemyRender(this.enemyRender);
-        } 
+        }
 }
 
 export class CreateEnemy {

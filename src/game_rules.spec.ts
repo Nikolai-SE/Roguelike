@@ -1,16 +1,15 @@
 import { ok } from "assert";
 import { World, CellType, bedrock, wall, white, } from "./game_rules";
 import { Vector, eq } from "./vector";
-import { Player, Unit } from "./units";
+import { Player, Unit, UnitType } from "./units";
 
 
 export class WorldMock extends World {
-        readonly units: Unit[];
 
         constructor() {
                 super();
                 this.player = new Player(this, { x: 4, y: 4 }, 100, 100, 3);
-                this.units = [this.player];
+                this.units.set(UnitType.Player, [this.player]);
         }
 
         getCellAt(pos: Vector): CellType {

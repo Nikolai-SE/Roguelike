@@ -60,8 +60,11 @@ export class Camera {
                         }
                 }
 
-                for (const u of this.units) {
-                        u.render(ctx);
+
+                for (let [_, value] of this.units) {
+                        for (const u of value) {
+                                u.render(ctx);
+                        }
                 }
                 ctx.restore();
         }
