@@ -94,7 +94,7 @@ describe('Player Inventory', () => {
 
 describe('Create enemy', () => {
         it('must generate as many enemies as requested', () => {
-                const builder: WorldBuilder = new RandomWorldBuilder;
+                const builder: RandomWorldBuilder = new RandomWorldBuilder;
                 const world: World = builder.build();
                 const width: number = world.boundaries.x;
                 const height: number = world.boundaries.y;
