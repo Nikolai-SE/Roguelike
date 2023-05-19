@@ -9,6 +9,7 @@ export { World, CellType } from "./game_rules"
 
 export interface WorldBuilder {
     build(): World;
+    reset(): void;
 }
 
 export class RandomWorldBuilder implements WorldBuilder {
@@ -45,6 +46,11 @@ export class RandomWorldBuilder implements WorldBuilder {
         this.buildEnemies();
         this.buildEquipment();
         return this.world;
+    }
+
+    reset(): void {
+        this.world = new World();
+        this.getRandomPosition = null;
     }
 
     private buildSize(): WorldBuilder {
