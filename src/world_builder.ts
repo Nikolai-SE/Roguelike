@@ -8,17 +8,7 @@ import { Helmet, Sword } from "./equipment";
 export { World, CellType } from "./game_rules"
 
 export interface WorldBuilder {
-    buildSize(): WorldBuilder;
-
-    buildWalls(): WorldBuilder;
-
-    buildEnemies(): WorldBuilder;
-
-    buildEquipment(): WorldBuilder;
-
-    buildPlayer(): WorldBuilder;
-
-    getResult(): World;
+    build(): World;
 }
 
 export class RandomWorldBuilder implements WorldBuilder {
@@ -48,12 +38,21 @@ export class RandomWorldBuilder implements WorldBuilder {
         this.numberOfEnemies = numberOfEnemies == undefined ? randomizer.getRandomIntegar(15, 7) : numberOfEnemies;
     }
 
-    buildSize(): WorldBuilder {
+    build(): World {
+        this.buildSize();
+        this.buildWalls();
+        this.buildPlayer();
+        this.buildEnemies();
+        this.buildEquipment();
+        return this.world;
+    }
+
+    private buildSize(): WorldBuilder {
         this.world.boundaries = { x: this.width, y: this.height };
         return this;
     }
 
-    buildWalls(): WorldBuilder {
+    private buildWalls(): WorldBuilder {
         var walls: boolean[][] = [];
         for (let i = 0; i < this.width; i++) {
             walls[i] = [];
@@ -84,7 +83,7 @@ export class RandomWorldBuilder implements WorldBuilder {
         return this;
     }
 
-    buildEnemies(): WorldBuilder {
+    private buildEnemies(): WorldBuilder {
         this.getRandomPosition = this.getRandomPosition == null ? new GetRandomPosition(this.world, this.width, this.height, this.randomizer) : this.getRandomPosition;
         this.world.enemies = [];
 
@@ -109,7 +108,7 @@ export class RandomWorldBuilder implements WorldBuilder {
         return this;
     }
 
-    buildEquipment(): WorldBuilder {
+    private buildEquipment(): WorldBuilder {
         const equipment = new Map<String, Equipment>();
         for (let i = 0; i < this.numberOfEquipment; i++) {
             let pos = this.getRandomVector({ x: this.width, y: this.height });
@@ -126,14 +125,10 @@ export class RandomWorldBuilder implements WorldBuilder {
         return this;
     }
 
-    buildPlayer(): WorldBuilder {
+    private buildPlayer(): WorldBuilder {
         this.getRandomPosition = this.getRandomPosition == null ? new GetRandomPosition(this.world, this.width, this.height, this.randomizer) : this.getRandomPosition;
         this.world.player = new Player(this.world, this.getRandomPosition.get(), 10, 10, 3);
         return this;
-    }
-
-    getResult(): World {
-        return this.world;
     }
 
     private getRandomVector(maxVector: Vector): Vector {
