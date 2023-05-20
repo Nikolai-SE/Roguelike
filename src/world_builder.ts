@@ -152,3 +152,39 @@ export class RandomWorldBuilder implements WorldBuilder {
         };
     }
 }
+
+export class MockWorldBuilder implements WorldBuilder {
+    private _world: World = new World;
+
+    constructor(
+    ) {
+    }
+
+    build(): World {
+        return this._world!;
+    }
+
+    reset(): void {
+        this._world = new World();
+    }
+
+    public set boundaries(boundaries: Vector) {
+        this._world.boundaries = boundaries;
+    }
+
+    public set walls(walls: boolean[][]) {
+        this._world.walls = walls;
+    }
+
+    public set player(player: Player) {
+        this._world.player = player;
+    }
+
+    public set enemies(enemies: Enemy[]) {
+        this._world.enemies = enemies;
+    }
+
+    public set equipment(equipment: Map<String, Equipment>) {
+        this._world.equipment = equipment;
+    }
+}
