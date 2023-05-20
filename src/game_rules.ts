@@ -2,7 +2,7 @@ import { CELL_SIZE } from "./common_constants";
 import { Equipment, Helmet, Sword } from "./equipment";
 import { Vector, eq, toIndexString } from "./vector";
 import SeededRandomUtilities from 'seeded-random-utilities';
-import { Player, Unit, Enemy, CreateEnemy, GetRandomPosition, UnitType } from "./units";
+import { Player, Unit, Enemy, GetRandomPosition, UnitType } from "./units";
 
 export interface CellType {
         isWalkable: boolean,
@@ -31,10 +31,10 @@ export const white = new SolidCell(true, '#ffffff');
 
 export class World {
         readonly updateFrequency: number = 250;
-        readonly units: Map<UnitType, Unit[]> = new Map;
-        readonly randomizer: SeededRandomUtilities = new SeededRandomUtilities;
-        private _walls: boolean[][] = new Array;
-        private _equipment: Map<String, Equipment> = new Map<String, Equipment>;
+        readonly units: Map<UnitType, Unit[]> = new Map();
+        readonly randomizer: SeededRandomUtilities = new SeededRandomUtilities();
+        private _walls: boolean[][] = new Array();
+        private _equipment: Map<String, Equipment> = new Map();
         private _width: number = 0;
         private _height: number = 0;
         lastUpdate: number = 0;

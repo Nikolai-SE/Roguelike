@@ -9,11 +9,11 @@ describe('Equipment', () => {
                 ok(equipment.getDamageDecorator(42) === 42);
         });
         it('Sword should change attack', () => {
-                const sword = new Sword;
+                const sword = new Sword();
                 ok(sword.attackDecorator(42) != 42);
         });
         it('Helmet should make gamage less', () => {
-                const helmet = new Helmet;
+                const helmet = new Helmet();
                 ok(helmet.getDamageDecorator(42) < 42);
         });
 });
