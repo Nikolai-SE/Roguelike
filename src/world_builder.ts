@@ -18,13 +18,9 @@ export class RandomWorldBuilder implements WorldBuilder {
     private _randomizer: SeededRandomUtilities = new SeededRandomUtilities();
     private _numberOfEquipment: number = 7;
     private _numberOfEnemies: number = 12;
-    private _world: World = new World;
+    private _world: World = new World();
     private _enemyFactory: AbstractEnemyFactory = new SimpleEnemyFactory(this._world);
     private _getRandomPosition: GetRandomPosition | null = null;
-
-    constructor(
-    ) {
-    }
 
     build(): World {
         this.buildSize();

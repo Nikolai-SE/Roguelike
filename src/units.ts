@@ -4,7 +4,7 @@ import SeededRandomUtilities from "seeded-random-utilities";
 import { Vector, add, sub } from "./vector";
 
 /**
- * Enumeration of unit types. 
+ * Enumeration of unit types.
  * When adding a new implementation of Unit - it is obligatory to update this Enum with the added type.
  */
 export enum UnitType {
@@ -573,7 +573,6 @@ export abstract class AbstractEnemyFactory {
  * Factory produces default circle enemies
  */
 export class SimpleEnemyFactory extends AbstractEnemyFactory {
-
         private static aggressiveBehaviour = new AggressiveBehaviour();
         private static passiveBehaviour = new PassiveBehaviour();
         private static cowardBehaviour = new CowardBehaviour();
@@ -597,9 +596,9 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory {
                         this.world,
                         position,
                         SimpleEnemyFactory.cowardBehaviour,
-                        2 * SimpleEnemyFactory.MAX_HP / 3,
-                        2 * SimpleEnemyFactory.MAX_HP / 3,
-                        3 * SimpleEnemyFactory.MAX_DAMAGE / 4
+                        Math.floor(2 * SimpleEnemyFactory.MAX_HP / 3),
+                        Math.floor(2 * SimpleEnemyFactory.MAX_HP / 3),
+                        Math.floor(3 * SimpleEnemyFactory.MAX_DAMAGE / 4),
                 ).setCtxFillStyle('c7d1da');
         }
 
@@ -608,9 +607,9 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory {
                         this.world,
                         position,
                         SimpleEnemyFactory.passiveBehaviour,
-                        SimpleEnemyFactory.MAX_HP / 3,
-                        SimpleEnemyFactory.MAX_HP / 3,
-                        SimpleEnemyFactory.MAX_DAMAGE / 4
+                        Math.floor(SimpleEnemyFactory.MAX_HP / 3),
+                        Math.floor(SimpleEnemyFactory.MAX_HP / 3),
+                        Math.floor(SimpleEnemyFactory.MAX_DAMAGE / 4),
                 );
         }
 }
@@ -620,7 +619,6 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory {
  * Factory produces triangle enemies
  */
 export class TriangleEnemyFactory extends AbstractEnemyFactory {
-
         private static aggressiveBehaviour = new AggressiveBehaviour();
         private static cowardBehaviour = new CowardBehaviour();
 
@@ -662,9 +660,9 @@ export class TriangleEnemyFactory extends AbstractEnemyFactory {
                         this.world,
                         position,
                         TriangleEnemyFactory.aggressiveBehaviour,
-                        2 * TriangleEnemyFactory.MAX_HP / 3,
-                        2 * TriangleEnemyFactory.MAX_HP / 3,
-                        3 * TriangleEnemyFactory.MAX_DAMAGE / 4
+                        Math.floor(2 * TriangleEnemyFactory.MAX_HP / 3),
+                        Math.floor(2 * TriangleEnemyFactory.MAX_HP / 3),
+                        Math.floor(3 * TriangleEnemyFactory.MAX_DAMAGE / 4),
                 ).setCtxFillStyle('c7d1da')
                         .setEnemyRender(this.enemyRender);
         }
@@ -674,9 +672,9 @@ export class TriangleEnemyFactory extends AbstractEnemyFactory {
                         this.world,
                         position,
                         TriangleEnemyFactory.cowardBehaviour,
-                        TriangleEnemyFactory.MAX_HP / 3,
-                        TriangleEnemyFactory.MAX_HP / 3,
-                        TriangleEnemyFactory.MAX_DAMAGE / 4
+                        Math.floor(TriangleEnemyFactory.MAX_HP / 3),
+                        Math.floor(TriangleEnemyFactory.MAX_HP / 3),
+                        Math.floor(TriangleEnemyFactory.MAX_DAMAGE / 4),
                 ).setEnemyRender(this.enemyRender);
         }
 }

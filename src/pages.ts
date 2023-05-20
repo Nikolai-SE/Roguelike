@@ -47,7 +47,7 @@ export class MainMenuPage {
 }
 
 export class GamePage {
-        private worldBuilder: WorldBuilder = new RandomWorldBuilder;
+        private worldBuilder: WorldBuilder = new RandomWorldBuilder();
         readonly world = this.worldBuilder.build();
         readonly camera = new Camera({ x: 0, y: 0 }, this);
         readonly hud = new HUD(this);
