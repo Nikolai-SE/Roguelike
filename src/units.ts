@@ -1,7 +1,7 @@
 import { World, white } from "./game_rules";
 import { Equipment, Helmet, Sword } from "./equipment";
 import SeededRandomUtilities from "seeded-random-utilities";
-import { Vector, add, sub } from "./vector";
+import { Vector, add, eq, sub } from "./vector";
 
 /**
  * Enumeration of unit types.
@@ -574,6 +574,9 @@ class SlimeEnemy extends Enemy {
          * @returns whether this unit actually moved
          */
         tryMoveTo(pos: Vector): boolean {
+                if (eq(pos, this.pos)) {
+                        return true;
+                }
                 // Passive chance to leave a copy when moving
                 // that does not depend on behaviour strategy
                 const oldPos = this.pos;
@@ -604,6 +607,21 @@ export abstract class AbstractEnemyFactory {
          * create easy-level enemy
          */
         public abstract createEasyEnemy(position: Vector): Enemy;
+
+        /**
+         * create hard-level slime enemy
+         */
+        public abstract createHardSlime(position: Vector): SlimeEnemy;
+
+        /**
+         * create medium-level slime enemy
+         */
+        public abstract createMediumSlime(position: Vector): SlimeEnemy;
+
+        /**
+         * create easy-level slime enemy
+         */
+        public abstract createEasySlime(position: Vector): SlimeEnemy;
 }
 
 /**
@@ -651,6 +669,46 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory {
                         Math.floor(SimpleEnemyFactory.MAX_HP / 3),
                         Math.floor(SimpleEnemyFactory.MAX_HP / 3),
                         Math.floor(SimpleEnemyFactory.MAX_DAMAGE / 4),
+                );
+        }
+
+        public createHardSlime(position: Vector): SlimeEnemy {
+                const instance = new SlimeEnemy(
+                        this.world,
+                        position,
+                        SimpleEnemyFactory.aggressiveBehaviour,
+                        SimpleEnemyFactory.MAX_HP,
+                        SimpleEnemyFactory.MAX_HP,
+                        SimpleEnemyFactory.MAX_DAMAGE,
+                        0.25,
+                );
+                instance.ctxFillStyle = '#ffd700';
+                return instance;
+        }
+
+        public createMediumSlime(position: Vector): SlimeEnemy {
+                const instance = new SlimeEnemy(
+                        this.world,
+                        position,
+                        SimpleEnemyFactory.cowardBehaviour,
+                        Math.floor(2 * SimpleEnemyFactory.MAX_HP / 3),
+                        Math.floor(2 * SimpleEnemyFactory.MAX_HP / 3),
+                        Math.floor(3 * SimpleEnemyFactory.MAX_DAMAGE / 4),
+                        0.1,
+                );
+                instance.ctxFillStyle = '#c7d1da';
+                return instance;
+        }
+
+        public createEasySlime(position: Vector): SlimeEnemy {
+                return new SlimeEnemy(
+                        this.world,
+                        position,
+                        SimpleEnemyFactory.passiveBehaviour,
+                        Math.floor(SimpleEnemyFactory.MAX_HP / 3),
+                        Math.floor(SimpleEnemyFactory.MAX_HP / 3),
+                        Math.floor(SimpleEnemyFactory.MAX_DAMAGE / 4),
+                        0.05,
                 );
         }
 }
@@ -724,52 +782,82 @@ export class TriangleEnemyFactory extends AbstractEnemyFactory {
                 instance.enemyRender = this.enemyRender;
                 return instance;
         }
+
+        public createHardSlime(position: Vector): SlimeEnemy {
+                const instance = new SlimeEnemy(
+                        this.world,
+                        position,
+                        TriangleEnemyFactory.aggressiveBehaviour,
+                        TriangleEnemyFactory.MAX_HP,
+                        TriangleEnemyFactory.MAX_HP,
+                        TriangleEnemyFactory.MAX_DAMAGE,
+                        0.25,
+                );
+                instance.ctxFillStyle = '#ffd700';
+                return instance;
+        }
+
+        public createMediumSlime(position: Vector): SlimeEnemy {
+                const instance = new SlimeEnemy(
+                        this.world,
+                        position,
+                        TriangleEnemyFactory.cowardBehaviour,
+                        Math.floor(2 * TriangleEnemyFactory.MAX_HP / 3),
+                        Math.floor(2 * TriangleEnemyFactory.MAX_HP / 3),
+                        Math.floor(3 * TriangleEnemyFactory.MAX_DAMAGE / 4),
+                        0.1,
+                );
+                instance.ctxFillStyle = '#c7d1da';
+                return instance;
+        }
+
+        public createEasySlime(position: Vector): SlimeEnemy {
+                return new SlimeEnemy(
+                        this.world,
+                        position,
+                        TriangleEnemyFactory.cowardBehaviour,
+                        Math.floor(TriangleEnemyFactory.MAX_HP / 3),
+                        Math.floor(TriangleEnemyFactory.MAX_HP / 3),
+                        Math.floor(TriangleEnemyFactory.MAX_DAMAGE / 4),
+                        0.05,
+                );
+        }
 }
 
-export class CreateEnemy {
-        private getRandomPosition: GetRandomPosition
-        private behaviours: EnemyBehaviour[] = [new AggressiveBehaviour(), new PassiveBehaviour(), new CowardBehaviour()];
-        private len: number = this.behaviours.length;
-
+/**
+ * Special factory for mock units, does not implement standard interface
+ * both in order to not be mistaken for normal and because
+ * it requires a different interface
+ */
+export class MockUnitFactory {
         constructor(
-                private world: World,
-                width: number,
-                height: number,
-                private randomizer: SeededRandomUtilities
-        ) {
-                this.getRandomPosition = new GetRandomPosition(world, width, height, this.randomizer);
-        }
+                readonly world: World
+        ) { }
 
-        /**
-         * Returns a randomly selected mob behavior
-         * @returns
-         */
-        private getRandomBehavior(): EnemyBehaviour {
-                return this.behaviours[this.randomizer.getRandomIntegar(this.len)];
-        }
+        private static behaviour = new AggressiveBehaviour();
 
-        /**
-         * Returns a random number from 0 to m inclusive
-         * @param m
-         * @returns
-         */
-        private getRandomBefore(m: number): number {
-                return this.randomizer.getRandomIntegar(1, m);
-        }
-
-        /**
-         * Returns new Enemy
-         * @returns
-         */
-        get() {
-                return new Enemy(
+        public createWeakSlime(position: Vector): Enemy {
+                return new SlimeEnemy(
                         this.world,
-                        this.getRandomPosition.get(),
-                        this.getRandomBehavior(),
-                        this.getRandomBefore(10),
-                        this.getRandomBefore(10),
-                        this.getRandomBefore(10)
-                )
+                        position,
+                        MockUnitFactory.behaviour,
+                        10,
+                        10,
+                        1,
+                        0.0
+                );
+        }
+
+        public createStrongSlime(position: Vector): Enemy {
+                return new SlimeEnemy(
+                        this.world,
+                        position,
+                        MockUnitFactory.behaviour,
+                        10,
+                        10,
+                        1,
+                        1.0
+                );
         }
 }
 

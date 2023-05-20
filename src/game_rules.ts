@@ -2,7 +2,7 @@ import { CELL_SIZE } from "./common_constants";
 import { Equipment, Helmet, Sword } from "./equipment";
 import { Vector, eq, toIndexString } from "./vector";
 import SeededRandomUtilities from 'seeded-random-utilities';
-import { Player, Unit, Enemy, CreateEnemy, GetRandomPosition, UnitType } from "./units";
+import { Player, Unit, Enemy, GetRandomPosition, UnitType } from "./units";
 
 export interface CellType {
         isWalkable: boolean,
