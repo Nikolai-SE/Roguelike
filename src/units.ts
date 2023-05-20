@@ -42,7 +42,7 @@ export abstract class Unit {
                 private _pos: Vector,
                 public hp: number,
                 public maxHp: number,
-                private baseDamage: number,
+                protected baseDamage: number,
         ) { }
 
         get pos(): Vector {
@@ -500,18 +500,7 @@ export class Enemy extends Unit {
         }
 
         enemyRender = EnemyRender.defaultRender;
-
-        setEnemyRender(enemyRender: EnemyRender): Enemy {
-                this.enemyRender = enemyRender;
-                return this;
-        }
-
-        private ctxFillStyle = '#000000';
-
-        setCtxFillStyle(fillStyle: string): Enemy {
-                this.ctxFillStyle = fillStyle;
-                return this;
-        }
+        ctxFillStyle = '#000000';
 
         /**
          * Moves enemy according to his behaviour
@@ -544,14 +533,62 @@ export class Enemy extends Unit {
         }
 }
 
+/**
+ * Private class for slime type of enemies.
+ * They should not be visible from anywhere but the factory,
+ * and they are initially created by special factory methods.
+ */
+class SlimeEnemy extends Enemy {
+        constructor(
+                world: World,
+                pos: Vector,
+                behaviour: EnemyBehaviour,
+                hp: number,
+                maxHp: number,
+                baseDamage: number,
+                protected duplicationChance: number,
+        ) {
+                super(world, pos, behaviour, hp, maxHp, baseDamage);
+        }
+
+        private spreadTo(pos: Vector): void {
+                const instance = new SlimeEnemy(
+                        this.world,
+                        pos,
+                        this.behaviour,
+                        this.hp,
+                        this.maxHp,
+                        this.baseDamage,
+                        this.duplicationChance,
+                );
+                instance.ctxFillStyle = this.ctxFillStyle;
+                instance.enemyRender = this.enemyRender;
+                this.world.enemies.push(instance);
+        }
+
+        /**
+         * Tries to move this unit to given position.
+         * If it is walkable and not occupied by another unit - moves this unit.
+         * If there is another unit at this position - initiates the fight with this unit as an attacker.
+         * @param pos - desired position to move to
+         * @returns whether this unit actually moved
+         */
+        tryMoveTo(pos: Vector): boolean {
+                // Passive chance to leave a copy when moving
+                // that does not depend on behaviour strategy
+                const oldPos = this.pos;
+                const result = super.tryMoveTo(pos);
+                if (result && Math.random() < this.duplicationChance) {
+                        this.spreadTo(oldPos);
+                }
+                return result;
+        }
+}
 
 export abstract class AbstractEnemyFactory {
-
-        protected world: World;
-
-        constructor(world: World) {
-                this.world = world;
-        }
+        constructor(
+                protected world: World
+        ) { }
 
         /**
          * create hard-level enemy
@@ -581,25 +618,29 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory {
         private static MAX_DAMAGE = 10;
 
         public createHardEnemy(position: Vector): Enemy {
-                return new Enemy(
+                const instance = new Enemy(
                         this.world,
                         position,
                         SimpleEnemyFactory.aggressiveBehaviour,
                         SimpleEnemyFactory.MAX_HP,
                         SimpleEnemyFactory.MAX_HP,
                         SimpleEnemyFactory.MAX_DAMAGE
-                ).setCtxFillStyle('ffd700');
+                );
+                instance.ctxFillStyle = '#ffd700';
+                return instance;
         }
 
         public createMediumEnemy(position: Vector): Enemy {
-                return new Enemy(
+                const instance = new Enemy(
                         this.world,
                         position,
                         SimpleEnemyFactory.cowardBehaviour,
                         Math.floor(2 * SimpleEnemyFactory.MAX_HP / 3),
                         Math.floor(2 * SimpleEnemyFactory.MAX_HP / 3),
                         Math.floor(3 * SimpleEnemyFactory.MAX_DAMAGE / 4),
-                ).setCtxFillStyle('c7d1da');
+                );
+                instance.ctxFillStyle = '#c7d1da';
+                return instance;
         }
 
         public createEasyEnemy(position: Vector): Enemy {
@@ -644,38 +685,44 @@ export class TriangleEnemyFactory extends AbstractEnemyFactory {
         private static MAX_DAMAGE = 12;
 
         public createHardEnemy(position: Vector): Enemy {
-                return new Enemy(
+                const instance = new Enemy(
                         this.world,
                         position,
                         TriangleEnemyFactory.aggressiveBehaviour,
                         TriangleEnemyFactory.MAX_HP,
                         TriangleEnemyFactory.MAX_HP,
                         TriangleEnemyFactory.MAX_DAMAGE
-                ).setCtxFillStyle('ffd700')
-                        .setEnemyRender(this.enemyRender);
+                );
+                instance.ctxFillStyle = '#ffd700';
+                instance.enemyRender = this.enemyRender;
+                return instance;
         }
 
         public createMediumEnemy(position: Vector): Enemy {
-                return new Enemy(
+                const instance = new Enemy(
                         this.world,
                         position,
                         TriangleEnemyFactory.aggressiveBehaviour,
                         Math.floor(2 * TriangleEnemyFactory.MAX_HP / 3),
                         Math.floor(2 * TriangleEnemyFactory.MAX_HP / 3),
                         Math.floor(3 * TriangleEnemyFactory.MAX_DAMAGE / 4),
-                ).setCtxFillStyle('c7d1da')
-                        .setEnemyRender(this.enemyRender);
+                );
+                instance.ctxFillStyle = '#c7d1da';
+                instance.enemyRender = this.enemyRender;
+                return instance;
         }
 
         public createEasyEnemy(position: Vector): Enemy {
-                return new Enemy(
+                const instance = new Enemy(
                         this.world,
                         position,
                         TriangleEnemyFactory.cowardBehaviour,
                         Math.floor(TriangleEnemyFactory.MAX_HP / 3),
                         Math.floor(TriangleEnemyFactory.MAX_HP / 3),
                         Math.floor(TriangleEnemyFactory.MAX_DAMAGE / 4),
-                ).setEnemyRender(this.enemyRender);
+                );
+                instance.enemyRender = this.enemyRender;
+                return instance;
         }
 }
 
@@ -729,6 +776,7 @@ export class CreateEnemy {
 export class GetRandomPosition {
         private freeCell: boolean[][];
         private count: number = 0;
+
         constructor(
                 readonly world: World,
                 private width: number,
