@@ -1,10 +1,9 @@
 import { ok, equal } from "assert";
 import { Helmet, Sword } from "./equipment";
-import { CreateEnemy, Enemy, PassiveBehaviour, Player, fight } from "./units";
+import { Enemy, MockUnitFactory, PassiveBehaviour, Player, UnitType, fight } from "./units";
 import { WorldMock } from "./game_rules.spec";
 import { World } from "./game_rules";
-import { eq } from "./rectangle";
-import { Vector } from "./vector";
+import { Vector, eq } from "./vector";
 import { RandomWorldBuilder, WorldBuilder } from "./world_builder";
 
 describe('Fight System', () => {
@@ -94,7 +93,7 @@ describe('Player Inventory', () => {
 
 describe('Create enemy', () => {
         it('must generate as many enemies as requested', () => {
-                const builder: RandomWorldBuilder = new RandomWorldBuilder;
+                const builder: RandomWorldBuilder = new RandomWorldBuilder();
                 const world: World = builder.build();
                 const width: number = world.boundaries.x;
                 const height: number = world.boundaries.y;
@@ -116,4 +115,30 @@ describe('Create enemy', () => {
                 }
                 equal(count, calcCount)
         })
-})
+});
+
+describe('Slime', () => {
+        it('should spread when given a chance', () => {
+                const world = new WorldMock();
+                ok(eq(world.player.pos, { x: 4, y: 4 }));
+                const factory = new MockUnitFactory(world);
+                world.units.set(UnitType.Enemy, []);
+                const weakSlime = factory.createWeakSlime({ x: 2, y: 4 });
+                const strongSlime = factory.createStrongSlime({ x: 6, y: 4 });
+                world.enemies.push(weakSlime);
+                world.enemies.push(strongSlime);
+
+                const initLen = world.enemies.length;
+                weakSlime.move();
+                equal(initLen, world.enemies.length);
+                equal(weakSlime, world.getUnitAt({ x: 3, y: 4 }));
+
+                strongSlime.move();
+                equal(initLen + 1, world.enemies.length);
+                // should be exactly the same unit
+                equal(strongSlime, world.getUnitAt({ x: 5, y: 4 }));
+
+                const copied = world.getUnitAt({ x: 6, y: 4 });
+                // ok(copied);
+        });
+});

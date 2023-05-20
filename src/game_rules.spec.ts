@@ -5,7 +5,6 @@ import { Player, Unit, UnitType } from "./units";
 
 
 export class WorldMock extends World {
-
         constructor() {
                 super();
                 this.player = new Player(this, { x: 4, y: 4 }, 100, 100, 3);

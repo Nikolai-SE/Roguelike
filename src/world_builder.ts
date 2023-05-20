@@ -18,13 +18,9 @@ export class RandomWorldBuilder implements WorldBuilder {
     private _randomizer: SeededRandomUtilities = new SeededRandomUtilities();
     private _numberOfEquipment: number = 7;
     private _numberOfEnemies: number = 12;
-    private _world: World = new World;
+    private _world: World = new World();
     private _enemyFactory: AbstractEnemyFactory = new SimpleEnemyFactory(this._world);
     private _getRandomPosition: GetRandomPosition | null = null;
-
-    constructor(
-    ) {
-    }
 
     build(): World {
         this.buildSize();
@@ -104,7 +100,7 @@ export class RandomWorldBuilder implements WorldBuilder {
         for (let i = 0; i < this._numberOfEnemies; i++) {
             const randomPosition: Vector = this._getRandomPosition.get();
             let enemy: Enemy;
-            switch (this._randomizer.getRandomIntegar(3, 1)) {
+            switch (this._randomizer.getRandomIntegar(7, 1)) {
                 case 1:
                     enemy = this._enemyFactory.createEasyEnemy(randomPosition);
                     break;
@@ -113,6 +109,15 @@ export class RandomWorldBuilder implements WorldBuilder {
                     break;
                 case 3:
                     enemy = this._enemyFactory.createHardEnemy(randomPosition);
+                    break;
+                case 4:
+                    enemy = this._enemyFactory.createEasySlime(randomPosition);
+                    break;
+                case 5:
+                    enemy = this._enemyFactory.createMediumSlime(randomPosition);
+                    break;
+                case 6:
+                    enemy = this._enemyFactory.createHardSlime(randomPosition);
                     break;
                 default:
                     throw new Error("how did you get here?");
