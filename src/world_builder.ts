@@ -229,7 +229,8 @@ export class FileWorldBuilder implements WorldBuilder {
     }
 
     reset(): void {
-        throw new Error("Method not implemented.");
+        this._world = new World;
+        this._worldRecord = new WorldRecord;
     }
 
     public set source(source: string) {
