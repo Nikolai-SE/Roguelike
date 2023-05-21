@@ -4,6 +4,7 @@ import { World } from "./game_rules";
 import { Equipment } from "./equipment";
 import SeededRandomUtilities from "seeded-random-utilities";
 import { Helmet, Sword } from "./equipment";
+import { PassiveBehaviour } from "./units";
 
 export { World, CellType } from "./game_rules"
 
@@ -18,7 +19,7 @@ export class RandomWorldBuilder implements WorldBuilder {
     private _randomizer: SeededRandomUtilities = new SeededRandomUtilities();
     private _numberOfEquipment: number = 7;
     private _numberOfEnemies: number = 12;
-    private _world: World = new World();
+    private _world: World = new World;
     private _enemyFactory: AbstractEnemyFactory = new SimpleEnemyFactory(this._world);
     private _getRandomPosition: GetRandomPosition | null = null;
 
@@ -28,7 +29,7 @@ export class RandomWorldBuilder implements WorldBuilder {
         this.buildPlayer();
         this.buildEnemies();
         this.buildEquipment();
-        return this._world!;
+        return this._world;
     }
 
     reset(): void {
@@ -191,5 +192,95 @@ export class MockWorldBuilder implements WorldBuilder {
 
     public set equipment(equipment: Map<String, Equipment>) {
         this._world.equipment = equipment;
+    }
+}
+
+export class UnitRecord {
+    pos!: Vector;
+    hp!: number;
+    maxHp!: number;
+    damage!: number;
+}
+
+export class WorldRecord {
+    public size!: Vector;
+    public walls!: Vector[];
+    public player!: UnitRecord;
+    public enemies!: UnitRecord[];
+    public equipment!: Map<String, Equipment>;
+
+}
+
+export class FileWorldBuilder implements WorldBuilder {
+    private _world: World = new World;
+    private _worldRecord: WorldRecord = new WorldRecord;
+
+    constructor(
+    ) {
+    }
+
+    build(): World {
+        this.buildSize();
+        this.buildWalls();
+        this.buildPlayer();
+        this.buildEnemies();
+        this.buildEquipment();
+        return this._world;
+    }
+
+    reset(): void {
+        throw new Error("Method not implemented.");
+    }
+
+    public set source(source: string) {
+        this._worldRecord = JSON.parse(source);
+    }
+
+    private buildSize(): WorldBuilder {
+        this._world.boundaries = this._worldRecord.size;
+        return this;
+    }
+
+    private buildWalls(): WorldBuilder {
+        var wallPositions: Vector[] = this._worldRecord.walls;
+        var walls: boolean[][] = new Array(this._world.boundaries.x)
+            .fill(false)
+            .map(() =>
+                new Array(this._world.boundaries.y).fill(false)
+            );
+
+        wallPositions.forEach((pos: Vector) => walls[pos.x][pos.y] = true);
+        this._world.walls = walls;
+
+        return this;
+    }
+
+    private buildPlayer(): WorldBuilder {
+        this._world.player = new Player(this._world,
+            this._worldRecord.player.pos,
+            this._worldRecord.player.hp,
+            this._worldRecord.player.maxHp,
+            this._worldRecord.player.damage);
+
+        return this;
+    }
+
+    private buildEnemies(): WorldBuilder {
+        var enemies: Enemy[] = [];
+        this._worldRecord.enemies.forEach(
+            (unit: UnitRecord) => enemies.push(new Enemy(this._world,
+                unit.pos, new PassiveBehaviour,
+                unit.hp,
+                unit.maxHp,
+                unit.damage)));
+        this._world.enemies = enemies;
+
+        return this;
+    }
+
+    private buildEquipment(): WorldBuilder {
+        this._world.equipment = this._worldRecord.equipment;
+
+        return this;
     }
 }
