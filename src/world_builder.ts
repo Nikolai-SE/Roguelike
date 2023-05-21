@@ -208,16 +208,11 @@ export class WorldRecord {
     public player!: UnitRecord;
     public enemies!: UnitRecord[];
     public equipment!: Map<String, Equipment>;
-
 }
 
 export class FileWorldBuilder implements WorldBuilder {
     private _world: World = new World;
     private _worldRecord: WorldRecord = new WorldRecord;
-
-    constructor(
-    ) {
-    }
 
     build(): World {
         this.buildSize();
