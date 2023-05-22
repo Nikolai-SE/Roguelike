@@ -1,7 +1,8 @@
 import { Vector, sub, div } from "./vector";
 import { Camera, HUD } from "./display";
-import { World } from "./game_rules";
-import { WorldBuilder, RandomWorldBuilder } from "./world_builder";
+import { WorldBuilder, RandomWorldBuilder, FileWorldBuilder } from "./world_builder";
+import worldJson from '../World.json'
+
 
 export interface Page {
         update(absTime: number, dt: number): Page;
@@ -40,14 +41,21 @@ export class MainMenuPage {
          */
         onKeyDown(ev: KeyboardEvent): Page {
                 if (ev.key === 'n' || ev.key === 'N') {
-                        return new GamePage();
+                        return new GamePage(new RandomWorldBuilder());
+                } else 
+                if ((ev.key === 'f' || ev.key === 'F')){
+                        let builder = new FileWorldBuilder();
+                        console.log(worldJson);
+                        builder.source = JSON.stringify(worldJson);
+                        return new GamePage(builder);
                 }
                 return this;
         }
 }
 
 export class GamePage {
-        private worldBuilder: WorldBuilder = new RandomWorldBuilder();
+        constructor(private worldBuilder: WorldBuilder = new RandomWorldBuilder()){}
+
         readonly world = this.worldBuilder.build();
         readonly camera = new Camera({ x: 0, y: 0 }, this);
         readonly hud = new HUD(this);
