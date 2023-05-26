@@ -23,7 +23,8 @@ export class MainMenuPage {
         render(ctx: CanvasRenderingContext2D, bounds: Vector) {
                 ctx.fillStyle = '#ffbf7f';
                 ctx.fillRect(0, 0, bounds.x, bounds.y);
-                const text = 'Press N to start a new game';
+                const text = 'Press N to start a new game in a random world.';
+                const text2 = 'Press F to start a new game on a pre-determined level.';
                 ctx.font = '36px sans-serif';
                 const textBounds = ctx.measureText(text);
                 const pos = div(sub(bounds, {
@@ -32,6 +33,7 @@ export class MainMenuPage {
                 }), 2);
                 ctx.fillStyle = '#ffffff';
                 ctx.fillText(text, pos.x, pos.y);
+                ctx.fillText(text2, pos.x, pos.y + 36);
         }
 
         /**
