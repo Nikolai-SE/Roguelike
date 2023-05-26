@@ -2,10 +2,11 @@ import { ok, equal } from "assert";
 import { FileWorldBuilder, World } from "./world_builder";
 import { Vector, eq } from "./vector";
 import { wall } from "./game_rules";
+import { Helmet, Sword } from "./equipment";
 
 describe('FileWorldBuilder', () => {
-    let fileWorldBuilder: FileWorldBuilder = new FileWorldBuilder;
-    let JSONWorldRecord: string = `
+   let fileWorldBuilder: FileWorldBuilder = new FileWorldBuilder;
+   let JSONWorldRecord: string = `
     {
         "size":{
            "x":5,
@@ -50,35 +51,44 @@ describe('FileWorldBuilder', () => {
            ["1@3","Helmet"]
         ]
      }`;
-    fileWorldBuilder.source = JSONWorldRecord;
-    let fileWorld: World = fileWorldBuilder.build();
+   fileWorldBuilder.source = JSONWorldRecord;
+   let fileWorld: World = fileWorldBuilder.build();
 
-    it('should read boundaries correctly', () => {
-        let correctBoundaries: Vector = { x: 5, y: 5 };
-        ok(eq(fileWorld.boundaries, correctBoundaries));
-    });
+   it('should read boundaries correctly', () => {
+      let correctBoundaries: Vector = { x: 5, y: 5 };
+      ok(eq(fileWorld.boundaries, correctBoundaries));
+   });
 
-    it('should read walls correctly', () => {
-        let walls: Vector[] = [
-            { x: 1, y: 1 },
-            { x: 2, y: 2 },
-            { x: 3, y: 3 }
-        ];
-        walls.forEach((pos: Vector) => equal(fileWorld.getCellAt(pos), wall));
-    });
+   it('should read walls correctly', () => {
+      let walls: Vector[] = [
+         { x: 1, y: 1 },
+         { x: 2, y: 2 },
+         { x: 3, y: 3 }
+      ];
+      walls.forEach((pos: Vector) => equal(fileWorld.getCellAt(pos), wall));
+   });
 
-    it('should read player correctly', () => {
-        ok(eq(fileWorld.player.pos, {x: 3, y: 4}));
-        ok(fileWorld.player.hp === 9);
-        ok(fileWorld.player.maxHp === 10);
-        ok(fileWorld.player.damage === 4);
-    });
+   it('should read player correctly', () => {
+      ok(eq(fileWorld.player.pos, { x: 3, y: 4 }));
+      ok(fileWorld.player.hp === 9);
+      ok(fileWorld.player.maxHp === 10);
+      ok(fileWorld.player.damage === 4);
+   });
 
-    it('should read enemies correctly', () => {
-        let enemy = fileWorld.getUnitAt({x: 2, y: 4});
-        ok(eq(enemy!.pos, {x: 2, y: 4}));
-        ok(enemy!.hp === 8);
-        ok(enemy!.maxHp === 9);
-        ok(enemy!.damage === 5);
-    });
+   it('should read enemies correctly', () => {
+      let enemy = fileWorld.getUnitAt({ x: 2, y: 4 });
+      ok(eq(enemy!.pos, { x: 2, y: 4 }));
+      ok(enemy!.hp === 8);
+      ok(enemy!.maxHp === 9);
+      ok(enemy!.damage === 5);
+   });
+
+   it('should read equipment correctly', () => {
+      let equipment = Array.from(fileWorld.equipment.entries());
+      ok(equipment.length == 2);
+      ok(equipment[0][0] == "3@3");
+      ok(equipment[0][1] instanceof Sword);
+      ok(equipment[1][0] == "1@3");
+      ok(equipment[1][1] instanceof Helmet);
+   });
 });
