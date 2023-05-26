@@ -207,7 +207,7 @@ export class WorldRecord {
     public walls!: Vector[];
     public player!: UnitRecord;
     public enemies!: UnitRecord[];
-    public equipment!: Map<String, Equipment>;
+    public equipment!: Map<String, String>;
 }
 
 export class FileWorldBuilder implements WorldBuilder {
@@ -275,8 +275,11 @@ export class FileWorldBuilder implements WorldBuilder {
     }
 
     private buildEquipment(): WorldBuilder {
-        this._world.equipment = this._worldRecord.equipment;
-
+        let equipment: Map<String, Equipment> = new Map;
+        for (let [key, value] of this._worldRecord.equipment) {
+            equipment.set(key, value == "Sword" ? new Sword : new Helmet);
+        }
+        this._world.equipment = equipment;
         return this;
     }
 }

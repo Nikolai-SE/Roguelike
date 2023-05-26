@@ -45,9 +45,10 @@ describe('FileWorldBuilder', () => {
               "damage":5
            }
         ],
-        "equipment":{
-           
-        }
+        "equipment":[
+           ["3@3","Sword"],
+           ["1@3","Helmet"]
+        ]
      }`;
     fileWorldBuilder.source = JSONWorldRecord;
     let fileWorld: World = fileWorldBuilder.build();
