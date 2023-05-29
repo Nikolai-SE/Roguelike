@@ -340,8 +340,6 @@ function moveRandom(enemy: Enemy): Vector {
 }
 
 export abstract class EnemyBehaviour {
-        wasAttacked: boolean = false;
-
         /**
          * Stand still
          * @param enemy
@@ -384,15 +382,7 @@ export class PassiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
          * @param enemy
          * @returns
          */
-        move(enemy: Enemy): EnemyBehaviour { //TODO: сделать так, чтобы поведение соответствовало описанию
-                const player = enemy.world.player;
-                if (this.wasAttacked) {
-                        if (canSee(player, enemy)) {
-                                enemy.tryWalk(this.moveTowardsThePlayer(enemy));
-                        } else {
-                                enemy.tryWalk(moveRandom(enemy));
-                        }
-                }
+        move(enemy: Enemy): EnemyBehaviour {
                 return this;
         }
 }
