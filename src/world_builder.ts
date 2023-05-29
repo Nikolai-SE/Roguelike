@@ -1,4 +1,4 @@
-import { AbstractEnemyFactory, Enemy, GetRandomPosition, Player, SimpleEnemyFactory, UnitType } from "./units";
+import { AbstractEnemyFactory, AggressiveBehaviour, BehaviourType, CowardBehaviour, Enemy, EnemyBehaviour, GetRandomPosition, Player, SimpleEnemyFactory, UnitType } from "./units";
 import { Vector, toIndexString } from "./vector";
 import { World } from "./game_rules";
 import { Equipment } from "./equipment";
@@ -202,11 +202,15 @@ export class UnitRecord {
     damage!: number;
 }
 
+export class EnemyRecord extends UnitRecord {
+    behaviour!: BehaviourType;
+}
+
 export class WorldRecord {
     public size!: Vector;
     public walls!: Vector[];
     public player!: UnitRecord;
-    public enemies!: UnitRecord[];
+    public enemies!: EnemyRecord[];
     public equipment!: Map<String, String>;
 }
 
@@ -261,14 +265,25 @@ export class FileWorldBuilder implements WorldBuilder {
         return this;
     }
 
+    private static getBehaviour(type: BehaviourType): EnemyBehaviour {
+        switch (type) {
+            case BehaviourType.AGGRESSIVE:
+                return new AggressiveBehaviour;
+            case BehaviourType.COWARD:
+                return new CowardBehaviour;
+            case BehaviourType.PASSIVE:
+                return new PassiveBehaviour;
+        }
+    }
+
     private buildEnemies(): WorldBuilder {
         var enemies: Enemy[] = [];
         this._worldRecord.enemies.forEach(
-            (unit: UnitRecord) => enemies.push(new Enemy(this._world,
-                unit.pos, new PassiveBehaviour,
-                unit.hp,
-                unit.maxHp,
-                unit.damage)));
+            (enemy: EnemyRecord) => enemies.push(new Enemy(this._world,
+                enemy.pos, FileWorldBuilder.getBehaviour(enemy.behaviour),
+                enemy.hp,
+                enemy.maxHp,
+                enemy.damage)));
         this._world.enemies = enemies;
 
         return this;

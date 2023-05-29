@@ -43,7 +43,8 @@ describe('FileWorldBuilder', () => {
               },
               "hp":8,
               "maxHp":9,
-              "damage":5
+              "damage":5,
+              "behaviour":"COWARD"
            }
         ],
         "equipment":[
