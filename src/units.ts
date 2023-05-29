@@ -12,6 +12,12 @@ export enum UnitType {
         Player
 }
 
+export enum BehaviourType {
+        COWARD = "COWARD",
+        PASSIVE = "PASSIVE",
+        AGGRESSIVE = "AGGRESSIVE"
+}
+
 /**
  * Initiates a fight between attacker and defending Unit.
  * The unit1 has the first strike.
