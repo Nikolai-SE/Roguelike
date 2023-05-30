@@ -1,10 +1,10 @@
-import { AbstractEnemyFactory, AggressiveBehaviour, BehaviourType, CowardBehaviour, Enemy, EnemyBehaviour, GetRandomPosition, Player, SimpleEnemyFactory, UnitType } from "./units";
+import { AbstractEnemyFactory, AggressiveBehaviourState, BehaviourType, CowardBehaviourState, Enemy, EnemyBehaviourState, GetRandomPosition, Player, SimpleEnemyFactory, UnitType } from "./units";
 import { Vector, toIndexString } from "./vector";
 import { World } from "./game_rules";
 import { Equipment } from "./equipment";
 import SeededRandomUtilities from "seeded-random-utilities";
 import { Helmet, Sword } from "./equipment";
-import { PassiveBehaviour } from "./units";
+import { PassiveBehaviourState } from "./units";
 
 export { World, CellType } from "./game_rules"
 
@@ -265,14 +265,14 @@ export class FileWorldBuilder implements WorldBuilder {
         return this;
     }
 
-    private static getBehaviour(type: BehaviourType): EnemyBehaviour {
+    private static getBehaviour(type: BehaviourType): EnemyBehaviourState {
         switch (type) {
             case BehaviourType.AGGRESSIVE:
-                return new AggressiveBehaviour;
+                return new AggressiveBehaviourState;
             case BehaviourType.COWARD:
-                return new CowardBehaviour;
+                return new CowardBehaviourState;
             case BehaviourType.PASSIVE:
-                return new PassiveBehaviour;
+                return new PassiveBehaviourState;
         }
     }
 

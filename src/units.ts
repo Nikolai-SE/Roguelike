@@ -1,7 +1,7 @@
-import { World, white } from "./game_rules";
-import { Equipment, Helmet, Sword } from "./equipment";
+import { World } from "./game_rules";
+import { Equipment } from "./equipment";
 import SeededRandomUtilities from "seeded-random-utilities";
-import { Vector, add, eq, sub } from "./vector";
+import { Vector, add, eq, mul, sub } from "./vector";
 
 /**
  * Enumeration of unit types.
@@ -200,7 +200,7 @@ export class Player extends Unit {
                 // but not when an enemy hits an enemy
                 const enemy = unit as Enemy; // TODO: class for Mobs in case if we need NPCs
                 if (this.world.randomizer.getRandomBool()) {
-                        enemy.behaviour = new Confusion(enemy.behaviour, this.moveDuration, this.world.turnsCnt);
+                        enemy.behaviour.applyConfusion(this.moveDuration, this.world.turnsCnt);
                 }
         }
 
@@ -331,12 +331,11 @@ function canSee(unit1: Unit, unit2: Unit): boolean {
 }
 
 /**
- * Calculates a move at a random direction.
- * @param enemy
- * @returns
+ * Calculates a move in a random direction
+ * @returns direction
  */
-function moveRandom(enemy: Enemy): Vector {
-        const num: number = new SeededRandomUtilities().getRandomIntegar(3);
+function directionRandom(): Vector {
+        const num: number = Math.floor(4 * Math.random());
         switch (num) {
                 case 0: return { x: 0, y: -1 };
                 case 1: return { x: -1, y: 0 };
@@ -345,122 +344,110 @@ function moveRandom(enemy: Enemy): Vector {
         }
 }
 
-export abstract class EnemyBehaviour {
-        /**
-         * Stand still
-         * @param enemy
-         * @returns
-         */
-        standStill(enemy: Enemy): Vector {
-                return { x: 0, y: 0 };
+/**
+ * Direction towards the player.
+ * Routing is simple - we just move in a player's direction on a line.
+ * @param enemy
+ * @returns
+ */
+function directionTowardsPlayer(enemy: Enemy): Vector {
+        const player = enemy.world.player;
+        if (player.pos.x === enemy.pos.x) {
+                return { x: 0, y: player.pos.y > enemy.pos.y ? 1 : -1 };
+        }
+        if (player.pos.y === enemy.pos.y) {
+                return { x: player.pos.x > enemy.pos.x ? 1 : -1, y: 0 };
+        }
+        return { x: 0, y: 0 };
+}
+
+export class EnemyBehaviour {
+        constructor(
+                public state: EnemyBehaviourState
+        ) { }
+
+        move(enemy: Enemy): void {
+                this.state = this.state.move(enemy);
         }
 
+        applyConfusion(duration: number, currentTurn: number): void {
+                this.state = new ConfusionState(this.state, duration, currentTurn);
+        }
+}
+
+export interface EnemyBehaviourState {
         /**
          * Make a move
          * @param enemy enemy
          */
-        abstract move(enemy: Enemy): EnemyBehaviour;
+        move(enemy: Enemy): EnemyBehaviourState;
 }
 
-export abstract class EnemyMaybeMoveTowardsThePlayer extends EnemyBehaviour {
+export class PassiveBehaviourState implements EnemyBehaviourState {
         /**
-         * Move towards the player.
-         * Routing is simple - we just move in a player's direction on a line.
+         * Don't move
          * @param enemy
-         * @returns
          */
-        moveTowardsThePlayer(enemy: Enemy): Vector {
-                const player = enemy.world.player;
-                if (player.pos.x === enemy.pos.x) {
-                        return { x: 0, y: player.pos.y > enemy.pos.y ? 1 : -1 };
-                }
-                if (player.pos.y === enemy.pos.y) {
-                        return { x: player.pos.x > enemy.pos.x ? 1 : -1, y: 0 };
-                }
-                return { x: 0, y: 0 };
-        }
-}
-
-export class PassiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
-        /**
-         * Moves randomly except if was attacked by somebody.
-         * In this case moves towards the attacker.
-         * @param enemy
-         * @returns
-         */
-        move(enemy: Enemy): EnemyBehaviour {
+        move(_enemy: Enemy): PassiveBehaviourState {
                 return this;
         }
 }
 
-export class AggressiveBehaviour extends EnemyMaybeMoveTowardsThePlayer {
+export class AggressiveBehaviourState implements EnemyBehaviourState {
         /**
          * Moves randomly except when sees the player.
          * In this case moves towards the player.
          * @param enemy
          * @returns
          */
-        move(enemy: Enemy): EnemyBehaviour {
+        move(enemy: Enemy): AggressiveBehaviourState {
                 const player = enemy.world.player;
                 if (canSee(player, enemy)) {
-                        enemy.tryWalk(this.moveTowardsThePlayer(enemy));
+                        enemy.tryWalk(directionTowardsPlayer(enemy));
                 } else {
-                        enemy.tryWalk(moveRandom(enemy));
+                        enemy.tryWalk(directionRandom());
                 }
                 return this;
         }
 }
 
-export class CowardBehaviour extends EnemyBehaviour {
-        moveFromThePlayer(enemy: Enemy): Vector {
-                const player = enemy.world.player;
-                if (player.pos.x === enemy.pos.x) {
-                        return { x: 0, y: player.pos.y > enemy.pos.y ? -1 : 1 };
-                }
-                if (player.pos.y === enemy.pos.y) {
-                        return { x: player.pos.x > enemy.pos.x ? -1 : 1, y: 0 };
-                }
-                return { x: 0, y: 0 };
-        }
-
+export class CowardBehaviourState implements EnemyBehaviourState {
         /**
          * Moves randomly except when sees the player.
          * In this case moves from the player.
          * @param enemy
          * @returns
          */
-        move(enemy: Enemy): EnemyBehaviour {
+        move(enemy: Enemy): CowardBehaviourState {
                 const player = enemy.world.player;
                 if (canSee(player, enemy)) {
-                        enemy.tryWalk(this.moveFromThePlayer(enemy));
+                        const dir = directionTowardsPlayer(enemy);
+                        enemy.tryWalk(mul(-1, dir));
                 } else {
-                        enemy.tryWalk(moveRandom(enemy));
+                        enemy.tryWalk(directionRandom());
                 }
                 return this;
         }
 }
 
-export class Confusion extends EnemyBehaviour {
+export class ConfusionState implements EnemyBehaviourState {
         constructor(
-                private behaviour: EnemyBehaviour,
+                private previousBehaviour: EnemyBehaviourState,
                 private duration: number,
                 private turnsCntStart: number
-        ) {
-                super();
-        }
+        ) { }
 
         /**
          * Behaviour modifier that makes enemy move randomly while under this effect.
          * @param enemy
-         * @returns
+         * @returns self if the effect lasts and previous behaviour if it expired
          */
-        move(enemy: Enemy): EnemyBehaviour {
+        move(enemy: Enemy): EnemyBehaviourState {
                 const player = enemy.world.player;
                 if (player.world.turnsCnt - this.turnsCntStart > this.duration) {
-                        return this.behaviour;
-                } else {
-                        enemy.tryWalk(moveRandom(enemy));
+                        return this.previousBehaviour.move(enemy);
                 }
+                enemy.tryWalk(directionRandom());
                 return this;
         }
 }
@@ -484,15 +471,18 @@ class EnemyRender {
 }
 
 export class Enemy extends Unit {
+        readonly behaviour: EnemyBehaviour;
+
         constructor(
                 world: World,
                 pos: Vector,
-                public behaviour: EnemyBehaviour,
+                behaviourState: EnemyBehaviourState,
                 public hp: number,
                 public maxHp: number,
                 baseDamage: number,
         ) {
                 super(world, pos, hp, maxHp, baseDamage);
+                this.behaviour = new EnemyBehaviour(behaviourState);
         }
 
         enemyRender = EnemyRender.defaultRender;
@@ -502,7 +492,7 @@ export class Enemy extends Unit {
          * Moves enemy according to his behaviour
          */
         move(): void {
-                this.behaviour = this.behaviour.move(this);
+                this.behaviour.move(this);
         }
 
         /**
@@ -538,7 +528,7 @@ class SlimeEnemy extends Enemy {
         constructor(
                 world: World,
                 pos: Vector,
-                behaviour: EnemyBehaviour,
+                behaviour: EnemyBehaviourState,
                 hp: number,
                 maxHp: number,
                 baseDamage: number,
@@ -551,7 +541,7 @@ class SlimeEnemy extends Enemy {
                 const instance = new SlimeEnemy(
                         this.world,
                         pos,
-                        this.behaviour,
+                        this.behaviour.state,
                         this.hp,
                         this.maxHp,
                         this.baseDamage,
@@ -624,9 +614,9 @@ export abstract class AbstractEnemyFactory {
  * Factory produces default circle enemies
  */
 export class SimpleEnemyFactory extends AbstractEnemyFactory {
-        private static aggressiveBehaviour = new AggressiveBehaviour();
-        private static passiveBehaviour = new PassiveBehaviour();
-        private static cowardBehaviour = new CowardBehaviour();
+        private static aggressiveBehaviour = new AggressiveBehaviourState();
+        private static passiveBehaviour = new PassiveBehaviourState();
+        private static cowardBehaviour = new CowardBehaviourState();
 
         private static MAX_HP = 10;
         private static MAX_DAMAGE = 10;
@@ -714,8 +704,8 @@ export class SimpleEnemyFactory extends AbstractEnemyFactory {
  * Factory produces triangle enemies
  */
 export class TriangleEnemyFactory extends AbstractEnemyFactory {
-        private static aggressiveBehaviour = new AggressiveBehaviour();
-        private static cowardBehaviour = new CowardBehaviour();
+        private static aggressiveBehaviour = new AggressiveBehaviourState();
+        private static cowardBehaviour = new CowardBehaviourState();
 
         private enemyRender = new class extends EnemyRender {
                 public render(ctx: CanvasRenderingContext2D, position: Vector, canSee: boolean, ctxFillStyles: [any]): void {
@@ -830,7 +820,7 @@ export class MockUnitFactory {
                 readonly world: World
         ) { }
 
-        private static behaviour = new AggressiveBehaviour();
+        private static behaviour = new AggressiveBehaviourState();
 
         public createWeakSlime(position: Vector): Enemy {
                 return new SlimeEnemy(
