@@ -1,7 +1,7 @@
 import { ok } from "assert";
 import { World, CellType, bedrock, wall, white, } from "./game_rules";
-import { Vector, eq } from "./vector";
-import { Player, Unit, UnitType } from "./units";
+import { Vector } from "./vector";
+import { Player, UnitType } from "./units";
 
 
 export class WorldMock extends World {
