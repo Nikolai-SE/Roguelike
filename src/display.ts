@@ -94,12 +94,8 @@ export class HUD {
                 ctx.fill();
                 ctx.closePath();
 
-                let text;
-                if (this.game.confirmExit) {
-                        text = 'Press ESC once more to exit';
-                } else {
-                        text = 'Press ESC twice to exit';
-                }
+                let text = 'Press ESC to exit';
+                
                 ctx.font = '36px sans-serif';
                 ctx.fillStyle = '#ffffff';
                 ctx.fillText(text, 36, 72);

@@ -14,6 +14,9 @@ export class MainMenuPage {
                 return this;
         }
 
+        private commandGenerateNewRandomWorld = new GenerateNewRandomWorld(this);
+        private commandLoadWorldFromFile = new LoadWorldFromFile(this);
+
         /**
          * Renders Main Menu page on a given canvas in a given borders - specifically, renders the prompt to start a new game.
          * @param ctx - canvas to render on
@@ -44,10 +47,10 @@ export class MainMenuPage {
                 let command: Command;
                 switch (ev.key.toLowerCase()) {
                         case 'n':
-                                command = new GenerateNewRandomWorld(this);
+                                command = this.commandGenerateNewRandomWorld;
                                 break;
                         case 'f':
-                                command = new LoadWorldFromFile(this);
+                                command = this.commandLoadWorldFromFile;
                                 break;
                         default:
                                 return this;
@@ -62,9 +65,15 @@ export class GamePage {
         readonly world = this.worldBuilder.build();
         readonly camera = new Camera({ x: 0, y: 0 }, this);
         readonly hud = new HUD(this);
-        public _confirmExit = false;
 
-        get confirmExit() { return this._confirmExit; }
+        private commandEscapeCommand = new EscapeCommand(this);
+        private commandWalkForward = new WalkForward(this);
+        private commandWalkLeft = new WalkLeft(this);
+        private commandWalkBackWard = new WalkBackWard(this);
+        private commandWalkRight = new WalkRight(this);
+        private commandTakeEquipmentCommand = new TakeEquipmentCommand(this);
+        private commandPutEquipmentCommand = new PutEquipmentCommand(this);
+        private commandTakeOffEquipmentCommand = new TakeOffEquipmentCommand(this);
 
         /**
          * Updates the camera and the HUD
@@ -109,29 +118,29 @@ export class GamePage {
                 let command: Command;
                 switch (ev.key.toLowerCase()) {
                         case 'escape':
-                                command = new EscapeCommand(this);
+                                command = this.commandEscapeCommand;
                                 break;
                         case 'w':
-                                command = new WalkForward(this);
+                                command = this.commandWalkForward;
                                 break;
                         case 'a':
-                                command = new WalkLeft(this)
+                                command = this.commandWalkLeft
                                 break;
                         case 's':
-                                command = new WalkBackWard(this)
+                                command = this.commandWalkBackWard
                                 break;
                         case 'd':
-                                command = new WalkRight(this)
+                                command = this.commandWalkRight
                                 break;
 
                         case 't':
-                                command = new TakeEquipmentCommand(this);
+                                command = this.commandTakeEquipmentCommand;
                                 break;
                         case 'e':
-                                command = new PutEquipmentCommand(this);
+                                command = this.commandPutEquipmentCommand;
                                 break;
                         case 'r':
-                                command = new TakeOffEquipmentCommand(this);
+                                command = this.commandTakeOffEquipmentCommand;
                                 break;
                         default:
                                 return this;

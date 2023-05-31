@@ -27,28 +27,14 @@ export class LoadWorldFromFile implements Command {
 
 
 /**
- * After process any processed user action, exit confirming will be reset
- */
-abstract class GameCommand implements Command {
-    constructor(protected page: GamePage) {
-        this.page._confirmExit = false;
-    }
-    execute(): Page {
-        throw new Error("Method is not implemented.");
-    }
-}
-
-
-/**
  * Process user attempts to escape game
  */
 export class EscapeCommand implements Command {
     constructor(private page: GamePage) {
     }
     execute(): Page {
-        if (this.page.confirmExit)
+        if (confirm("Quit the game?"))
             return new MainMenuPage();
-        this.page._confirmExit = true;
         return this.page;
     }
 }
@@ -59,28 +45,36 @@ export class EscapeCommand implements Command {
  * Player is trying to make a move in a corresponding direction.
  */
 
-export class WalkForward extends GameCommand {
+export class WalkForward implements Command {
+    constructor(private page: GamePage) {
+    }
     execute(): Page {
         this.page.world.player.tryWalk({ x: 0, y: -1 });
         return this.page;
     }
 }
 
-export class WalkBackWard extends GameCommand {
+export class WalkBackWard implements Command {
+    constructor(private page: GamePage) {
+    }
     execute(): Page {
         this.page.world.player.tryWalk({ x: 0, y: 1 });
         return this.page;
     }
 }
 
-export class WalkRight extends GameCommand {
+export class WalkRight implements Command {
+    constructor(private page: GamePage) {
+    }
     execute(): Page {
         this.page.world.player.tryWalk({ x: 1, y: 0 });
         return this.page;
     }
 }
 
-export class WalkLeft extends GameCommand {
+export class WalkLeft implements Command {
+    constructor(private page: GamePage) {
+    }
     execute(): Page {
         this.page.world.player.tryWalk({ x: -1, y: 0 });
         return this.page;
@@ -93,7 +87,9 @@ export class WalkLeft extends GameCommand {
 /**
  * Player takes an equipment from cell where player is.    
  */
-export class TakeEquipmentCommand extends GameCommand {
+export class TakeEquipmentCommand implements Command {
+    constructor(private page: GamePage) {
+    }
     execute(): Page {
         this.page.world.player.tryToTakeEquipment();
         return this.page
@@ -103,7 +99,9 @@ export class TakeEquipmentCommand extends GameCommand {
 /**
  * Player puts on an equipment with index which player enters after pressing.
  */
-export class PutEquipmentCommand extends GameCommand {
+export class PutEquipmentCommand implements Command {
+    constructor(private page: GamePage) {
+    }
     execute(): Page {
         const indexEquip = Number(window.prompt("Enter index of equipment to put on.   1, 2, ...", ""));
         if (!Number.isNaN(indexEquip) && indexEquip > 0) {
@@ -116,7 +114,9 @@ export class PutEquipmentCommand extends GameCommand {
 /**
  * Player takes off an equipment with index which player enters after pressing.
  */
-export class TakeOffEquipmentCommand extends GameCommand {
+export class TakeOffEquipmentCommand implements Command {
+    constructor(private page: GamePage) {
+    }
     execute(): Page {
         const indexRemove = Number(window.prompt("Enter index of equipment to take off.  1, 2, ...", ""));
         if (!Number.isNaN(indexRemove) && indexRemove > 0) {
