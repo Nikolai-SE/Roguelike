@@ -454,7 +454,7 @@ export class ConfusionState implements EnemyBehaviourState {
 
 
 class EnemyRender {
-        public render(ctx: CanvasRenderingContext2D, position: Vector, canSee: boolean, ctxFillStyles: [any]): void {
+        public render(ctx: CanvasRenderingContext2D, position: Vector, canSee: boolean, ctxFillStyles: any[]): void {
                 ctx.save();
                 ctx.fillStyle = ctxFillStyles[0];
                 if (canSee) {
@@ -463,6 +463,9 @@ class EnemyRender {
                 ctx.beginPath();
                 ctx.arc(position.x + 0.5, position.y + 0.5, 0.3, 0, 2 * Math.PI);
                 ctx.fill();
+                ctx.font = "bold 0.03em serif";
+                ctx.fillStyle = "white";
+                ctx.fillText(ctxFillStyles[1].toString(), position.x + 0.35, position.y + 0.7);
                 ctx.closePath();
                 ctx.restore();
         }
@@ -500,7 +503,7 @@ export class Enemy extends Unit {
          * @param ctx
          */
         render(ctx: CanvasRenderingContext2D): void {
-                this.enemyRender.render(ctx, this.pos, canSee(this, this.world.player), [this.ctxFillStyle]);
+                this.enemyRender.render(ctx, this.pos, canSee(this, this.world.player), [this.ctxFillStyle, this.level]);
         }
 
         /**
