@@ -1,8 +1,7 @@
 import { Vector, sub, div } from "./vector";
 import { Camera, HUD } from "./display";
-import { WorldBuilder, RandomWorldBuilder, FileWorldBuilder } from "./world_builder";
-import worldJson from '../World.json'
-
+import { WorldBuilder, RandomWorldBuilder } from "./world_builder";
+import { LoadWorldFromFile, GenerateNewRandomWorld, Command, EscapeCommand, WalkForward, TakeEquipmentCommand, TakeOffEquipmentCommand, WalkLeft, WalkRight, WalkBackWard, PutEquipmentCommand } from "./ui_commands";
 
 export interface Page {
         update(absTime: number, dt: number): Page;
@@ -14,6 +13,9 @@ export class MainMenuPage {
         update(absTime: number, dt: number): Page {
                 return this;
         }
+
+        private commandGenerateNewRandomWorld = new GenerateNewRandomWorld(this);
+        private commandLoadWorldFromFile = new LoadWorldFromFile(this);
 
         /**
          * Renders Main Menu page on a given canvas in a given borders - specifically, renders the prompt to start a new game.
@@ -42,28 +44,36 @@ export class MainMenuPage {
          * @returns Page - this MainMenu
          */
         onKeyDown(ev: KeyboardEvent): Page {
-                if (ev.key === 'n' || ev.key === 'N') {
-                        return new GamePage(new RandomWorldBuilder());
-                } else 
-                if ((ev.key === 'f' || ev.key === 'F')){
-                        let builder = new FileWorldBuilder();
-                        console.log(worldJson);
-                        builder.source = JSON.stringify(worldJson);
-                        return new GamePage(builder);
+                let command: Command;
+                switch (ev.key.toLowerCase()) {
+                        case 'n':
+                                command = this.commandGenerateNewRandomWorld;
+                                break;
+                        case 'f':
+                                command = this.commandLoadWorldFromFile;
+                                break;
+                        default:
+                                return this;
                 }
-                return this;
+                return command.execute();
         }
 }
 
 export class GamePage {
-        constructor(private worldBuilder: WorldBuilder = new RandomWorldBuilder()){}
+        constructor(private worldBuilder: WorldBuilder = new RandomWorldBuilder()) { }
 
         readonly world = this.worldBuilder.build();
         readonly camera = new Camera({ x: 0, y: 0 }, this);
         readonly hud = new HUD(this);
-        public _confirmExit = false;
 
-        get confirmExit() { return this._confirmExit; }
+        private commandEscapeCommand = new EscapeCommand(this);
+        private commandWalkForward = new WalkForward(this);
+        private commandWalkLeft = new WalkLeft(this);
+        private commandWalkBackWard = new WalkBackWard(this);
+        private commandWalkRight = new WalkRight(this);
+        private commandTakeEquipmentCommand = new TakeEquipmentCommand(this);
+        private commandPutEquipmentCommand = new PutEquipmentCommand(this);
+        private commandTakeOffEquipmentCommand = new TakeOffEquipmentCommand(this);
 
         /**
          * Updates the camera and the HUD
@@ -105,62 +115,36 @@ export class GamePage {
          * @returns - Page (this GamePage or MainMenu page)
          */
         onKeyDown(ev: KeyboardEvent): Page {
-                if (this.confirmExit) {
-                        if (ev.key === 'Escape') {
-                                return new MainMenuPage();
-                        } else {
-                                this._confirmExit = false;
-                        }
-                }
-                switch (ev.key) {
-                        case 'Escape':
-                                this._confirmExit = true;
+                let command: Command;
+                switch (ev.key.toLowerCase()) {
+                        case 'escape':
+                                command = this.commandEscapeCommand;
                                 break;
-
                         case 'w':
-                        case 'W':
-                                this.world.player.tryWalk({ x: 0, y: -1 });
+                                command = this.commandWalkForward;
                                 break;
-
                         case 'a':
-                        case 'A':
-                                this.world.player.tryWalk({ x: -1, y: 0 });
+                                command = this.commandWalkLeft
                                 break;
-
                         case 's':
-                        case 'S':
-                                this.world.player.tryWalk({ x: 0, y: 1 });
+                                command = this.commandWalkBackWard
                                 break;
-
                         case 'd':
-                        case 'D':
-                                this.world.player.tryWalk({ x: 1, y: 0 });
+                                command = this.commandWalkRight
                                 break;
 
                         case 't':
-                        case 'T':
-                                this.world.player.tryToTakeEquipment();
+                                command = this.commandTakeEquipmentCommand;
                                 break;
-
                         case 'e':
-                        case 'E': {
-                                const indexEquip = Number(window.prompt("Enter index of equipment to put on.   1, 2, ...", ""));
-                                if (!Number.isNaN(indexEquip) && indexEquip > 0) {
-                                        this.world.player.tryToPutOnEquipment(indexEquip - 1);
-                                }
+                                command = this.commandPutEquipmentCommand;
                                 break;
-                        }
-
                         case 'r':
-                        case 'R': {
-                                const indexRemove = Number(window.prompt("Enter index of equipment to take off.  1, 2, ...", ""));
-                                if (!Number.isNaN(indexRemove) && indexRemove > 0) {
-                                        this.world.player.tryToTakeOffEquipment(indexRemove - 1);
-                                }
+                                command = this.commandTakeOffEquipmentCommand;
                                 break;
-                        }
+                        default:
+                                return this;
                 }
-                return this;
+                return command.execute();
         }
-
 }
