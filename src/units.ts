@@ -388,7 +388,11 @@ export class PassiveBehaviourState implements EnemyBehaviourState {
          * Don't move
          * @param enemy
          */
-        move(_enemy: Enemy): PassiveBehaviourState {
+        move(enemy: Enemy): PassiveBehaviourState {
+                if (enemy.hp <= enemy.maxHp / 3) {
+                        return new FleeingBehaviourState(this).move(enemy);
+                }
+
                 return this;
         }
 }
@@ -401,6 +405,10 @@ export class AggressiveBehaviourState implements EnemyBehaviourState {
          * @returns
          */
         move(enemy: Enemy): AggressiveBehaviourState {
+                if (enemy.hp <= enemy.maxHp / 3) {
+                        return new FleeingBehaviourState(this).move(enemy);
+                }
+
                 const player = enemy.world.player;
                 if (canSee(player, enemy)) {
                         enemy.tryWalk(directionTowardsPlayer(enemy));
@@ -427,6 +435,23 @@ export class CowardBehaviourState implements EnemyBehaviourState {
                         enemy.tryWalk(directionRandom());
                 }
                 return this;
+        }
+}
+
+export class FleeingBehaviourState implements EnemyBehaviourState {
+        private readonly backend = new CowardBehaviourState();
+
+        constructor(
+                private readonly previousState: EnemyBehaviourState
+        ) { }
+
+        move(enemy: Enemy): EnemyBehaviourState {
+                if (enemy.hp > enemy.maxHp / 2) {
+                        return this.previousState.move(enemy);
+                } else {
+                        this.backend.move(enemy);
+                        return this;
+                }
         }
 }
 
