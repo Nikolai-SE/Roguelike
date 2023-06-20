@@ -1,11 +1,11 @@
 import { ok, equal } from "assert";
-import { FileWorldBuilder, World } from "./world_builder";
+import { StringWorldBuilder, World } from "./world_builder";
 import { Vector, eq } from "./vector";
 import { wall } from "./game_rules";
 import { Helmet, Sword } from "./equipment";
 
 describe('FileWorldBuilder', () => {
-   let fileWorldBuilder: FileWorldBuilder = new FileWorldBuilder;
+   let fileWorldBuilder: StringWorldBuilder = new StringWorldBuilder;
    let JSONWorldRecord: string = `
     {
         "size":{

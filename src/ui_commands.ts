@@ -1,5 +1,5 @@
 import { GamePage, MainMenuPage, Page } from "./pages";
-import { FileWorldBuilder, RandomWorldBuilder } from "./world_builder";
+import { StringWorldBuilder, RandomWorldBuilder } from "./world_builder";
 import worldJson from '../World.json'
 
 export interface Command {
@@ -19,7 +19,7 @@ export class LoadWorldFromFile implements Command {
     constructor(private page: MainMenuPage) {
     }
     execute(): Page {
-        let builder = new FileWorldBuilder();
+        let builder = new StringWorldBuilder();
         builder.source = JSON.stringify(worldJson);
         return new GamePage(builder);
     }
@@ -85,7 +85,7 @@ export class WalkLeft implements Command {
 
 
 /**
- * Player takes an equipment from cell where player is.    
+ * Player takes an equipment from cell where player is.
  */
 export class TakeEquipmentCommand implements Command {
     constructor(private page: GamePage) {
