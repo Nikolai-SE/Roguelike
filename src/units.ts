@@ -185,7 +185,7 @@ export class Player extends Unit {
                 // but not when an enemy hits an enemy
                 const enemy = unit as Enemy; // TODO: class for Mobs in case if we need NPCs
                 if (this.world.randomizer.getRandomBool()) {
-                        enemy.behaviour = new Confusion(enemy.behaviour, this.moveDuration, this.world.turnsCnt);
+                        enemy.applyConfusion(this.moveDuration);
                 }
         }
 
@@ -498,6 +498,10 @@ export class Enemy extends Unit {
         death() {
                 this.world.enemies.splice(this.world.enemies.indexOf(this), 1);
                 this.world.units.splice(this.world.units.indexOf(this), 1);
+        }
+
+        applyConfusion(duration: number) {
+                this.behaviour = new Confusion(this.behaviour, duration, this.world.turnsCnt);
         }
 }
 
