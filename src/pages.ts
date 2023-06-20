@@ -1,6 +1,6 @@
 import { Vector, sub, div } from "./vector";
 import { Camera, HUD } from "./display";
-import { WorldBuilder, RandomWorldBuilder, FileWorldBuilder } from "./world_builder";
+import { WorldBuilder, RandomWorldBuilder, FileWorldBuilder as StringWorldBuilder } from "./world_builder";
 import worldJson from '../World.json'
 
 
@@ -44,9 +44,9 @@ export class MainMenuPage {
         onKeyDown(ev: KeyboardEvent): Page {
                 if (ev.key === 'n' || ev.key === 'N') {
                         return new GamePage(new RandomWorldBuilder());
-                } else 
+                } else
                 if ((ev.key === 'f' || ev.key === 'F')){
-                        let builder = new FileWorldBuilder();
+                        let builder = new StringWorldBuilder();
                         console.log(worldJson);
                         builder.source = JSON.stringify(worldJson);
                         return new GamePage(builder);
