@@ -64,7 +64,7 @@ export class Player extends Unit {
                 /**
                  * addToUse: void
                  * transfer equipment from unused by index to used
-                 * index: number 
+                 * index: number
                  */
                 fromUnusdToUse(index: number): boolean {
                         let removed = this.unused.slice(index, 1);
@@ -80,7 +80,7 @@ export class Player extends Unit {
                 /**
                  * addToUnused: boolean
                  * transfer equipment from used by index to unused
-                 * index: number 
+                 * index: number
                  */
                 fromUsedToUnused(index: number): boolean {
                         let removed = this.used.slice(index, 1);
@@ -95,7 +95,7 @@ export class Player extends Unit {
 
                 /**
                  * addToUnused
-                 * equipment: Equipment                 
+                 * equipment: Equipment
                  */
                 addToUnused(equipment: Equipment): void {
                         this.unused.push(equipment);
@@ -121,7 +121,7 @@ export class Player extends Unit {
 
         tryToTakeEquipment(): boolean {
                 let equip = this.world.getAndRemoveEquipmentAt(this.pos)
-                if(equip == null)
+                if (equip == null)
                         return false;
                 this.inventory.addToUnused(equip);
                 return true;
@@ -199,8 +199,8 @@ export class World {
                         let pos = this.getRandomVector({ x: this.width, y: this.height });
                         while (!this.getCellAt(pos).isWalkable || equipment.has(toIndexString(pos)))
                                 pos = this.getRandomVector({ x: this.width, y: this.height });
-                        
-                        if(this.randomizer.getRandomBool())
+
+                        if (this.randomizer.getRandomBool())
                                 equipment.set(toIndexString(pos), new Helmet());
                         else
                                 equipment.set(toIndexString(pos), new Sword());
