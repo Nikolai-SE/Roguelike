@@ -1,0 +1,32 @@
+{
+  "name": "roguelike",
+  "version": "0.1.0",
+  "description": "",
+  "private": true,
+  "devDependencies": {
+    "@types/mocha": "^10.0.1",
+    "mocha": "^10.2.0",
+    "ts-loader": "^9.4.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4",
+    "webpack": "^5.80.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.3"
+  },
+  "scripts": {
+    "test": "npx mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nikolai-SE/Roguelike.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nikolai-SE/Roguelike/issues"
+  },
+  "homepage": "https://github.com/Nikolai-SE/Roguelike#readme",
+  "dependencies": {
+    "seeded-random-utilities": "^1.1.4"
+  }
+}
