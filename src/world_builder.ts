@@ -214,7 +214,7 @@ export class WorldRecord {
     public equipment!: Map<String, String>;
 }
 
-export class FileWorldBuilder implements WorldBuilder {
+export class StringWorldBuilder implements WorldBuilder {
     private _world: World = new World;
     private _worldRecord: WorldRecord = new WorldRecord;
 
@@ -280,7 +280,7 @@ export class FileWorldBuilder implements WorldBuilder {
         var enemies: Enemy[] = [];
         this._worldRecord.enemies.forEach(
             (enemy: EnemyRecord) => enemies.push(new Enemy(this._world,
-                enemy.pos, FileWorldBuilder.getBehaviour(enemy.behaviour),
+                enemy.pos, StringWorldBuilder.getBehaviour(enemy.behaviour),
                 enemy.hp,
                 enemy.maxHp,
                 enemy.damage)));

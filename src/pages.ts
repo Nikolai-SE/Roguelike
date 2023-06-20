@@ -1,6 +1,6 @@
 import { Vector, sub, div } from "./vector";
 import { Camera, HUD } from "./display";
-import { WorldBuilder, RandomWorldBuilder, FileWorldBuilder as StringWorldBuilder } from "./world_builder";
+import { WorldBuilder, RandomWorldBuilder, StringWorldBuilder } from "./world_builder";
 import worldJson from '../World.json'
 
 
