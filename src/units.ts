@@ -373,7 +373,7 @@ export class EnemyBehaviour {
                 const normalBehaviour = new NormalBehaviourState(strategy);
                 const fleeingBehaviour = new FleeingBehaviourState();
                 normalBehaviour.fleeingBehaviour = fleeingBehaviour;
-                fleeingBehaviour.normalBehaviour = normalBehaviour;
+                fleeingBehaviour.normalBehaviourState = normalBehaviour;
                 this.state = normalBehaviour;
         }
 
@@ -432,11 +432,11 @@ export class FleeingBehaviourState implements EnemyBehaviourState {
 
         // Small dependency injection,
         // so that we make less objects in runtime
-        normalBehaviour: NormalBehaviourState | null = null;
+        normalBehaviourState: NormalBehaviourState | null = null;
 
         move(enemy: Enemy): EnemyBehaviourState {
                 if (enemy.hp >= enemy.maxHp / 2) {
-                        return this.normalBehaviour!.move(enemy);
+                        return this.normalBehaviourState!.move(enemy);
                 } else {
                         this.backend.move(enemy);
                         return this;
