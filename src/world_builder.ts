@@ -1,10 +1,20 @@
-import { AbstractEnemyFactory, AggressiveBehaviourState, BehaviourType, CowardBehaviourState, Enemy, EnemyBehaviourState, GetRandomPosition, Player, SimpleEnemyFactory, UnitType } from "./units";
+import {
+    AbstractEnemyFactory,
+    BehaviourType,
+    Enemy,
+    GetRandomPosition,
+    Player,
+    SimpleEnemyFactory,
+    AggressiveBehaviourStrategy,
+    CowardBehaviourStrategy,
+    PassiveBehaviourStrategy,
+    EnemyBehaviourStrategy,
+} from "./units";
 import { Vector, toIndexString } from "./vector";
 import { World } from "./game_rules";
 import { Equipment } from "./equipment";
 import SeededRandomUtilities from "seeded-random-utilities";
 import { Helmet, Sword } from "./equipment";
-import { PassiveBehaviourState } from "./units";
 
 export { World, CellType } from "./game_rules"
 
@@ -265,22 +275,24 @@ export class StringWorldBuilder implements WorldBuilder {
         return this;
     }
 
-    private static getBehaviour(type: BehaviourType): EnemyBehaviourState {
+    private static getBehaviour(type: BehaviourType): EnemyBehaviourStrategy {
         switch (type) {
             case BehaviourType.AGGRESSIVE:
-                return new AggressiveBehaviourState;
+                return new AggressiveBehaviourStrategy;
             case BehaviourType.COWARD:
-                return new CowardBehaviourState;
+                return new CowardBehaviourStrategy;
             case BehaviourType.PASSIVE:
-                return new PassiveBehaviourState;
+                return new PassiveBehaviourStrategy;
         }
     }
 
     private buildEnemies(): WorldBuilder {
         var enemies: Enemy[] = [];
         this._worldRecord.enemies.forEach(
-            (enemy: EnemyRecord) => enemies.push(new Enemy(this._world,
-                enemy.pos, StringWorldBuilder.getBehaviour(enemy.behaviour),
+            (enemy: EnemyRecord) => enemies.push(new Enemy(
+                this._world,
+                enemy.pos,
+                StringWorldBuilder.getBehaviour(enemy.behaviour),
                 enemy.hp,
                 enemy.maxHp,
                 enemy.damage)));

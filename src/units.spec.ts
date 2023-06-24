@@ -1,6 +1,6 @@
 import { ok, equal } from "assert";
 import { Helmet, Sword } from "./equipment";
-import { Enemy, MockUnitFactory, PassiveBehaviourState, UnitType, fight } from "./units";
+import { Enemy, MockUnitFactory, PassiveBehaviourStrategy, UnitType, fight } from "./units";
 import { WorldMock } from "./game_rules.spec";
 import { World } from "./game_rules";
 import { Vector, eq } from "./vector";
@@ -10,7 +10,7 @@ describe('Fight System', () => {
         it('Two units should fight when trying to get on the same square', () => {
                 const world = new WorldMock();
                 const unit1 = world.player;
-                const unit2 = new Enemy(world, { x: 4, y: 3 }, new PassiveBehaviourState(), 100, 100, 1);
+                const unit2 = new Enemy(world, { x: 4, y: 3 }, new PassiveBehaviourStrategy(), 100, 100, 1);
                 unit2.tryWalk({ x: 0, y: 1 });
 
                 equal(unit1.hp, unit1.maxHp - unit2.damage);
@@ -20,7 +20,7 @@ describe('Fight System', () => {
         it('If the attacker kills the defender, the attacker does not receive any damage', () => {
                 const world = new WorldMock();
                 const unit1 = world.player;
-                const unit2 = new Enemy(world, { x: 3, y: 4 }, new PassiveBehaviourState(), 100, 100, 100);
+                const unit2 = new Enemy(world, { x: 3, y: 4 }, new PassiveBehaviourStrategy(), 100, 100, 100);
 
                 fight(unit2, unit1);
 
@@ -58,8 +58,8 @@ describe('Player Inventory', () => {
         it('should apply damage effects', () => {
                 const world = new WorldMock();
                 const player = world.player;
-                const enemy = new Enemy(world, { x: 3, y: 4 }, new PassiveBehaviourState(), 100, 100, 1);
-                const strongEnemy = new Enemy(world, { x: 3, y: 4 }, new PassiveBehaviourState(), 100, 100, 10);
+                const enemy = new Enemy(world, { x: 3, y: 4 }, new PassiveBehaviourStrategy(), 100, 100, 1);
+                const strongEnemy = new Enemy(world, { x: 3, y: 4 }, new PassiveBehaviourStrategy(), 100, 100, 10);
 
                 const inv = player.inventory;
                 inv.addToUnused(new Sword());
