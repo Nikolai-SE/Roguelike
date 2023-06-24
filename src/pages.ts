@@ -16,7 +16,7 @@ export abstract class Page {
          */
         onKeyDown(ev: KeyboardEvent): Page {
                 let command = this.commandMap.get(ev.key.toLowerCase());
-                if (command == undefined)
+                if (command === undefined)
                         return this;
                 return command.execute();
         }
