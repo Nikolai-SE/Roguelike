@@ -3,19 +3,39 @@ import { Camera, HUD } from "./display";
 import { WorldBuilder, RandomWorldBuilder } from "./world_builder";
 import { LoadWorldFromFile, GenerateNewRandomWorld, Command, EscapeCommand, WalkForward, TakeEquipmentCommand, TakeOffEquipmentCommand, WalkLeft, WalkRight, WalkBackWard, PutEquipmentCommand } from "./ui_commands";
 
-export interface Page {
-        update(absTime: number, dt: number): Page;
-        onKeyDown(ev: KeyboardEvent): Page;
-        render(ctx: CanvasRenderingContext2D, bounds: Vector): void;
+export abstract class Page {
+        abstract update(absTime: number, dt: number): Page;
+        abstract render(ctx: CanvasRenderingContext2D, bounds: Vector): void;
+
+        protected abstract commandMap: Map<string, Command>;
+
+        /**
+         * Reacts to keyboard event.
+         * @param ev keyboard event to react to
+         * @returns Page - this MainMenu
+         */
+        onKeyDown(ev: KeyboardEvent): Page {
+                let command = this.commandMap.get(ev.key.toLowerCase());
+                if (command == undefined)
+                        return this;
+                return command.execute();
+        }
 }
 
-export class MainMenuPage {
+export class MainMenuPage extends Page {
         update(absTime: number, dt: number): Page {
                 return this;
         }
 
-        private commandGenerateNewRandomWorld = new GenerateNewRandomWorld(this);
-        private commandLoadWorldFromFile = new LoadWorldFromFile(this);
+        /**
+         *  if the event is key 'n' being pressed, returns a Game Page, starting a new game.
+         *  Otherwise, returns MainMenu page, pending for 'n' key to be pressed.
+         */
+        commandMap = new Map<string, Command>([
+                ["n", new GenerateNewRandomWorld(this)],
+                ["f", new LoadWorldFromFile(this)],
+        ]);
+
 
         /**
          * Renders Main Menu page on a given canvas in a given borders - specifically, renders the prompt to start a new game.
@@ -37,43 +57,19 @@ export class MainMenuPage {
                 ctx.fillText(text, pos.x, pos.y);
                 ctx.fillText(text2, pos.x, pos.y + 36);
         }
-
-        /**
-         * Reacts to keyboard event. Specifically, if the event is key 'n' being pressed, returns a Game Page, starting a new game. Otherwise, returns MainMenu page, pending for 'n' key to be pressed.
-         * @param ev keyboard event to react to
-         * @returns Page - this MainMenu
-         */
-        onKeyDown(ev: KeyboardEvent): Page {
-                let command: Command;
-                switch (ev.key.toLowerCase()) {
-                        case 'n':
-                                command = this.commandGenerateNewRandomWorld;
-                                break;
-                        case 'f':
-                                command = this.commandLoadWorldFromFile;
-                                break;
-                        default:
-                                return this;
-                }
-                return command.execute();
-        }
 }
 
-export class GamePage {
-        constructor(private worldBuilder: WorldBuilder = new RandomWorldBuilder()) { }
+export class GamePage extends Page {
+
+
+        constructor(private worldBuilder: WorldBuilder = new RandomWorldBuilder()) { 
+                super();
+        }
 
         readonly world = this.worldBuilder.build();
         readonly camera = new Camera({ x: 0, y: 0 }, this);
         readonly hud = new HUD(this);
 
-        private commandEscapeCommand = new EscapeCommand(this);
-        private commandWalkForward = new WalkForward(this);
-        private commandWalkLeft = new WalkLeft(this);
-        private commandWalkBackWard = new WalkBackWard(this);
-        private commandWalkRight = new WalkRight(this);
-        private commandTakeEquipmentCommand = new TakeEquipmentCommand(this);
-        private commandPutEquipmentCommand = new PutEquipmentCommand(this);
-        private commandTakeOffEquipmentCommand = new TakeOffEquipmentCommand(this);
 
         /**
          * Updates the camera and the HUD
@@ -102,49 +98,20 @@ export class GamePage {
         }
 
         /**
-         * Reacts to keyboard events.
-         * 1 If Escape key is pressed once, player is warned that pressing it once again will result in finishing current game session.
-         * 1.1 If after that Escape is pressed once again, current game is over and MainMenu is returned
-         * 1.2 If after that any other key is pressed, prompt disappears and game session is continued, returning this GamePage
-         *
+         * 1 If Escape key is pressed once and player confirms exit from game, game will finished, returning this MainPage
          * 2. If 'w', 'a', 's' or 'd' being pressed, it is passed to the GameWorld that player is trying to make a move in a corresponding direction.
          * 3. If 't' being pressed player takes an equipment from cell where player is.
          * 4. If 'e' being pressed player puts on an equipment with index which player enters after pressing.
          * 5. If 'r' being pressed player takes off an equipment with index which player enters after pressing.
-         * @param ev - keyboard event to react to
-         * @returns - Page (this GamePage or MainMenu page)
          */
-        onKeyDown(ev: KeyboardEvent): Page {
-                let command: Command;
-                switch (ev.key.toLowerCase()) {
-                        case 'escape':
-                                command = this.commandEscapeCommand;
-                                break;
-                        case 'w':
-                                command = this.commandWalkForward;
-                                break;
-                        case 'a':
-                                command = this.commandWalkLeft
-                                break;
-                        case 's':
-                                command = this.commandWalkBackWard
-                                break;
-                        case 'd':
-                                command = this.commandWalkRight
-                                break;
-
-                        case 't':
-                                command = this.commandTakeEquipmentCommand;
-                                break;
-                        case 'e':
-                                command = this.commandPutEquipmentCommand;
-                                break;
-                        case 'r':
-                                command = this.commandTakeOffEquipmentCommand;
-                                break;
-                        default:
-                                return this;
-                }
-                return command.execute();
-        }
+        commandMap = new Map<string, Command>([
+                ["escape", new EscapeCommand(this)],
+                ["w", new WalkForward(this)],
+                ["a", new WalkLeft(this)],
+                ["s", new WalkBackWard(this)],
+                ["d", new WalkRight(this)],
+                ["t", new TakeEquipmentCommand(this)],
+                ["e", new PutEquipmentCommand(this)],
+                ["r", new TakeOffEquipmentCommand(this)],
+        ]);
 }
