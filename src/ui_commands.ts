@@ -7,7 +7,7 @@ export interface Command {
 }
 
 
-export class GenerateNewRandomWorld implements Command {
+export class GenerateNewRandomWorldCommand implements Command {
     constructor(private page: MainMenuPage) {
     }
     execute(): Page {
@@ -15,7 +15,7 @@ export class GenerateNewRandomWorld implements Command {
     }
 }
 
-export class LoadWorldFromFile implements Command {
+export class LoadWorldFromFileCommand implements Command {
     constructor(private page: MainMenuPage) {
     }
     execute(): Page {

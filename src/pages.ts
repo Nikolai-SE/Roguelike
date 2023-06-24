@@ -1,7 +1,7 @@
 import { Vector, sub, div } from "./vector";
 import { Camera, HUD } from "./display";
 import { WorldBuilder, RandomWorldBuilder } from "./world_builder";
-import { LoadWorldFromFile, GenerateNewRandomWorld, Command, EscapeCommand, WalkForward, TakeEquipmentCommand, TakeOffEquipmentCommand, WalkLeft, WalkRight, WalkBackWard, PutEquipmentCommand } from "./ui_commands";
+import { LoadWorldFromFileCommand, GenerateNewRandomWorldCommand, Command, EscapeCommand, WalkForward, TakeEquipmentCommand, TakeOffEquipmentCommand, WalkLeft, WalkRight, WalkBackWard, PutEquipmentCommand } from "./ui_commands";
 
 export abstract class Page {
         abstract update(absTime: number, dt: number): Page;
@@ -32,8 +32,8 @@ export class MainMenuPage extends Page {
          *  Otherwise, returns MainMenu page, pending for 'n' key to be pressed.
          */
         commandMap = new Map<string, Command>([
-                ["n", new GenerateNewRandomWorld(this)],
-                ["f", new LoadWorldFromFile(this)],
+                ["n", new GenerateNewRandomWorldCommand(this)],
+                ["f", new LoadWorldFromFileCommand(this)],
         ]);
 
 
